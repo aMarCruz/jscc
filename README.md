@@ -25,7 +25,7 @@ jscc is derived on [jspreproc](http://amarcruz.github.io/jspreproc), the tiny so
 ## Install
 
 ```sh
-npm i jscc2 -D
+npm i jscc -D
 ```
 
 ## Usage
