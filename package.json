@@ -1,7 +1,7 @@
 {
   "name": "jscc",
   "version": "0.3.0",
-  "description": "The JavaScript preprocessor of conditional comments for all types of files.",
+  "description": "The JavaScript preprocessor for conditional comments and replacements in text files",
   "main": "./lib/jscc.js",
   "module": "./lib/jscc.es.js",
   "jsnext:main": "./lib/jscc.es.js",
@@ -28,7 +28,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/riot/riot-html-parser"
+    "url": "https://github.com/aMarCruz/jscc"
   },
   "keywords": [
     "html",
@@ -40,12 +40,12 @@
     "preprocessor"
   ],
   "author": {
-    "name": "riot",
+    "name": "aMarCruz",
     "email": "amarcruzbox-git@yahoo.com",
-    "url": "https://github.com/riot"
+    "url": "https://github.com/aMarCruz"
   },
-  "homepage": "https://github.com/riot/riot-html-parser",
-  "bugs": "https://github.com/riot/riot-html-parser/issues",
+  "homepage": "https://github.com/aMarCruz/jscc",
+  "bugs": "https://github.com/aMarCruz/jscc/issues",
   "dependencies": {
     "magic-string": "^0.16.0"
   },
