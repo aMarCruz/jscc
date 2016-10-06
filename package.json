@@ -1,0 +1,62 @@
+{
+  "name": "jscc",
+  "version": "0.1.0",
+  "description": "The JavaScript preprocessor of conditional comments for all types of files.",
+  "main": "./lib/jscc.js",
+  "module": "./lib/jscc.es.js",
+  "jsnext:main": "./lib/jscc.es.js",
+  "license": "MIT",
+  "engines": {
+    "node": ">=0.12"
+  },
+  "scripts": {
+    "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- test/index.js",
+    "lint": "node-version-gte-4 && eslint src test/index.js || node-version-lt-4",
+    "pretest": "npm run build:cjs",
+    "build": "rm -rf lib/* && npm run build:cjs && npm run build:es6",
+    "build:cjs": "rollup -c -m -f cjs -o lib/jscc.js",
+    "build:es6": "rollup -c -m -f es -o lib/jscc.es.js",
+    "prepublish": "npm run lint && npm test && npm run build:es6",
+    "test:es6": "rollup -i test6.js -o stest.js"
+  },
+  "files": [
+    "lib/*.js",
+    "src"
+  ],
+  "directories": {
+    "lib": "./lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/riot/riot-html-parser"
+  },
+  "keywords": [
+    "html",
+    "html5",
+    "parser",
+    "javascript",
+    "conditional",
+    "comments",
+    "preprocessor"
+  ],
+  "author": {
+    "name": "riot",
+    "email": "amarcruzbox-git@yahoo.com",
+    "url": "https://github.com/riot"
+  },
+  "homepage": "https://github.com/riot/riot-html-parser",
+  "bugs": "https://github.com/riot/riot-html-parser/issues",
+  "dependencies": {
+    "magic-string": "^0.16.0"
+  },
+  "devDependencies": {
+    "buble": "^0.14.0",
+    "eslint": "^3.7.1",
+    "expect": "^1.20.2",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.1.0",
+    "node-version-check": "^2.1.1",
+    "rollup": "^0.36.1",
+    "rollup-plugin-buble": "^0.14.0"
+  }
+}
