@@ -1,11 +1,10 @@
 [![Build Status][build-image]][build-url]
-[![AppVeyor Status][wbuild-image]][wbuild-url]
-[![Code Climate][climate-image]][climate-url]
+[![Issues Count][issues-image]][issues-url]
+[![Coverage][coverage-image]][coverage-url]
+[![npm][npm-image]][npm-url]
 [![License][license-image]][license-url]
 
 # jscc
-
-The JavaScript preprocessor of conditional comments for all types of files.
 
 Featuring some of the C preprocessor characteristics through special, configurable comments, jscc can be used in any type of files to build multiple versions of your software from the same code base.
 
@@ -99,7 +98,11 @@ Don't forget to give me your star!
 [wbuild-url]:     https://ci.appveyor.com/project/aMarCruz/jscc/branch/master
 [climate-image]:  https://codeclimate.com/github/aMarCruz/jscc/badges/gpa.svg
 [climate-url]:    https://codeclimate.com/github/aMarCruz/jscc
-[npm-image]:      https://img.shields.io/npm/v/jscc2.svg
-[npm-url]:        https://www.npmjs.com/package/jscc2
+[issues-image]:   https://codeclimate.com/github/aMarCruz/jscc/badges/issue_count.svg
+[issues-url]:     https://codeclimate.com/github/aMarCruz/jscc
+[coverage-image]: https://codeclimate.com/github/aMarCruz/jscc/badges/coverage.svg
+[coverage-url]:   https://codeclimate.com/github/aMarCruz/jscc/coverage
+[npm-image]:      https://img.shields.io/npm/v/jscc.svg
+[npm-url]:        https://www.npmjs.com/package/jscc
 [license-image]:  https://img.shields.io/npm/l/express.svg
 [license-url]:    https://github.com/aMarCruz/jscc/blob/master/LICENSE
