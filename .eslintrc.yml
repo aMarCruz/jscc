@@ -40,7 +40,6 @@ rules:
     - 2
     - "all"
     - conditionalAssign: false
-      returnAssign: false
   no-unexpected-multiline: 2    # Avoid code that looks like two expressions but is actually one
   valid-jsdoc:
     - 2

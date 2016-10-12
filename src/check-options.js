@@ -26,13 +26,13 @@ export default function checkOptions (opts) {
     values._VERSION = version
   }
 
-  Object.keys(opts.values).forEach(v => {
+  Object.keys(opts.values).forEach((v) => {
     if (!VARNAME.test(v)) {
       throw new Error(`Invalid memvar name: ${v}`)
     }
   })
 
-  // sequence starting a directive, default is `//|/*` (JS comment)
+  // sequence starting a directive
   const prefixes = opts.prefixes
   if (!prefixes) {
     opts.prefixes = ['//', '/*', '<!--']

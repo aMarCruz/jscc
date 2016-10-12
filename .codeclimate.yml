@@ -2,6 +2,10 @@
 engines:
   fixme:
     enabled: true
+    config:
+      strings:
+      - FIXME
+      - BUG
 
 engines:
   eslint:

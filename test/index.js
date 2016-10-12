@@ -385,4 +385,10 @@ describe('Examples:', function () {
     testFile('ex-hidden-blocks')
   })
 
+  it('Changing prefixes to work with CoffeScript', function () {
+    testStr('ex-coffee1.coffee', 'debug mode', {
+      prefixes: ['# ', '### ']
+    })
+  })
+
 })
