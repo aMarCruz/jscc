@@ -68,7 +68,13 @@ export default function preproc (code, filename, options) {
       code: magicStr.toString()
     }
     if (changes && options.sourceMap) {
-      result.map = magicStr.generateMap({ hires: true })
+      const name = options.values._FILE
+
+      result.map = magicStr.generateMap({
+        source: name,
+        file: name.split(/[\\/]/).pop(),
+        hires: true
+      })
     }
     return result
   }

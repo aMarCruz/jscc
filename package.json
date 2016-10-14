@@ -1,6 +1,6 @@
 {
   "name": "jscc",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "The JavaScript preprocessor for conditional comments and replacements in text files",
   "main": "./lib/jscc.js",
   "module": "./lib/jscc.es.js",
@@ -12,12 +12,11 @@
   "scripts": {
     "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- test/index.js",
     "lint": "node-version-gte-4 && eslint src test/index.js || node-version-lt-4",
-    "pretest": "npm run build:cjs",
+    "pretest": "rollup -c -m -f cjs -o lib/jscc.js",
     "build": "rm -rf lib/* && npm run build:cjs && npm run build:es6",
-    "build:cjs": "rollup -c -m -f cjs -o lib/jscc.js",
-    "build:es6": "rollup -c -m -f es -o lib/jscc.es.js",
-    "prepublish": "npm run lint && npm test && npm run build:es6",
-    "test:es6": "rollup -i test6.js -o stest.js"
+    "build:cjs": "rollup -c -f cjs -o lib/jscc.js",
+    "build:es6": "rollup -c -f es -o lib/jscc.es.js",
+    "prepublish": "npm run lint && npm test && npm run build"
   },
   "files": [
     "lib/*.js",
@@ -35,9 +34,12 @@
     "html5",
     "parser",
     "javascript",
+    "es6",
     "conditional",
     "comments",
-    "preprocessor"
+    "compilation",
+    "preprocessor",
+    "replacement"
   ],
   "author": {
     "name": "aMarCruz",

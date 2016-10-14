@@ -1,5 +1,5 @@
 [![Build Status][build-image]][build-url]
-[![Issues Count][issues-image]][issues-url]
+[![Coverity Scan Build Status][coverity-image]][coverity-url]
 [![Coverage][coverage-image]][coverage-url]
 [![npm][npm-image]][npm-url]
 [![License][license-image]][license-url]
@@ -19,7 +19,7 @@ With jscc, you have:
 
 jscc is **not** a minifier tool, it only does well that it does...
 
-jscc is derived on [jspreproc](http://amarcruz.github.io/jspreproc), the tiny source file preprocessor in JavaScript, enhanced with Source Map support but without the file importer (rollup and others does this better).
+jscc is derived on [jspreproc](http://amarcruz.github.io/jspreproc), the tiny source file preprocessor in JavaScript, enhanced with Source Map support but without the file importer ([rollup](https://github.com/rollup/rollup) and other bundlers does this better).
 
 ## Install
 
@@ -47,6 +47,7 @@ import mylib from 'mylib-debug';
 //#else */
 import mylib from 'mylib';
 //#endif
+
 mylib.log('Starting v$_VERSION...');
 ```
 
@@ -54,6 +55,7 @@ output:
 
 ```js
 import mylib from 'mylib-debug';
+
 mylib.log('Starting v1.0.0...');
 ```
 
@@ -79,7 +81,7 @@ This is work in progress, so please update jscc constantly, I hope the first sta
 Expected:
 
 - [ ] Explanatory error messages, with location of the error
-- [ ] async mode
+- [ ] Async mode
 - [ ] Better documentation*
 - [ ] Syntax hilighter for some editores
 - [ ] You tell me...
@@ -100,6 +102,8 @@ Don't forget to give me your star!
 [climate-url]:    https://codeclimate.com/github/aMarCruz/jscc
 [issues-image]:   https://codeclimate.com/github/aMarCruz/jscc/badges/issue_count.svg
 [issues-url]:     https://codeclimate.com/github/aMarCruz/jscc
+[coverity-image]: https://scan.coverity.com/projects/10389/badge.svg
+[coverity-url]:   https://scan.coverity.com/projects/amarcruz-jscc
 [coverage-image]: https://codeclimate.com/github/aMarCruz/jscc/badges/coverage.svg
 [coverage-url]:   https://codeclimate.com/github/aMarCruz/jscc/coverage
 [npm-image]:      https://img.shields.io/npm/v/jscc.svg

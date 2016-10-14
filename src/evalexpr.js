@@ -8,16 +8,17 @@ const _REPVARS = RegExp(`${STRINGS.source}|${EVLVARS.source}`, 'g')
  * Method to perform the evaluation of the received string using
  * a function instantiated dynamically.
  *
+ * @param   {object} ctx - Object with the current set of variables
  * @param   {string} str - String to evaluate, can include other defined vars
- * @param   {object} ctx - Set of variable definitions
  * @returns {any}          The result.
  */
-export default function evalExpr (str, ctx) {
+export default function evalExpr (ctx, str) {
+  const values = ctx.options.values
 
   // var replacement
   const _repVars = function (m, p, v) {
     return v
-      ? p + (v in ctx ? `this.${v}` : v in global ? `global.${v}` : 'undefined')
+      ? p + (v in values ? `this.${v}` : v in global ? `global.${v}` : 'undefined')
       : m
   }
 
@@ -31,10 +32,10 @@ export default function evalExpr (str, ctx) {
   try {
     // eslint-disable-next-line no-new-func
     const fn = new Function('', `return (${expr});`)
-    result = fn.call(ctx)
+    result = fn.call(values)
   } catch (e) {
-    e.message += ` in expression: ${expr}`
-    throw e
+    result = false
+    ctx._emitError(`${e.message} in expression "${expr}"`)
   }
 
   return result

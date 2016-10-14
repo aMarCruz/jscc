@@ -220,7 +220,7 @@ Parser.prototype = {
       return ckey === 'ifnset' ? yes ^ 1 : yes
     }
     // returns the raw value of the expression
-    return evalExpr(expr, this.options.values)
+    return evalExpr(this, expr)
   },
 
   _set (s) {
@@ -229,7 +229,7 @@ Parser.prototype = {
       const k = m[1]
       const v = m[2]
 
-      this.options.values[k] = v ? evalExpr(v.trim(), this.options.values) : undefined
+      this.options.values[k] = v ? evalExpr(this, v.trim()) : undefined
     } else {
       this._emitError(`Invalid memvar assignment "${s}"`)
     }
@@ -245,7 +245,7 @@ Parser.prototype = {
   },
 
   _error (s) {
-    s = evalExpr(s, this.options.values)
+    s = evalExpr(this, s)
     throw new Error(s)
   }
 }
