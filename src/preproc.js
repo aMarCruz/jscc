@@ -19,7 +19,6 @@ export default function preproc (code, filename, options) {
 
   let changes   = false
   let output    = true
-  let realStart = 0
   let hideStart = 0
   let lastIndex = 0
   let match, index
@@ -30,8 +29,9 @@ export default function preproc (code, filename, options) {
 
     index = match.index
 
-    if (output && lastIndex < index) {
-      pushCache(code.slice(lastIndex, index), lastIndex)
+    if (output && lastIndex < index &&
+        pushCache(code.slice(lastIndex, index), lastIndex)) {
+      changes = true
     }
 
     lastIndex = re.lastIndex
@@ -39,17 +39,17 @@ export default function preproc (code, filename, options) {
     if (output === parser.parse(match)) {
       if (output) {
         lastIndex = removeBlock(index, lastIndex)
+        changes = true
       }
+    } else if (output) {
+      // output ends, for now, all we do is to save
+      // the pos where the hidden block begins
+      hideStart = index
+      output = false
     } else {
-      output = !output
-      if (output) {
-        // output begins, remove the hidden block now
-        lastIndex = removeBlock(hideStart, lastIndex)
-      } else {
-        // output ends, for now, all we do is to save
-        // the pos where the hidden block begins
-        hideStart = index
-      }
+      // output begins, remove the hidden block now
+      lastIndex = removeBlock(hideStart, lastIndex)
+      output = changes = true
     }
 
   }
@@ -58,35 +58,39 @@ export default function preproc (code, filename, options) {
     output = false
   }
 
-  if (output && code.length > lastIndex) {
-    pushCache(code.slice(lastIndex), lastIndex)
+  if (output && code.length > lastIndex &&
+      pushCache(code.slice(lastIndex), lastIndex)) {
+    changes = true
   }
 
-  // done, return an object if there was changes
-  if (changes) {
-    const result = {
-      code: magicStr.toString()
-    }
-    if (changes && options.sourceMap) {
-      const name = options.values._FILE
-
-      result.map = magicStr.generateMap({
-        source: name,
-        file: name.split(/[\\/]/).pop(),
-        hires: true
-      })
-    }
-    return result
+  // always returns an object
+  const result = {
+    code: changes ? magicStr.toString() : code
   }
 
-  return code
+  if (changes && options.sourceMap) {
+    const name = filename || null
+
+    result.map = magicStr.generateMap({
+      source: name,
+      file: name && `${name.split(/[\\/]/).pop()}.map`,
+      includeContent: options.mapContent !== false,
+      hires: options.mapHires !== false
+    })
+  }
+
+  return result
 
   // helpers ==============================================
 
   function pushCache (str, start) {
-    if (str && ~str.indexOf('$_')) {
-      changes = remapVars(magicStr, options.values, str, start) || changes
+    let change = str && ~str.indexOf('$_')
+
+    if (change) {
+      change = remapVars(magicStr, options.values, str, start)
     }
+
+    return change
   }
 
   function removeBlock (start, end) {
@@ -95,22 +99,14 @@ export default function preproc (code, filename, options) {
     if (options.keepLines) {
       block = code.slice(start, end).replace(/[^\r\n]+/g, '')
 
-    // @TODO: Remove first jscc lines
-    } else if (start > realStart) {
-      --start
-      if (code[start] === '\n' && code[start - 1] === '\r') {
-        --start
-      }
-    } else if (end < code.length && /[\n\r]/.test(code[end])) {
+    } else if (end < code.length) {
       ++end
       if (code[end] === '\n' && code[end - 1] === '\r') {
         ++end
       }
-      realStart = end
     }
-    magicStr.overwrite(start, end, block)
-    changes = true
 
+    magicStr.overwrite(start, end, block)
     return end
   }
 }

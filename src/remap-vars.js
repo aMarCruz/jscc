@@ -9,6 +9,9 @@ export default function remapVars (magicStr, values, str, start) {
 
   re.lastIndex = 0  // `re` is global, so reset
 
+  // $1 = varname including the prefix '$'
+  // $2 = optional point + property name
+
   while ((mm = re.exec(str))) {
     let v = mm[1].slice(1)
 
@@ -19,7 +22,7 @@ export default function remapVars (magicStr, values, str, start) {
       v = values[v]
       if (p && p in v) {
         v = v[p]
-        mm[1] += mm[2]
+        mm[1] = mm[0]
       } else if (typeof v == 'object') {
         v = JSON.stringify(v)
       }

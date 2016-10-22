@@ -19,6 +19,8 @@ export default function parseOptions (file, opts) {
 
   return {
     sourceMap:    opts.sourceMap !== false,
+    mapContent:   opts.mapContent,
+    mapHires:     opts.mapHires,
     keepLines:    opts.keepLines,
     errorHandler: opts.errorHandler,
     prefixes:     opts.prefixes,

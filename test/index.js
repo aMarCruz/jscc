@@ -168,6 +168,13 @@ describe('Compile-time variables', function () {
     testFile('var-macros')
   })
 
+  it('must recognize memvar with no line-ending', function () {
+    var result = preprocStr('$_TRUE', {
+      values: { _TRUE: true }
+    })
+    expect(result).toBe('true')
+  })
+
   it('non defined vars in directives defaults to those in `global`', function () {
     global._GLOBAL = true
     testStr('var-eval-in-global', 'true')
