@@ -1,5 +1,9 @@
 # Changes for jscc
 
+### v0.3.3 @ 2016-10-23
+
+- Fixes issue with sourceMap generating incorrect output.
+
 ### v0.3.2 @ 2016-10-22
 
 - Fixes an issue with losing location in sourceMap after replacing memvars.
