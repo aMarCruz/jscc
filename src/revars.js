@@ -12,7 +12,10 @@ export const VARNAME = /^_[0-9A-Z][_0-9A-Z]*$/
 export const EVLVARS = /(^|[^$\w\.])(_[0-9A-Z][_0-9A-Z]*)\b(?=[^$\w]|$)/g
 
 // replace varnames inside the code from $_VAR.prop to value
-export const REPVARS = /(?:(\$_[0-9A-Z][_0-9A-Z]*)(\.[\w]+)?)(?=[\W]|$)/g
+export const REPVARS = /(?:(\$_[0-9A-Z][_0-9A-Z]*)([\.\w]+)?)(?=[\W]|$)/g
+
+// for nested objects inside REPVARS
+export const PROPVARS = /\.(\w+)/g
 
 // matches single and double quoted strings, take care about embedded eols
 export const STRINGS = /"[^"\n\r\\]*(?:\\(?:\r\n?|[\S\s])[^"\n\r\\]*)*"|'[^'\n\r\\]*(?:\\(?:\r\n?|[\S\s])[^'\n\r\\]*)*'/g
