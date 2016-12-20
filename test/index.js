@@ -224,6 +224,10 @@ describe('Compile-time variables', function () {
   it('other runtime errors throws (like accesing props of undefined)', function () {
     expect(function () { preprocStr('//#set _FOO _FOO.foo.bar') }).toThrow(/undefined/)
   })
+
+  it('mismatch argument length of macros', function () {
+    expect(function () { preprocStr('//#set _FOO(bar, baz) console.log(bar, baz)\n$_FOO(obj)') }).toThrow()
+  })
 })
 
 
@@ -381,6 +385,10 @@ describe('Examples:', function () {
 
   it('Object and properties', function () {
     testFile('ex-object-properties')
+  })
+
+  it('Macro', function () {
+    testFile('ex-macro')
   })
 
   it('Using _FILE and dates', function () {

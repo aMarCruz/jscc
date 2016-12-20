@@ -2,8 +2,8 @@
  * @module regexlist
  */
 
-// name=value in directives - $1:name, $2:value (including any comment)
-export const VARPAIR = /^\s*(_[0-9A-Z][_0-9A-Z]*)\s*=?(.*)/
+// name=value in directives - $1:name, $2:function, $3:value (including any comment)
+export const VARPAIR = /^\s*(_[0-9A-Z][_0-9A-Z]*)\s*(?:\(\s*([^)]+?)\s*\))?\s*=?(.*)/
 
 // to verify valid varnames and for #unset
 export const VARNAME = /^_[0-9A-Z][_0-9A-Z]*$/
@@ -12,7 +12,7 @@ export const VARNAME = /^_[0-9A-Z][_0-9A-Z]*$/
 export const EVLVARS = /(^|[^$\w\.])(_[0-9A-Z][_0-9A-Z]*)\b(?=[^$\w]|$)/g
 
 // replace varnames inside the code from $_VAR.prop to value
-export const REPVARS = /(?:(\$_[0-9A-Z][_0-9A-Z]*)([\.\w]+)?)(?=[\W]|$)/g
+export const REPVARS = /(?:(\$_[0-9A-Z][_0-9A-Z]*)(?:\(\s*([^)]+?)\s*\))?([\.\w]+)?)(?=[\W]|$)/g
 
 // for nested objects inside REPVARS
 export const PROPVARS = /\.(\w+)/g
