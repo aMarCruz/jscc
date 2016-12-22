@@ -227,9 +227,10 @@ Parser.prototype = {
     const m = s.match(VARPAIR)
     if (m) {
       const k = m[1]
-      const v = m[2]
+      const f = m[2] || ''
+      const v = m[3] || ''
 
-      this.options.values[k] = v ? evalExpr(this, v.trim()) : undefined
+      this.options.values[k] = v ? evalExpr(this, v.trim(), f.trim()) : undefined
     } else {
       this._emitError(`Invalid memvar assignment "${s}"`)
     }
