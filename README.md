@@ -13,6 +13,7 @@ With jscc, you have:
 * Conditional inclusion/exclusion of code, based on compile-time variables*
 * Compile-time variables with all the power of JavaScript expressions
 * Replacement of variables inside the source (by value at compile-time)
+* Basic macro-like abilities (thanks to @bergi9)
 * Source Map support
 
 \* This feature allows you the conditional declaration of ES6 imports (See the [example](#example)).

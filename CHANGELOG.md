@@ -2,6 +2,7 @@
 
 ### v0.3.4 @ 2016-10-23
 
+- Added support for nested object and micro-like abilities (thanks to @bergi9).
 - Updated devDependencies.
 
 ### v0.3.3 @ 2016-10-23
