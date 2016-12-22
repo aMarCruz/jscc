@@ -1,6 +1,6 @@
 {
   "name": "jscc",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "The JavaScript preprocessor for conditional comments and replacements in text files",
   "main": "./lib/jscc.js",
   "module": "./lib/jscc.es.js",
@@ -53,13 +53,13 @@
     "magic-string": "^0.16.0"
   },
   "devDependencies": {
-    "buble": "^0.14.0",
-    "eslint": "^3.8.1",
+    "buble": "^0.15.1",
+    "eslint": "^3.12.2",
     "expect": "^1.20.2",
     "istanbul": "^0.4.5",
-    "mocha": "^3.1.2",
+    "mocha": "^3.2.0",
     "node-version-check": "^2.1.1",
-    "rollup": "^0.36.3",
-    "rollup-plugin-buble": "^0.14.0"
+    "rollup": "^0.38.0",
+    "rollup-plugin-buble": "^0.15.0"
   }
 }

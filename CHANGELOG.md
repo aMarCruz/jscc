@@ -1,5 +1,9 @@
 # Changes for jscc
 
+### v0.3.4 @ 2016-10-23
+
+- Updated devDependencies.
+
 ### v0.3.3 @ 2016-10-23
 
 - Fixes issue with sourceMap generating incorrect output.

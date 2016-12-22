@@ -193,5 +193,5 @@ rules:
     - 2
     - destructuring: "all"
   #prefer-numeric-literals: "Error"
-  prefer-template: 2
+  #prefer-template: 2
   template-curly-spacing: 2
