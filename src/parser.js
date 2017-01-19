@@ -19,7 +19,7 @@ const ERROR   = 3
 const R_ESCAPED = /(?=[-[{()*+?.^$|\\])/g
 
 // Matches a line with a directive, not including line-ending
-const S_RE_BASE = /^[ \t\f\v]*(?:@)#(if|ifn?set|el(?:if|se)|endif|set|unset|error)(?:(?=[ \t])(.*)|\/\/.*)?$/.source
+const S_RE_BASE = /^[ \t\f\v]*(?:@)\s*#(if|ifn?set|el(?:if|se)|endif|set|unset|error)(?:(?=[ \t])(.*)|\/\/.*)?$/.source
 
 // Match a substring that includes the first unquoted `//`
 const R_LASTCMT = new RegExp(`${STRINGS.source}|(//)`, 'g')
