@@ -406,4 +406,10 @@ describe('Examples:', function () {
     })
   })
 
+  it('Workaround to #3: not work with eslint rule: comma-spacing', function () {
+    testFile('eslint-autofix', {
+      prefixes: ['// ', '/* ']
+    })
+  })
+
 })
