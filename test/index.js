@@ -257,6 +257,10 @@ describe('Conditional compilation', function () {
     testStr('cc-if-inside-falsy-else', /^true\s*$/)
   })
 
+  it('comma with indent', function () {
+    testStr('cc-if-indent', '')
+  })
+
   it('you can throw an exception with custom message through `#error`', function () {
     expect(function () { preprocStr('//#error "boom!"') }).toThrow(/boom!/)
   })
@@ -407,9 +411,7 @@ describe('Examples:', function () {
   })
 
   it('Workaround to #3: not work with eslint rule: comma-spacing', function () {
-    testFile('eslint-autofix', {
-      prefixes: ['// ', '/* ']
-    })
+    testFile('eslint-autofix')
   })
 
 })

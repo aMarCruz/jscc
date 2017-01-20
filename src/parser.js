@@ -15,12 +15,6 @@ const TESTING = 1
 const ENDING  = 2
 const ERROR   = 3
 
-// These characters have to be escaped.
-const R_ESCAPED = /(?=[-[{()*+?.^$|\\])/g
-
-// Matches a line with a directive, not including line-ending
-const S_RE_BASE = /^[ \t\f\v]*(?:@)#(if|ifn?set|el(?:if|se)|endif|set|unset|error)(?:(?=[ \t])(.*)|\/\/.*)?$/.source
-
 // Match a substring that includes the first unquoted `//`
 const R_LASTCMT = new RegExp(`${STRINGS.source}|(//)`, 'g')
 
@@ -57,8 +51,8 @@ Parser.prototype = {
       return false
     }
 
-    const key  = match[1]
-    const expr = self._normalize(key, match[2])
+    const key  = match[2]
+    const expr = self._normalize(key, match[3])
 
     switch (key) {
       // Conditional blocks -- `#if-ifset-ifnset` pushes the state and `#endif` pop it
@@ -146,16 +140,21 @@ Parser.prototype = {
   },
 
   /**
-   * Returns the regex to match directives through all the code.
+   * Check is prefixe match options.prefixes.
    *
-   * @returns {RegExp} Global-multiline regex
+   * @param   {Array} match - Object with the key/value of the directive
+   * @returns {boolean} `true` if match any value of options.prefixes.
    */
-  getRegex () {
-    const list = this.options.prefixes
-                .map((s) => s.replace(R_ESCAPED, '\\'))
-                .join('|')
-
-    return RegExp(S_RE_BASE.replace('@', list), 'gm')
+  matchPrefixes (match) {
+    return this.options.prefixes.some(prefixe => {
+      let result
+      if (prefixe instanceof RegExp) {
+        result = prefixe.test(match[1])
+      } else {
+        result = prefixe === match[1]
+      }
+      return result
+    })
   },
 
   /**
