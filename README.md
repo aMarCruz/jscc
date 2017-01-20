@@ -22,11 +22,19 @@ jscc is **not** a minifier tool, it only does well that it does...
 
 jscc is derived on [jspreproc](http://amarcruz.github.io/jspreproc), the tiny source file preprocessor in JavaScript, enhanced with Source Map support but without the file importer ([rollup](https://github.com/rollup/rollup) and other bundlers does this better).
 
+
 ## Install
 
 ```sh
 npm i jscc -D
 ```
+
+...or the plugin for your tool:
+
+- [Rollup](https://www.npmjs.com/package/rollup-plugin-jscc)
+- [Brunch](https://www.npmjs.com/package/jscc-brunch)
+- [Gulp](https://www.npmjs.com/package/gulp-jscc)
+
 
 ## Usage
 
