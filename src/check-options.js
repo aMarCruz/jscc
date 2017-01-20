@@ -4,6 +4,9 @@ import { join } from 'path'
 export default function checkOptions (opts) {
   if (!opts) opts = {}
 
+  // These characters have to be escaped.
+  const R_ESCAPED = /(?=[-[{()*+?.^$|\\])/g
+
   const values = opts.values || (opts.values = {})
 
   if (typeof opts.values != 'object') {
@@ -33,14 +36,20 @@ export default function checkOptions (opts) {
   })
 
   // sequence starting a directive
-  const prefixes = opts.prefixes
-  if (!prefixes) {
-    opts.prefixes = ['//', '/*', '<!--']
-  } else if (typeof prefixes == 'string') {
-    opts.prefixes = [prefixes]
-  } else if (!Array.isArray(prefixes)) {
-    throw new Error('`prefixes` must be an array')
+  let prefixes = opts.prefixes || ''
+  if (prefixes) {
+    const list = Array.isArray(prefixes) ? prefixes : [prefixes]
+    prefixes = list.map(prefix => {
+      if (prefix instanceof RegExp) {
+        return prefix.source
+      }
+      if (typeof prefix == 'string') {
+        return prefix.replace(R_ESCAPED, '\\')
+      }
+      throw new Error('Option `prefixes` must be an array of strings or regexes')
+    })
   }
+  opts.prefixes = prefixes.length ? prefixes.join('|') : '//|/\\*|<!--'
 
   return opts
 }

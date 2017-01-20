@@ -131,6 +131,14 @@ describe('jscc', function () {
     expect(preprocStr(code)).toBe('true\r')
   })
 
+  it('Does not confuse token-like comments', function () {
+    var code = [
+      '///#set _A 1',
+      'false'
+    ].join('\n')
+    expect(preprocStr(code)).toBe(code)
+  })
+
 })
 
 
@@ -374,6 +382,23 @@ describe('Options:', function () {
     expect(error).toContain('nexpected')
   })
 
+  it('`prefixes` can include regexes in addition to strings', function () {
+    var str = [
+      '//#if 1',
+      '// #if 2',
+      '//  #if 3',
+      'true',
+      '//  #endif',
+      '// #endif',
+      '//#endif'
+    ].join('\n')
+
+    var result = preprocStr(str, {
+      prefixes: [/\/\/ */, '/*']
+    })
+    expect(result.trim()).toBe('true')
+  })
+
 })
 
 
@@ -408,7 +433,7 @@ describe('Examples:', function () {
 
   it('Workaround to #3: not work with eslint rule: comma-spacing', function () {
     testFile('eslint-autofix', {
-      prefixes: ['// ', '/* ']
+      prefixes: [/\/\/ ?/, /\/\* ?/]
     })
   })
 

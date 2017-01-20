@@ -15,9 +15,6 @@ const TESTING = 1
 const ENDING  = 2
 const ERROR   = 3
 
-// These characters have to be escaped.
-const R_ESCAPED = /(?=[-[{()*+?.^$|\\])/g
-
 // Matches a line with a directive, not including line-ending
 const S_RE_BASE = /^[ \t\f\v]*(?:@)#(if|ifn?set|el(?:if|se)|endif|set|unset|error)(?:(?=[ \t])(.*)|\/\/.*)?$/.source
 
@@ -151,11 +148,7 @@ Parser.prototype = {
    * @returns {RegExp} Global-multiline regex
    */
   getRegex () {
-    const list = this.options.prefixes
-                .map((s) => s.replace(R_ESCAPED, '\\'))
-                .join('|')
-
-    return RegExp(S_RE_BASE.replace('@', list), 'gm')
+    return RegExp(S_RE_BASE.replace('@', this.options.prefixes), 'gm')
   },
 
   /**
