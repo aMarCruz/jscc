@@ -19,3 +19,6 @@ export const PROPVARS = /\.(\w+)/g
 
 // matches single and double quoted strings, take care about embedded eols
 export const STRINGS = /"[^"\n\r\\]*(?:\\(?:\r\n?|[\S\s])[^"\n\r\\]*)*"|'[^'\n\r\\]*(?:\\(?:\r\n?|[\S\s])[^'\n\r\\]*)*'/g
+
+// Matches a line with a directive, not including line-ending
+export const DIRECTIVES = /^[ \t\f\v]*(.*?)#(if|ifn?set|el(?:if|se)|endif|set|unset|error)(?:(?=[ \t])(.*)|\/\/.*)?$/gm

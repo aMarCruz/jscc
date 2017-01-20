@@ -6,6 +6,7 @@ import MagicString from 'magic-string'
 import Parser from './parser'
 import parseOptions from './parse-options'
 import remapVars from './remap-vars'
+import { DIRECTIVES } from './revars'
 
 
 export default function preproc (code, filename, options) {
@@ -15,26 +16,27 @@ export default function preproc (code, filename, options) {
   const magicStr  = new MagicString(code)
   const parser    = new Parser(options)
 
-  const re = parser.getRegex()  // $1:keyword, $2:expression
-
   let changes   = false
   let output    = true
   let hideStart = 0
   let lastIndex = 0
   let match, index
 
-  re.lastIndex = 0
+  DIRECTIVES.lastIndex = 0
 
-  while ((match = re.exec(code))) {
+  while ((match = DIRECTIVES.exec(code))) {
+    if (!parser.matchPrefixes(match)) {
+      continue
+    }
 
     index = match.index
 
     if (output && lastIndex < index &&
-        pushCache(code.slice(lastIndex, index), lastIndex)) {
+      pushCache(code.slice(lastIndex, index), lastIndex)) {
       changes = true
     }
 
-    lastIndex = re.lastIndex
+    lastIndex = DIRECTIVES.lastIndex
 
     if (output === parser.parse(match)) {
       if (output) {

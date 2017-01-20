@@ -4,6 +4,7 @@
     // #if process.env.devmode === 'production'
     // #set _DEBUG 0         // the `=` is optional
     // #else                 anything after `#else` or `#endif` is ignored
+/* if not match */
 /* eslint-disable no-console */
 console.log('Debug mode on.');
     // #endif

@@ -33,14 +33,21 @@ export default function checkOptions (opts) {
   })
 
   // sequence starting a directive
-  const prefixes = opts.prefixes
+  let prefixes = opts.prefixes
   if (!prefixes) {
-    opts.prefixes = ['//', '/*', '<!--']
-  } else if (typeof prefixes == 'string') {
-    opts.prefixes = [prefixes]
-  } else if (!Array.isArray(prefixes)) {
-    throw new Error('`prefixes` must be an array')
+    prefixes = [/^\/\/[ \t]*$/, /^\/\*[ \t]*$/, /^<!--[ \t]*$/]
+  } else {
+    if (!Array.isArray(prefixes)) {
+      prefixes = [prefixes]
+    }
+    prefixes.some(prefix => {
+      if (!prefix || !(typeof prefix == 'string' || prefix instanceof RegExp)) {
+        throw new Error('`prefixes` must be an array that each value must be an String or RegExp')
+      }
+      return prefix
+    })
   }
+  opts.prefixes = prefixes
 
   return opts
 }
