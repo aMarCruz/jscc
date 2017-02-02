@@ -33,6 +33,7 @@ npm i jscc -D
 
 - [Rollup](https://www.npmjs.com/package/rollup-plugin-jscc)
 - [Brunch](https://www.npmjs.com/package/jscc-brunch)
+- [Browserify](https://www.npmjs.com/package/jsccify)
 - [Gulp](https://www.npmjs.com/package/gulp-jscc)
 
 
