@@ -41,7 +41,10 @@
     "url": "https://github.com/aMarCruz/jscc"
   },
   "dependencies": {
-    "magic-string": "^0.25.1"
+    "magic-string": "^0.25.1",
+    "tslib": "^1.9.3",
+    "typescript": "^3.1.3",
+    "typescript-eslint-parser": "^20.0.0"
   },
   "devDependencies": {
     "eslint": "^5.7.0",

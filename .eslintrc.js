@@ -6,6 +6,7 @@ const USE = false
 
 module.exports = {
   root: YES,
+  parser: 'typescript-eslint-parser',
 
   parserOptions: {
     ecmaVersion: 2016,
