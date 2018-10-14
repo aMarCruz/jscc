@@ -9,12 +9,14 @@ export default function parseOptions (file, opts) {
   const values = {}
   const source = opts.values
 
-  Object.keys(source).forEach((v) => { values[v] = source[v] })
+  Object.keys(source).forEach((v) => {
+    values[v] = source[v]
+  })
 
   // file is readonly and valid only for this instance
   Object.defineProperty(values, '_FILE', {
     value: file && relative(process.cwd(), file).replace(/\\/g, '/') || '',
-    enumerable: true
+    enumerable: true,
   })
 
   return {
@@ -24,6 +26,6 @@ export default function parseOptions (file, opts) {
     keepLines:    opts.keepLines,
     errorHandler: opts.errorHandler,
     prefixes:     opts.prefixes,
-    values
+    values,
   }
 }

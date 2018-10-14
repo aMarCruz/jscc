@@ -9,10 +9,10 @@ export const VARPAIR = /^\s*(_[0-9A-Z][_0-9A-Z]*)\s*(?:\(\s*([^)]+?)\s*\))?\s*=?
 export const VARNAME = /^_[0-9A-Z][_0-9A-Z]*$/
 
 // prefixing varnames inside expression with `this.` or `global.`
-export const EVLVARS = /(^|[^$\w\.])(_[0-9A-Z][_0-9A-Z]*)\b(?=[^$\w]|$)/g
+export const EVLVARS = /(^|[^$\w.])(_[0-9A-Z][_0-9A-Z]*)\b(?=[^$\w]|$)/g
 
 // replace varnames inside the code from $_VAR.prop to value
-export const REPVARS = /(?:(\$_[0-9A-Z][_0-9A-Z]*)(?:\(\s*([^)]+?)\s*\))?([\.\w]+)?)(?=[\W]|$)/g
+export const REPVARS = /(?:(\$_[0-9A-Z][_0-9A-Z]*)(?:\(\s*([^)]+?)\s*\))?([.\w]+)?)(?=[\W]|$)/g
 
 // for nested objects inside REPVARS
 export const PROPVARS = /\.(\w+)/g

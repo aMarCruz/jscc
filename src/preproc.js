@@ -65,14 +65,14 @@ export default function preproc (code, filename, options) {
 
   // always returns an object
   const result = {
-    code: changes ? magicStr.toString() : code
+    code: changes ? magicStr.toString() : code,
   }
 
   if (changes && options.sourceMap) {
     result.map = magicStr.generateMap({
       source: filename || null,
       includeContent: options.mapContent !== false,
-      hires: options.mapHires !== false
+      hires: options.mapHires !== false,
     })
   }
 

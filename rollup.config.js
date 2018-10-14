@@ -12,16 +12,19 @@ module.exports = {
   input: 'src/preproc.js',
   plugins: [
   ],
-  external: external,
-  output: [{
-    file: pkgjson.main,
-    format: 'cjs',
-    banner,
-    interop: false,
-  },{
-    file: pkgjson.module,
-    format: 'es',
-    banner,
-    interop: false,
-  }]
+  external,
+  output: [
+    {
+      file: pkgjson.main,
+      format: 'cjs',
+      banner,
+      interop: false,
+    },
+    {
+      file: pkgjson.module,
+      format: 'es',
+      banner,
+      interop: false,
+    },
+  ],
 }

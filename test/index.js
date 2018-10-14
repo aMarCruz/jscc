@@ -1,9 +1,9 @@
 'use strict'
 
-var jscc   = require('../')
-var expect = require('expect')
-var path   = require('path')
-var fs     = require('fs')
+const jscc   = require('../')
+const expect = require('expect')
+const path   = require('path')
+const fs     = require('fs')
 
 process.chdir(__dirname)
 
@@ -14,10 +14,12 @@ function has (obj, prop) {
 }
 
 function concat (name, subdir) {
-  var file = path.join(__dirname, subdir || 'expected', name)
+  let file = path.join(__dirname, subdir || 'expected', name)
 
   file = file.replace(/\\/g, '/')
-  if (!path.extname(file)) file += '.js'
+  if (!path.extname(file)) {
+    file += '.js'
+  }
   return file
 }
 
@@ -26,33 +28,39 @@ function getexpect (file) {
 }
 
 function preprocStr (code, opts) {
-  var result = jscc(code, '', opts)
+  let result = jscc(code, '', opts)
 
-  if (has(result, 'code')) result = result.code
+  if (has(result, 'code')) {
+    result = result.code
+  }
   return result && result.replace(/[ \t]*$/gm, '')
 }
 
 function preprocFile (file, opts) {
-  var inFile = concat(file, 'fixtures')
-  var code   = fs.readFileSync(inFile, 'utf8')
-  var result = jscc(code, inFile, opts)
+  const inFile = concat(file, 'fixtures')
+  const code   = fs.readFileSync(inFile, 'utf8')
+  let result = jscc(code, inFile, opts)
 
-  if (has(result, 'code')) result = result.code
+  if (has(result, 'code')) {
+    result = result.code
+  }
   return result && result.replace(/[ \t]*$/gm, '')
 }
 
 function testFile (file, opts, save) {
-  var expected = getexpect(file)
-  var result   = preprocFile(file, opts)
+  const expected = getexpect(file)
+  const result   = preprocFile(file, opts)
 
   expect(result).toBeA('string')
-  if (save) fs.writeFileSync(concat(file + '_out.js'), result || '')
+  if (save) {
+    fs.writeFileSync(concat(file + '_out.js'), result || '')
+  }
 
   expect(result).toBe(expected)
 }
 
 function testStr (file, expected, opts) {
-  var result = preprocFile(file, opts)
+  const result = preprocFile(file, opts)
 
   if (expected instanceof RegExp) {
     expect(result).toMatch(expected)
@@ -74,13 +82,13 @@ describe('jscc', function () {
   })
 
   it('predefined variable `_VERSION` from package.json in the current path', function () {
-    var version = require('../package.json').version
+    const version = require('../package.json').version
     testStr('def-version-var', '@version ' + version)
   })
 
   it('user defined `_VERSION` must not be overwritten', function () {
-    var result = preprocStr('$_VERSION', {
-      values: { _VERSION: 'WIP' }
+    const result = preprocStr('$_VERSION', {
+      values: { _VERSION: 'WIP' },
     })
     expect(result).toBe('WIP')
   })
@@ -94,14 +102,14 @@ describe('jscc', function () {
         _INFINITY: 1 / 0,
         _NAN: parseInt('@', 10),
         _NULL: null,
-        _UNDEF: undefined
-      }
+        _UNDEF: undefined,
+      },
     })
   })
 
   it('support conditional comments with the `#if _VAR` syntax', function () {
     testStr('if-cc-directive', 'true\n', {
-      values: { _TRUE: true }
+      values: { _TRUE: true },
     })
   })
 
@@ -110,31 +118,31 @@ describe('jscc', function () {
   })
 
   it('can handle Windows line-endings', function () {
-    var code = [
+    const code = [
       '//#set _A 1',
       '//#if _A',
       'true',
       '//#endif',
-      ''
+      '',
     ].join('\r\n')
     expect(preprocStr(code)).toBe('true\r\n')
   })
 
   it('can handle Mac line-endings', function () {
-    var code = [
+    const code = [
       '//#set _A 1',
       '//#if _A',
       'true',
       '//#endif',
-      ''
+      '',
     ].join('\r')
     expect(preprocStr(code)).toBe('true\r')
   })
 
   it('Does not confuse token-like comments', function () {
-    var code = [
+    const code = [
       '///#set _A 1',
-      'false'
+      'false',
     ].join('\n')
     expect(preprocStr(code)).toBe(code)
   })
@@ -177,8 +185,8 @@ describe('Compile-time variables', function () {
   })
 
   it('must recognize memvar with no line-ending', function () {
-    var result = preprocStr('$_TRUE', {
-      values: { _TRUE: true }
+    const result = preprocStr('$_TRUE', {
+      values: { _TRUE: true },
     })
     expect(result).toBe('true')
   })
@@ -194,11 +202,15 @@ describe('Compile-time variables', function () {
   })
 
   it('incorrect memvar names in `#set` raises "Invalid memvar"', function () {
-    expect(function () { preprocStr('//#set =_FOO') }).toThrow(/Invalid memvar/)
+    expect(function () {
+      preprocStr('//#set =_FOO')
+    }).toThrow(/Invalid memvar/)
   })
 
   it('incorrect memvar names in `#unset` raises "Invalid memvar"', function () {
-    expect(function () { preprocStr('//#unset FOO') }).toThrow(/Invalid memvar/)
+    expect(function () {
+      preprocStr('//#unset FOO')
+    }).toThrow(/Invalid memvar/)
   })
 
   it('undefined memvars deleted with `#unset` does not throw', function () {
@@ -226,15 +238,21 @@ describe('Compile-time variables', function () {
   })
 
   it('syntax errors in expressions throws during the evaluation', function () {
-    expect(function () { preprocStr('//#set _FOO 1+3)') }).toThrow()
+    expect(function () {
+      preprocStr('//#set _FOO 1+3)')
+    }).toThrow()
   })
 
   it('other runtime errors throws (like accesing props of undefined)', function () {
-    expect(function () { preprocStr('//#set _FOO _FOO.foo.bar') }).toThrow(/undefined/)
+    expect(function () {
+      preprocStr('//#set _FOO _FOO.foo.bar')
+    }).toThrow(/undefined/)
   })
 
   it('mismatch argument length of macros', function () {
-    expect(function () { preprocStr('//#set _FOO(bar, baz) console.log(bar, baz)\n$_FOO(obj)') }).toThrow()
+    expect(function () {
+      preprocStr('//#set _FOO(bar, baz) console.log(bar, baz)\n$_FOO(obj)')
+    }).toThrow()
   })
 })
 
@@ -266,37 +284,51 @@ describe('Conditional compilation', function () {
   })
 
   it('you can throw an exception with custom message through `#error`', function () {
-    expect(function () { preprocStr('//#error "boom!"') }).toThrow(/boom!/)
+    expect(function () {
+      preprocStr('//#error "boom!"')
+    }).toThrow(/boom!/)
   })
 
   it('unclosed conditional blocks throws an exception', function () {
-    expect(function () { preprocFile('cc-unclosed') }).toThrow(/Unexpected end of file/)
+    expect(function () {
+      preprocFile('cc-unclosed')
+    }).toThrow(/Unexpected end of file/)
   })
 
   it('unbalanced blocks throws, too', function () {
-    expect(function () { preprocFile('cc-unbalanced') }).toThrow(/Unexpected #/)
+    expect(function () {
+      preprocFile('cc-unbalanced')
+    }).toThrow(/Unexpected #/)
   })
 
   it('`#elif` inside `#else` must throw', function () {
-    var err = ''
-    expect(function () { preprocFile('cc-elif-inside-else') }).toThrow(/Unexpected #elif/)
+    let err = ''
+    expect(function () {
+      preprocFile('cc-elif-inside-else')
+    }).toThrow(/Unexpected #elif/)
     preprocFile('cc-elif-inside-else', {
-      errorHandler: function (message) { err = message }
+      errorHandler (message) {
+        err = message
+      },
     })
     expect(err).toContain('Unexpected #elif')
   })
 
   it('`#else` after `#else` must throw', function () {
-    var code = '//#if 1\n//#else\n//#else\n'
-    var err = ''
+    const code = '//#if 1\n//#else\n//#else\n'
+    let err = ''
     preprocStr(code, {
-      errorHandler: function (message) { err = message }
+      errorHandler (message) {
+        err = message
+      },
     })
     expect(err).toContain('Unexpected #else')
   })
 
   it('directive without expression raises "Expression expected"', function () {
-    expect(function () { preprocStr('//#if\n//#endif') }).toThrow(/Expression expected/)
+    expect(function () {
+      preprocStr('//#if\n//#endif')
+    }).toThrow(/Expression expected/)
   })
 
   it('`#else` and `#endif` ignores anything in their line', function () {
@@ -319,7 +351,7 @@ describe('HTML processing', function () {
   it('can be done including ".html" (whatever) in extensions', function () {
     testFile('html-vars-js.html', {
       extensions: ['html'],
-      values: { _TITLE: 'My App' }
+      values: { _TITLE: 'My App' },
     })
   })
 
@@ -327,7 +359,7 @@ describe('HTML processing', function () {
     testFile('html-comments.html', {
       extensions: ['html'],
       prefixes: '<!--',
-      values: { _TITLE: 'My App' }
+      values: { _TITLE: 'My App' },
     })
   })
 
@@ -335,7 +367,7 @@ describe('HTML processing', function () {
     testFile('html-short-cmts.html', {
       extensions: ['html'],
       prefixes: '<!',
-      values: { _TITLE: 'My App' }
+      values: { _TITLE: 'My App' },
     })
   })
 
@@ -345,26 +377,26 @@ describe('HTML processing', function () {
 describe('Options:', function () {
 
   it('`extensions`="*" (as string) must include all the files', function () {
-    var result = preprocFile('html-comments.html', {
-      extensions: '*'
+    const result = preprocFile('html-comments.html', {
+      extensions: '*',
     })
     expect(result).toBeA('string')
   })
 
   it('`include` limit the preprocess to certain paths', function () {
-    var result = preprocFile('defaults', {
-      include: ['**/fixtures/**']
+    const result = preprocFile('defaults', {
+      include: ['**/fixtures/**'],
     })
     expect(result).toBeA('string')
   })
 
   it('`keepLines` preserve line-endings (keep line count w/o sourceMaps)', function () {
-    var types = require('./fixtures/_types.js')
+    const types = require('./fixtures/_types.js')
     testFile('htmlparser', { values: { _T: types }, keepLines: true })
   })
 
   it('source maps can be disabled with `sourceMap: false`', function () {
-    var result = jscc('//#set _A\n$_A')
+    let result = jscc('//#set _A\n$_A')
     expect(result.map).toBeAn('object')
 
     result = jscc('//#set _A\n$_A', '', { sourceMap: false })
@@ -372,29 +404,29 @@ describe('Options:', function () {
   })
 
   it('`errorHandler` method can be customized', function () {
-    var error = ''
-    var result = preprocStr('//#endif\nfalse\n//#endif', {
-      errorHandler: function (message) {
+    let error = ''
+    const result = preprocStr('//#endif\nfalse\n//#endif', {
+      errorHandler (message) {
         error = message
-      }
+      },
     })
     expect(result).toBeA('string')
     expect(error).toContain('nexpected')
   })
 
   it('`prefixes` can include regexes in addition to strings', function () {
-    var str = [
+    const str = [
       '//#if 1',
       '// #if 2',
       '//  #if 3',
       'true',
       '//  #endif',
       '// #endif',
-      '//#endif'
+      '//#endif',
     ].join('\n')
 
-    var result = preprocStr(str, {
-      prefixes: [/\/\/ */, '/*']
+    const result = preprocStr(str, {
+      prefixes: [/\/\/ */, '/*'],
     })
     expect(result.trim()).toBe('true')
   })
@@ -417,7 +449,7 @@ describe('Examples:', function () {
   })
 
   it('Using _FILE and dates', function () {
-    var result = preprocFile('ex-file-and-date')
+    const result = preprocFile('ex-file-and-date')
     expect(result).toMatch(/date\.js\s+Date: 20\d{2}-\d{2}-\d{2}\n/)
   })
 
@@ -427,13 +459,13 @@ describe('Examples:', function () {
 
   it('Changing prefixes to work with CoffeScript', function () {
     testStr('ex-coffee1.coffee', 'debug mode', {
-      prefixes: ['# ', '### ']
+      prefixes: ['# ', '### '],
     })
   })
 
   it('Workaround to #3: not work with eslint rule: comma-spacing', function () {
     testFile('eslint-autofix', {
-      prefixes: [/\/\/ ?/, /\/\* ?/]
+      prefixes: [/\/\/ ?/, /\/\* ?/],
     })
   })
 

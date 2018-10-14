@@ -29,7 +29,8 @@ export default function evalExpr (ctx, str, macro) {
       if (args.length !== argsToReplace.length) {
         throw new Error('Argumentlength mismatch')
       }
-      let regex, expr = str
+      let expr = str
+      let regex
       for (let i = 0; i < args.length; i++) {
         regex = RegExp(args[i], 'g')
         expr = expr.replace(regex, argsToReplace[i])

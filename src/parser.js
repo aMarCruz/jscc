@@ -32,7 +32,7 @@ export default function Parser (options) {
   this.options = options
   this.cc = [{
     state: WORKING,
-    block: NONE
+    block: NONE,
   }]
 }
 
@@ -45,17 +45,17 @@ Parser.prototype = {
    * @returns {boolean}       Output state, `false` to hide the output.
    */
   parse (match) {         //eslint-disable-line complexity
-    const self = this
-    const cc   = self.cc
-    let ccInfo = cc[cc.length - 1]
-    let state  = ccInfo.state
+    const _self = this
+    const cc    = _self.cc
+    let ccInfo  = cc[cc.length - 1]
+    let state   = ccInfo.state
 
     if (state === ERROR) {
       return false
     }
 
     const key  = match[1]
-    const expr = self._normalize(key, match[2])
+    const expr = _self._normalize(key, match[2])
 
     switch (key) {
       // Conditional blocks -- `#if-ifset-ifnset` pushes the state and `#endif` pop it
@@ -63,7 +63,7 @@ Parser.prototype = {
       case 'ifset':
       case 'ifnset':
         if (state !== ENDING) {
-          state = self._getValue(key, expr) ? WORKING : TESTING
+          state = _self._getValue(key, expr) ? WORKING : TESTING
         }
         ccInfo = { state, block: IF }
         cc.push(ccInfo)
@@ -71,7 +71,7 @@ Parser.prototype = {
 
       case 'elif':
         if (_checkBlock(IF)) {
-          if (state === TESTING && self._getValue('if', expr)) {
+          if (state === TESTING && _self._getValue('if', expr)) {
             ccInfo.state = WORKING
           } else if (state === WORKING) {
             ccInfo.state = ENDING
@@ -98,13 +98,13 @@ Parser.prototype = {
         if (state === WORKING) {
           switch (key) {
             case 'set':
-              self._set(expr)
+              _self._set(expr)
               break
             case 'unset':
-              self._unset(expr)
+              _self._unset(expr)
               break
             case 'error':
-              self._error(expr)
+              _self._error(expr)
               //_error throws
           }
         }
@@ -120,7 +120,7 @@ Parser.prototype = {
       if (block !== NONE && block === (block & mask)) {
         return true
       }
-      self._emitError(`Unexpected #${key}`)
+      _self._emitError(`Unexpected #${key}`)
       return false
     }
   },
@@ -241,5 +241,5 @@ Parser.prototype = {
   _error (s) {
     s = evalExpr(this, s)
     throw new Error(s)
-  }
+  },
 }

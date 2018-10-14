@@ -2,7 +2,7 @@ import { VARNAME } from './revars'
 import { join } from 'path'
 
 export default function checkOptions (opts) {
-  if (!opts) opts = {}
+  opts = opts || {}
 
   // These characters have to be escaped.
   const R_ESCAPED = /(?=[-[{()*+?.^$|\\])/g
@@ -16,14 +16,15 @@ export default function checkOptions (opts) {
   // set _VERSION once in the options
   if (values._VERSION == null) {
     let path = process.cwd().replace(/\\/g, '/')
-    let pack, version = '?'
+    let pack
+    let version = '?'
 
     while (~path.indexOf('/')) {
       pack = join(path, 'package.json')
       try {
         version = require(pack).version
         break
-      } catch (_) {/**/}
+      } catch (_) { /**/ }
       path = path.replace(/\/[^/]*$/, '')
     }
     values._VERSION = version
@@ -39,7 +40,7 @@ export default function checkOptions (opts) {
   let prefixes = opts.prefixes || ''
   if (prefixes) {
     const list = Array.isArray(prefixes) ? prefixes : [prefixes]
-    prefixes = list.map(prefix => {
+    prefixes = list.map((prefix) => {
       if (prefix instanceof RegExp) {
         return prefix.source
       }
