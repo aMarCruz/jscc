@@ -7,27 +7,14 @@
   "jsnext:main": "./lib/jscc.es.js",
   "license": "MIT",
   "engines": {
-    "node": ">=0.12"
+    "node": ">=6.0"
   },
   "scripts": {
     "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- test/index.js",
-    "lint": "node-version-gte-4 && eslint src test/index.js || node-version-lt-4",
-    "pretest": "rollup -c -m -f cjs -o lib/jscc.js",
-    "build": "rm -rf lib/* && npm run build:cjs && npm run build:es6",
-    "build:cjs": "rollup -c -f cjs -o lib/jscc.js",
-    "build:es6": "rollup -c -f es -o lib/jscc.es.js",
+    "lint": "eslint src test/index.js",
+    "pretest": "rollup -c",
+    "build": "rm -rf lib/* && rollup -c",
     "prepublish": "npm run lint && npm test && npm run build"
-  },
-  "files": [
-    "lib/*.js",
-    "src"
-  ],
-  "directories": {
-    "lib": "./lib"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/aMarCruz/jscc"
   },
   "keywords": [
     "html",
@@ -49,17 +36,18 @@
   },
   "homepage": "https://github.com/aMarCruz/jscc",
   "bugs": "https://github.com/aMarCruz/jscc/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aMarCruz/jscc"
+  },
   "dependencies": {
     "magic-string": "^0.19.0"
   },
   "devDependencies": {
-    "buble": "^0.15.2",
-    "eslint": "^3.13.1",
+    "eslint": "^5.7.0",
     "expect": "^1.20.2",
     "istanbul": "^0.4.5",
-    "mocha": "^3.2.0",
-    "node-version-check": "^2.1.1",
-    "rollup": "^0.41.4",
-    "rollup-plugin-buble": "^0.15.0"
+    "mocha": "^5.2.0",
+    "rollup": "^0.66.0"
   }
 }

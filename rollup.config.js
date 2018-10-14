@@ -1,11 +1,27 @@
-import buble from 'rollup-plugin-buble'
-var external = ['fs', 'path', 'magic-string']
+import pkgjson from './package.json'
+
+const external = Object.keys(pkgjson.dependencies).concat(['fs', 'path'])
+const banner =
+`/**
+ * rollup-plugin-pug v${pkgjson.version}
+ * @author aMarCruz'
+ * @license MIT'
+ */`
 
 module.exports = {
-  entry: 'src/preproc.js',
+  input: 'src/preproc.js',
   plugins: [
-    buble()
   ],
   external: external,
-  interop: false
+  output: [{
+    file: pkgjson.main,
+    format: 'cjs',
+    banner,
+    interop: false,
+  },{
+    file: pkgjson.module,
+    format: 'es',
+    banner,
+    interop: false,
+  }]
 }

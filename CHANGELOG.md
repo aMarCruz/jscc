@@ -1,5 +1,10 @@
 # Changes for jscc
 
+## [Unreleased]
+
+### Changed
+- Update devDependencies and minimum node.js version to 6
+
 ### v0.3.5 @ 2016-10-23
 
 - Add link to gulp plugin for jscc. Thanks to @gucong3000.
