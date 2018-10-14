@@ -10,6 +10,7 @@ Major refactorization after two years.
 - Use .eslintrc.js instead .eslintrc.yaml, the JS format is easier to maintain.
 - Keep package manager locks as local.
 - Use "Keep a Changelog" recommendations for the changelog.
+- Update the LICENSE file to MIT (it was incorrect).
 - Update devDependencies and minimum node.js version to 6.
 
 ### Removed

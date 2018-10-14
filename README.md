@@ -1,10 +1,10 @@
+# jscc
+
 [![Build Status][build-image]][build-url]
 [![Coverity Scan Build Status][coverity-image]][coverity-url]
 [![Coverage][coverage-image]][coverage-url]
 [![npm][npm-image]][npm-url]
 [![License][license-image]][license-url]
-
-# jscc
 
 Featuring some of the C preprocessor characteristics through special, configurable comments, jscc can be used in any type of files to build multiple versions of your software from the same code base.
 
