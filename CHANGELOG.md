@@ -4,7 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
+Major refactorization after two years.
+
 ### Changed
+- Keep package manager locks as local.
 - Use "Keep a Changelog" recommendations for the changelog.
 - Update devDependencies and minimum node.js version to 6.
 
