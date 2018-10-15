@@ -12,8 +12,8 @@
   "scripts": {
     "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- test/index.js",
     "lint": "eslint src test/index.js",
-    "pretest": "rollup -c",
-    "build": "rm -rf lib/* && rollup -c",
+    "pretest": "tsc",
+    "build": "rm -rf dist/* && tsc",
     "prepublish": "npm run lint && npm test && npm run build"
   },
   "keywords": [

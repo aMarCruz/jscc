@@ -9,7 +9,7 @@ module.exports = {
   parser: 'typescript-eslint-parser',
 
   parserOptions: {
-    ecmaVersion: 2016,
+    ecmaVersion: 2017,
     impliedStrict: YES,
     sourceType: 'module',
   },

@@ -7,13 +7,12 @@ import Parser from './parser'
 import parseOptions from './parse-options'
 import remapVars from './remap-vars'
 
+export default function preproc (code: string, filename: string, options?: JsccOptions) {
 
-export default function preproc (code, filename, options) {
-
-  options = parseOptions(filename, options)
+  const props = parseOptions(filename, options)
 
   const magicStr  = new MagicString(code)
-  const parser    = new Parser(options)
+  const parser    = new Parser(props)
 
   const re = parser.getRegex()  // $1:keyword, $2:expression
 
@@ -64,15 +63,15 @@ export default function preproc (code, filename, options) {
   }
 
   // always returns an object
-  const result = {
+  const result: PreProcResult = {
     code: changes ? magicStr.toString() : code,
   }
 
-  if (changes && options.sourceMap) {
+  if (changes && props.sourceMap) {
     result.map = magicStr.generateMap({
-      source: filename || null,
-      includeContent: options.mapContent !== false,
-      hires: options.mapHires !== false,
+      source: filename || undefined,
+      includeContent: props.mapContent !== false,
+      hires: props.mapHires !== false,
     })
   }
 
@@ -80,20 +79,20 @@ export default function preproc (code, filename, options) {
 
   // helpers ==============================================
 
-  function pushCache (str, start) {
-    let change = str && ~str.indexOf('$_')
+  function pushCache (str: string, start: number) {
+    let change = Boolean(str && ~str.indexOf('$_'))
 
     if (change) {
-      change = remapVars(magicStr, options.values, str, start)
+      change = remapVars(magicStr, props.values, str, start)
     }
 
     return change
   }
 
-  function removeBlock (start, end) {
+  function removeBlock (start: number, end: number) {
     let block = ''
 
-    if (options.keepLines) {
+    if (props.keepLines) {
       block = code.slice(start, end).replace(/[^\r\n]+/g, '')
 
     } else if (end < code.length) {

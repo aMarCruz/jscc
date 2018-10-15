@@ -1,10 +1,9 @@
-
 import { STRINGS, EVLVARS } from './revars'
 
 // For replacing of jspreproc variables ($1 = prefix, $2 = varname)
 const _REPVARS = RegExp(`${STRINGS.source}|${EVLVARS.source}`, 'g')
 
-// For split arguments of macros
+// For to split arguments of macros
 const _SPLITARGS = /\s*,\s*/g
 
 /**
@@ -16,16 +15,15 @@ const _SPLITARGS = /\s*,\s*/g
  * @param   {string} [macro] - Optional as macro
  * @returns {any}          The result.
  */
-export default function evalExpr (ctx, str, macro) {
+export default function evalExpr (ctx: any, str: string, macro?: string) {
   const values = ctx.options.values
-
   let result
 
   if (macro) {
-
     const args = macro.split(_SPLITARGS)
+
     // eslint-disable-next-line no-new-func
-    result = function (argsToReplace) {
+    result = function (argsToReplace: string[]) {
       if (args.length !== argsToReplace.length) {
         throw new Error('Argumentlength mismatch')
       }
@@ -41,7 +39,7 @@ export default function evalExpr (ctx, str, macro) {
   } else {
 
     // var replacement
-    const _repVars = function (m, p, v) {
+    const _repVars = function (m: string, p: string, v: string) {
       return v
         ? p + (v in values ? `this.${v}` : v in global ? `global.${v}` : 'undefined')
         : m

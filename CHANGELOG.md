@@ -4,9 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Unreleased]
 
-Major refactorization after two years.
+Major refactorization after two years, using TypeScript v3.
 
 ### Changed
+- First unoptimized conversion to Typescript.
 - Use .eslintrc.js instead .eslintrc.yaml, the JS format is easier to maintain.
 - Keep package manager locks as local.
 - Use "Keep a Changelog" recommendations for the changelog.

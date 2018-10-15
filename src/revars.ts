@@ -1,6 +1,6 @@
-/**
- * @module regexlist
- */
+/*
+  regex list
+*/
 
 // name=value in directives - $1:name, $2:function, $3:value (including any comment)
 export const VARPAIR = /^\s*(_[0-9A-Z][_0-9A-Z]*)\s*(?:\(\s*([^)]+?)\s*\))?\s*=?(.*)/
