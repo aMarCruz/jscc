@@ -1,6 +1,6 @@
 import { STRINGS, EVLVARS } from './revars'
 
-// For replacing of jspreproc variables ($1 = prefix, $2 = varname)
+// For replacing of jscc variables ($1 = prefix, $2 = varname)
 const _REPVARS = RegExp(`${STRINGS.source}|${EVLVARS.source}`, 'g')
 
 // For to split arguments of macros
@@ -15,7 +15,7 @@ const _SPLITARGS = /\s*,\s*/g
  * @param   {string} [macro] - Optional as macro
  * @returns {any}          The result.
  */
-export default function evalExpr (ctx: any, str: string, macro?: string) {
+export function evalExpr (ctx: any, str: string, macro?: string) {
   const values = ctx.options.values
   let result
 

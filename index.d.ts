@@ -45,7 +45,7 @@ interface JsccOptions {
   errorHandler?: (message: string) => void,
 }
 
-interface PreProcResult {
+interface JsccParserResult {
   code: string,
   map?: import('magic-string').SourceMap,
 }

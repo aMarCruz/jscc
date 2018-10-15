@@ -5,11 +5,11 @@
  * @license MIT
  */
 import MagicString from 'magic-string'
-import Parser from './parser'
-import parseOptions from './parse-options'
-import remapVars from './remap-vars'
+import { Parser } from './parser'
+import { parseOptions } from './parse-options'
+import { remapVars } from './remap-vars'
 
-export default function preproc (code: string, filename: string, options?: JsccOptions) {
+export default function jscc (code: string, filename: string, options?: JsccOptions) {
 
   const props = parseOptions(filename, options)
 
@@ -65,7 +65,7 @@ export default function preproc (code: string, filename: string, options?: JsccO
   }
 
   // always returns an object
-  const result: PreProcResult = {
+  const result: JsccParserResult = {
     code: changes ? magicStr.toString() : code,
   }
 

@@ -31,7 +31,7 @@ const getPackageVersion = (version?: string) => {
   return version!
 }
 
-export default function parseOptions (file: string, opts?: JsccOptions): JsccProps {
+export function parseOptions (file: string, opts?: JsccOptions): JsccProps {
 
   opts = opts || {}
 

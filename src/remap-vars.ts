@@ -5,7 +5,7 @@ const _SPLITARGS = /\s*,\s*/g
 const _REPARGS = /\$(_[0-9A-Z][_0-9A-Z]*)/g
 
 // for matching all vars inside code
-export default function remapVars (magicStr: MagicString, values: JsccValues, str: string, start: number) {
+export function remapVars (magicStr: MagicString, values: JsccValues, str: string, start: number) {
   const re = REPVARS
   const prop = PROPVARS
   let mm

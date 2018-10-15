@@ -2,7 +2,7 @@
   Parser for conditional comments
 */
 import { STRINGS, VARPAIR, VARNAME } from './revars'
-import evalExpr from './evalexpr'
+import { evalExpr } from './evalexpr'
 
 interface ParserState {
   state: State,
@@ -30,14 +30,13 @@ const S_RE_BASE = /^[ \t\f\v]*(?:@)#(if|ifn?set|elif|else|endif|set|unset|error)
 // Matches a substring that includes the first unquoted `//`
 const R_LASTCMT = new RegExp(`${STRINGS.source}|(//)`, 'g')
 
-
 /**
  * Conditional comments parser
  *
  * @param {object} props - The global options
  * @class
  */
-class Parser {
+export class Parser {
 
   private cc = [{
     state: State.WORKING,
@@ -248,5 +247,3 @@ class Parser {
     throw new Error(s)
   }
 }
-
-export default Parser

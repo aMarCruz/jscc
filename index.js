@@ -4,4 +4,4 @@
  * @author aMarCruz
  * @license MIT
  */
-module.exports = require('./dist/preproc')
+module.exports = require('./dist/jscc')

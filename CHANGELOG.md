@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 Major refactorization after two years, using TypeScript v3.
 
 ### Changed
+- Internal modules now have named exports, main module (jscc) has default export
 - Configure ESLint to use the TypeScript parser.
 - First unoptimized conversion to Typescript.
 - Use .eslintrc.js instead .eslintrc.yaml, the JS format is easier to maintain.
