@@ -1,6 +1,6 @@
 'use strict'
 
-const jscc   = require('../')
+const jscc   = require('../').default
 const expect = require('expect')
 const path   = require('path')
 const fs     = require('fs')

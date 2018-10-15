@@ -1,10 +1,7 @@
-**/lib
+**/dist
 **/coverage
 **/test/expect
 **/test/fixtures
 **/node_modules/**
 **/*.md
 **/*.json
-**/dist
-**/esm
-jscc2.js

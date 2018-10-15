@@ -1,8 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
- * rollup-plugin-jspp entry point
- * @module
+ * jscc v1.0.0
+ *
+ * @author aMarCruz
+ * @license MIT
  */
 const magic_string_1 = require("magic-string");
 const parser_1 = require("./parser");

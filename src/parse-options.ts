@@ -55,7 +55,7 @@ export default function parseOptions (file: string, opts?: JsccOptions): JsccPro
   })
 
   // Set _VERSION once, keep any in the options
-  values._VERSION = getPackageVersion(srcValues._VERSION),
+  values._VERSION = getPackageVersion(srcValues._VERSION)
 
   // File is readonly and valid only for this instance
   values._FILE = file && relative(process.cwd(), file).replace(/\\/g, '/') || ''

@@ -15,7 +15,7 @@ function remapVars(magicStr, values, str, start) {
     // $2 = arguments
     // $3 = optional point + property name
     while ((mm = re.exec(str))) {
-        let vname = mm[1].slice(1);
+        const vname = mm[1].slice(1);
         let length = mm[1].length;
         prop.lastIndex = 0;
         if (vname in values) {
@@ -25,7 +25,7 @@ function remapVars(magicStr, values, str, start) {
             let v = values[vname];
             if (a && typeof v == 'function') {
                 const fn = v;
-                const _repArgs = (m, va) => va in values ? String(values[va]) : m;
+                const _repArgs = (m, va) => (va in values ? String(values[va]) : m);
                 const args = a.split(_SPLITARGS).map((arg) => arg.replace(_REPARGS, _repArgs));
                 length += a.length + 2;
                 v = fn(args);

@@ -1,6 +1,8 @@
 /**
- * rollup-plugin-jspp entry point
- * @module
+ * jscc v1.0.0
+ *
+ * @author aMarCruz
+ * @license MIT
  */
 import MagicString from 'magic-string'
 import Parser from './parser'

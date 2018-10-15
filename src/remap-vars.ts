@@ -19,7 +19,7 @@ export default function remapVars (magicStr: MagicString, values: JsccValues, st
   // $3 = optional point + property name
 
   while ((mm = re.exec(str))) {
-    let vname = mm[1].slice(1)
+    const vname = mm[1].slice(1)
     let length = mm[1].length
 
     prop.lastIndex = 0
@@ -32,8 +32,8 @@ export default function remapVars (magicStr: MagicString, values: JsccValues, st
       let v = values[vname]
 
       if (a && typeof v == 'function') {
-        const fn = v as (args: string[]) => any
-        const _repArgs = (m: string, va: string) => va in values ? String(values[va]) : m
+        const fn = v as (_args: string[]) => any
+        const _repArgs = (m: string, va: string) => (va in values ? String(values[va]) : m)
         const args = a.split(_SPLITARGS).map((arg) => arg.replace(_REPARGS, _repArgs))
 
         length += a.length + 2

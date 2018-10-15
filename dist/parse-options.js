@@ -42,9 +42,9 @@ function parseOptions(file, opts) {
         }
     });
     // Set _VERSION once, keep any in the options
-    values._VERSION = getPackageVersion(srcValues._VERSION),
-        // File is readonly and valid only for this instance
-        values._FILE = file && path_1.relative(process.cwd(), file).replace(/\\/g, '/') || '';
+    values._VERSION = getPackageVersion(srcValues._VERSION);
+    // File is readonly and valid only for this instance
+    values._FILE = file && path_1.relative(process.cwd(), file).replace(/\\/g, '/') || '';
     // sequence starting a directive
     let prefixes = opts.prefixes || '';
     if (prefixes) {
