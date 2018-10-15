@@ -29,6 +29,6 @@ node_modules
 jsconfig.js
 
 # Other
-lib/*.map
+dist
 package-lock.json
 yarn.lock
