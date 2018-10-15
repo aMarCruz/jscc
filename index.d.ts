@@ -42,7 +42,7 @@ interface JsccOptions {
   /**
    * Error handler. The default implementation throws an exception.
    */
-  errorHandler?: (message: string) => void,
+  errorHandler?: (message: string) => never,
 }
 
 interface JsccParserResult {

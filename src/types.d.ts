@@ -4,10 +4,6 @@ interface JsccProps {
   mapHires: boolean,
   prefixes: string,
   sourceMap: boolean,
-  values: {
-    [k: string]: string,
-    _VERSION: string,
-    _FILE: string,
-  },
+  values: JsccValues,
   errorHandler: (message: string) => void,
 }

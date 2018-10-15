@@ -1,83 +1,74 @@
-import { join, relative } from 'path'
+import { escapeRegex } from './lib/escape-regex'
+import { getPackageVersion } from './lib/get-package-version'
+import { pathRelative } from './lib/path-relative'
 import { VARNAME } from './revars'
 
-type JsccValues = {
-  [k: string]: any,
-  _VERSION: string,
-  _FILE: string,
-}
-
-// These characters have to be escaped.
-const R_ESCAPED = /(?=[-[{()*+?.^$|\\])/g
-
+/**
+ * Default error handler throws an error.
+ *
+ * @param message Error message
+ */
 const defErrorHandler = (message: string) => {
   throw new Error(message)
 }
 
-const getPackageVersion = (version?: string) => {
-  if (!version || typeof version != 'string') {
-    let path = process.cwd().replace(/\\/g, '/')
-    version = '?'
-
-    while (~path.indexOf('/')) {
-      const pack = join(path, 'package.json')
-      try {
-        version = require(pack).version
-        break
-      } catch { /**/ }
-      path = path.replace(/\/[^/]*$/, '')
-    }
-  }
-  return version!
-}
-
+/**
+ * Get the normalized user options.
+ *
+ * @param file Name of the file to process
+ * @param opts User options
+ */
 export function parseOptions (file: string, opts?: JsccOptions): JsccProps {
-
   opts = opts || {}
 
   const errorHandler = typeof opts.errorHandler == 'function'
     ? opts.errorHandler : defErrorHandler
 
+  // Extract the user defined values ----------------------------------------
+
   const srcValues = opts.values || {}
   const values = {} as JsccValues
 
   if (typeof srcValues != 'object') {
-    throw new Error('jscc values must be a plain object')
+    return errorHandler('jscc values must be a plain object')
   }
 
-  // shallow copy of the values, must be set per file
+  // Get a shallow copy of the values, must be set per file
   Object.keys(srcValues).forEach((v) => {
     if (VARNAME.test(v)) {
       values[v] = srcValues[v]
     } else {
-      throw new Error(`Invalid memvar name: ${v}`)
+      errorHandler(`Invalid jscc variable name: ${v}`)
     }
   })
 
-  // Set _VERSION once, keep any in the options
+  // File name is valid only for this instance
+  values._FILE = pathRelative(file)
+
+  // Set _VERSION once, keep any already existing
   values._VERSION = getPackageVersion(srcValues._VERSION)
 
-  // File is readonly and valid only for this instance
-  values._FILE = file && relative(process.cwd(), file).replace(/\\/g, '/') || ''
+  // Extract the prefixes ---------------------------------------------------
 
-  // sequence starting a directive
   let prefixes = opts.prefixes || ''
   if (prefixes) {
     const list = Array.isArray(prefixes) ? prefixes : [prefixes]
 
-    prefixes = list.map((prefix) => {
+    // Discard empty prefixes and ensure to get a string from the rest
+    prefixes = list.filter(Boolean).map((prefix) => {
       if (prefix instanceof RegExp) {
         return prefix.source
       }
       if (typeof prefix == 'string') {
-        return prefix.replace(R_ESCAPED, '\\')
+        return escapeRegex(prefix)
       }
-      throw new Error('Option `prefixes` must be an array of strings or regexes')
+      return errorHandler('jscc `prefixes` must be an array of strings or regexes')
     })
   }
 
   prefixes = prefixes.length ? (prefixes as string[]).join('|') : '//|/\\*|<!--'
 
+  // Create and returns the normalized jscc props, we are done
   return {
     keepLines:  !!opts.keepLines,
     mapContent: !!opts.mapContent,
