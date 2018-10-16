@@ -1,8 +1,8 @@
 /*
   Parser for conditional comments
 */
-import { STRINGS, VARPAIR, VARNAME } from './revars'
-import { evalExpr } from './evalexpr'
+import { STRINGS, ASSIGNMENT, VARNAME } from './revars'
+import { evalExpr } from './eval-expr'
 
 interface ParserState {
   state: State,
@@ -122,13 +122,14 @@ export class Parser {
   }
 
   // Inner helper - throws if the current block is not of the expected type
-  _checkBlock (ccInfo: ParserState, mask: number, key: string) {
+  _checkBlock (ccInfo: ParserState, mask: number, ckey: string) {
     const block = ccInfo.block
 
     if (block !== Block.NONE && block === (block & mask)) {
       return true
     }
-    this._emitError(`Unexpected #${key}`)
+
+    this._emitError(`Unexpected #${ckey}`)
     return false
   }
 
@@ -152,6 +153,8 @@ export class Parser {
 
   /**
    * Returns a regex that matches directives through all the code.
+   *
+   * TODO: Test prefixes with special regex chars
    *
    * @returns {RegExp} Global-multiline regex
    */
@@ -205,45 +208,63 @@ export class Parser {
 
   /**
    * Expression evaluation for `#if-#ifset-#ifnset`.
-   * Intercepts the `#ifset-#ifnset` shorthands, call `evalExpr` for `#if` statements.
-   * @param   {string} ckey - The key name
-   * @param   {string} expr - The extracted expression
-   * @returns {string}      Evaluated expression as string.
+   * Intercepts the `#ifset-#ifnset` shorthands, call `evalExpr` for `#if`
+   * statements.
+   *
+   * @param ckey The key name
+   * @param expr The extracted expression
+   * @returns Evaluated expression.
    */
-  _getValue (ckey: string, expr: string) {
+  _getValue (ckey: 'if' | 'ifset' | 'ifnset', expr: string) {
     if (ckey !== 'if') {
       const yes = expr in this.options.values ? 1 : 0
 
       return ckey === 'ifnset' ? yes ^ 1 : yes
     }
+
     // returns the raw value of the expression
-    return evalExpr(this, expr)
+    return evalExpr(this.options, expr)
   }
 
-  _set (s: string) {
-    const m = s.match(VARPAIR)
-    if (m) {
-      const k = m[1]
-      const f = m[2] || ''
-      const v = m[3] || ''
+  /**
+   * Evaluates an expression and add the result to the `values` property.
+   *
+   * @param expr Expression normalized in the "varname=value" format
+   */
+  _set (expr: string) {
+    const match = expr.match(ASSIGNMENT)
 
-      this.options.values[k] = v ? evalExpr(this, v.trim(), f.trim()) : undefined
+    if (match) {
+      const varname = match[1]
+      const exprStr = match[2] || ''
+
+      this.options.values[varname] = exprStr
+        ? evalExpr(this.options, exprStr.trim()) : undefined
     } else {
-      this._emitError(`Invalid memvar assignment "${s}"`)
+      this._emitError(`Invalid memvar name or assignment: ${expr}`)
     }
   }
 
-  _unset (s: string) {
-    const def = s.match(VARNAME)
-    if (def) {
-      delete this.options.values[s]
+  /**
+   * Remove the definition of a variable.
+   *
+   * @param varname Variable name
+   */
+  _unset (varname: string) {
+    if (varname.match(VARNAME)) {
+      delete this.options.values[varname]
     } else {
-      this._emitError(`Invalid memvar name "${s}"`)
+      this._emitError(`Invalid memvar name "${varname}"`)
     }
   }
 
-  _error (s: string) {
-    s = evalExpr(this, s)
-    throw new Error(s)
+  /**
+   * Throws an user generated error.
+   *
+   * @param expr Expression
+   */
+  _error (expr: string) {
+    expr = String(evalExpr(this.options, expr))
+    this._emitError(expr)
   }
 }

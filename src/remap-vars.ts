@@ -1,61 +1,113 @@
-import { REPVARS, PROPVARS } from './revars'
+/*
+  Variable replacement inside the code.
+*/
+import { VARS_TO_REPL } from './revars'
 import MagicString from 'magic-string'
 
-const _SPLITARGS = /\s*,\s*/g
-const _REPARGS = /\$(_[0-9A-Z][_0-9A-Z]*)/g
+/**
+ * Helper for `JSON.stringify`.
+ *
+ * It outputs a valid number for non-finite numbers and the source string of
+ * regexes because stringify converts `Infinity` and `-Infinity` to `null`
+ * and regexes to `{}` (an empty object).
+ */
+const stringifyFn = (_: string, value: any) => {
 
-// for matching all vars inside code
-export function remapVars (magicStr: MagicString, values: JsccValues, str: string, start: number) {
-  const re = REPVARS
-  const prop = PROPVARS
-  let mm
-  let mm2
+  if (typeof value == 'number' && !Number.isFinite(value)) {
+    return value > 0 ? Number.MAX_VALUE : Number.MIN_VALUE
+  }
+
+  return value instanceof RegExp ? value.source : value
+}
+
+/**
+ * Stringify the given value using this rules:
+ *
+ * - undefined   -> 'undefined'
+ * - null / NaN  -> 'null'
+ * - Infinity    -> 'Infinity'
+ * - RegExp      -> JSON.stringify(value.source)
+ * - objects     -> JSON.stringify(value) (Date as ISO string or `null`)
+ * - primitives  -> String(value)
+ *
+ * @param value any value, including undefined
+ */
+const stringifyValue = (value: any) => {
+
+  // `NaN` returns `null`, for consistency with `JSON.stringify`
+  // eslint-disable-next-line no-self-compare
+  if (value !== value) {
+    return 'null'
+  }
+
+  // This is a non-null, non-NaN object, array, date, regexp, etc
+  if (value && typeof value == 'object') {
+    return JSON.stringify(value, stringifyFn)
+  }
+
+  // This is a primitive value or null or undefined.
+  return String(value)
+}
+
+/**
+ * Returns the value of the property or properties 'props' of 'obj'.
+ *
+ * @param obj Source object
+ * @param props properties in dot notation
+ * @throws TypeError if you try to read the prop on a null object.
+ */
+const getPropsValue = (obj: any, props: string) => {
+  const list = props.split('.')
+
+  while (list.length) {
+    const prop = list.shift()!
+
+    // the next assignment will raise a TypeError if obj is null or undefined,
+    // or convent obj to undefined if obj is a primitive value... it is ok.
+    obj = obj[prop]
+  }
+
+  return obj
+}
+
+/**
+ * Replaces jscc memvars with its values in a code fragment and add it to an
+ * instance of MagicString.
+ *
+ * @param magicStr MagicString instance
+ * @param values User values
+ * @param fragment Fragment of code to replace and add to `magicStr`
+ * @param start Offset where the replacement starts in magicStr.
+ */
+export function remapVars (magicStr: MagicString, values: JsccValues, fragment: string, start: number) {
   let changes = false
 
-  re.lastIndex = 0  // `re` is global, so reset
+  // node.js is async, make local copy of the regex
+  const re = new RegExp(VARS_TO_REPL.source, 'g')
+  let match = re.exec(fragment)
 
   // $1 = varname including the prefix '$'
-  // $2 = arguments
-  // $3 = optional point + property name
+  // $2 = optional property name(s)
 
-  while ((mm = re.exec(str))) {
-    const vname = mm[1].slice(1)
-    let length = mm[1].length
-
-    prop.lastIndex = 0
+  while (match) {
+    const vname = match[1].slice(1)    // strip the prefix '$'
 
     if (vname in values) {
-      const a   = mm[2]
-      const p   = mm[3]
-      const idx = start + mm.index
+      const props = match[2] && match[2].slice(1)
+      const idx = start + match.index
+      let value = values[vname]
 
-      let v = values[vname]
-
-      if (a && typeof v == 'function') {
-        const fn = v as (_args: string[]) => any
-        const _repArgs = (m: string, va: string) => (va in values ? String(values[va]) : m)
-        const args = a.split(_SPLITARGS).map((arg) => arg.replace(_REPARGS, _repArgs))
-
-        length += a.length + 2
-
-        v = fn(args)
+      // Check for non-null objects first.
+      if (props && typeof value == 'object') {
+        value = getPropsValue(value, props)
+        match[1] = match[0]
       }
 
-      while ((mm2 = prop.exec(p))) {
-        const p2 = mm2[1]
-        if (p2 && typeof v == 'object' && v && p2 in v) {
-          v = (v as any)[p2]
-          length += p2.length + 1
-        }
-      }
-
-      if (typeof v == 'object') {
-        v = JSON.stringify(v)
-      }
-
-      magicStr.overwrite(idx, idx + length, String(v))
+      magicStr.overwrite(idx, idx + match[1].length, stringifyValue(value))
       changes = true
     }
+
+    match = re.exec(fragment)
   }
 
   return changes

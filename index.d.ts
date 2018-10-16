@@ -50,7 +50,7 @@ interface JsccParserResult {
   map?: import('magic-string').SourceMap,
 }
 
-type JsccValidTypes = number | string | boolean | Date | RegExp | null
+type JsccValidTypes = any
 
 interface JsccValues {
   [k: string]: JsccValidTypes,

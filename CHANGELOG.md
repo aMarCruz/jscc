@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 Major refactorization after two years, using TypeScript v3.
 
 ### Changed
+- Replacement in code accepts more than one object properties, Date and RegExp outputs strings, NaN outputs `null`.
+- Rewrite revars, evalExpr and remapVars, remove macro support, new logic for replacements.
 - Rewrite parseOptions, modularize some functions.
 - Internal modules now have named exports, main module (jscc) has default export
 - Configure ESLint to use the TypeScript parser.

@@ -71,7 +71,7 @@ function testStr (file, expected, opts) {
 
 // The suites =============================================
 
-describe('jscc', function () {
+describe.only('jscc', function () {
 
   it('by default uses JavaScript comments to start directives', function () {
     testStr('defaults', 'true')
@@ -93,7 +93,7 @@ describe('jscc', function () {
     expect(result).toBe('WIP')
   })
 
-  it('allows to define custom variables with the `values` option', function () {
+  it.only('allows to define custom variables with the `values` option', function () {
     testFile('custom-vars', {
       values: {
         _ZERO: 0,
