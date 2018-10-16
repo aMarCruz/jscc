@@ -4,7 +4,7 @@ x = 0        // 0
 x = false      // false
 x = 'foo'  // 'foo'
 x = Infinity    // Infinity
-x = NaN         // NaN
+x = null         // NaN
 x = null        // null
 // next is not defined
 x = $_NOT_DEFINED

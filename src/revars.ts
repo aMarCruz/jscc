@@ -62,4 +62,4 @@ export const VARS_TO_REPL = /(?:(\$_[0-9A-Z][_0-9A-Z]*)((?:\.\w+)+)*)(?=\W|$)/g
  *
  * It has no captures.
  */
-export const STRINGS = RegExp(STR_BASE + '|' + STR_BASE.replace(/"/g, '"'), 'g')
+export const STRINGS = RegExp(STR_BASE + '|' + STR_BASE.replace(/"/g, "'"), 'g')
