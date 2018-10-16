@@ -71,7 +71,7 @@ function testStr (file, expected, opts) {
 
 // The suites =============================================
 
-describe.only('jscc', function () {
+describe('jscc', function () {
 
   it('by default uses JavaScript comments to start directives', function () {
     testStr('defaults', 'true')
@@ -93,7 +93,7 @@ describe.only('jscc', function () {
     expect(result).toBe('WIP')
   })
 
-  it.only('allows to define custom variables with the `values` option', function () {
+  it('allows to define custom variables with the `values` option', function () {
     testFile('custom-vars', {
       values: {
         _ZERO: 0,
@@ -178,10 +178,6 @@ describe('Compile-time variables', function () {
 
   it('`$` is used to paste jscc variable values', function () {
     testStr('var-paste', 'truetrue\n', { values: { _TRUE: true } })
-  })
-
-  it('varnames as function-like macros (C-like)', function () {
-    testFile('var-macros')
   })
 
   it('must recognize memvar with no line-ending', function () {
@@ -442,10 +438,6 @@ describe('Examples:', function () {
 
   it('Object and properties', function () {
     testFile('ex-object-properties')
-  })
-
-  it('Macro', function () {
-    testFile('ex-macro')
   })
 
   it('Using _FILE and dates', function () {

@@ -38,7 +38,7 @@ export function parseOptions (file: string, opts?: JsccOptions): JsccProps {
     if (VARNAME.test(v)) {
       values[v] = srcValues[v]
     } else {
-      errorHandler(`Invalid jscc variable name: ${v}`)
+      errorHandler(`Invalid memvar name: ${v}`)
     }
   })
 
