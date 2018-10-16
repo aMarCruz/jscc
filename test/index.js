@@ -59,8 +59,18 @@ function testFile (file, opts, save) {
   expect(result).toBe(expected)
 }
 
-function testStr (file, expected, opts) {
+function testFileStr (file, expected, opts) {
   const result = preprocFile(file, opts)
+
+  if (expected instanceof RegExp) {
+    expect(result).toMatch(expected)
+  } else {
+    expect(result).toContain(expected)
+  }
+}
+
+function testStr (str, expected, opts) {
+  const result = preprocStr(str, opts)
 
   if (expected instanceof RegExp) {
     expect(result).toMatch(expected)
@@ -74,7 +84,7 @@ function testStr (file, expected, opts) {
 describe('jscc', function () {
 
   it('by default uses JavaScript comments to start directives', function () {
-    testStr('defaults', 'true')
+    testFileStr('defaults', 'true')
   })
 
   it('predefined variable `_FILE` is the relative path of the current file', function () {
@@ -83,14 +93,21 @@ describe('jscc', function () {
 
   it('predefined variable `_VERSION` from package.json in the current path', function () {
     const version = require('../package.json').version
-    testStr('def-version-var', '@version ' + version)
+    testFileStr('def-version-var', '@version ' + version)
+  })
+
+  it('predefined variable `_VERSION` skip package.json without version', function () {
+    const version = require('../package.json').version
+    const cwdir = process.cwd()
+
+    process.chdir(path.join(cwdir, 'noversion'))
+    const result = preprocStr('$_VERSION')
+    process.chdir(cwdir)
+    expect(result).toBe(version)
   })
 
   it('user defined `_VERSION` must not be overwritten', function () {
-    const result = preprocStr('$_VERSION', {
-      values: { _VERSION: 'WIP' },
-    })
-    expect(result).toBe('WIP')
+    testStr('$_VERSION', /^WIP$/, { values: { _VERSION: 'WIP' } })
   })
 
   it('allows to define custom variables with the `values` option', function () {
@@ -99,8 +116,8 @@ describe('jscc', function () {
         _ZERO: 0,
         _MYBOOL: false,
         _MYSTRING: 'foo',
-        _INFINITY: 1 / 0,
-        _NAN: parseInt('@', 10),
+        _INFINITY: Infinity,
+        _NAN: NaN,
         _NULL: null,
         _UNDEF: undefined,
       },
@@ -108,13 +125,13 @@ describe('jscc', function () {
   })
 
   it('support conditional comments with the `#if _VAR` syntax', function () {
-    testStr('if-cc-directive', 'true\n', {
+    testFileStr('if-cc-directive', 'true\n', {
       values: { _TRUE: true },
     })
   })
 
   it('directives ends at the end of the line or the first unquoted `//`', function () {
-    testStr('directive-ending', 'true\n')
+    testFileStr('directive-ending', 'true\n')
   })
 
   it('can handle Windows line-endings', function () {
@@ -143,6 +160,8 @@ describe('jscc', function () {
     const code = [
       '///#set _A 1',
       'false',
+      '#set _A',
+      'false',
     ].join('\n')
     expect(preprocStr(code)).toBe(code)
   })
@@ -153,48 +172,38 @@ describe('jscc', function () {
 describe('Compile-time variables', function () {
 
   it('can be defined within the code by `#set`', function () {
-    testStr('var-inline-var', 'true\nfoo\n')
+    testFileStr('var-inline-var', 'true\nfoo\n')
   })
 
   it('can be defined within the code with JS expressions', function () {
-    testStr('var-inline-expr', 'true\nfoo\n')
-  })
-
-  it('can be used for simple substitution in the code', function () {
-    testStr('var-code-replace', 'true==1\n"foo"')
+    testFileStr('var-inline-expr', 'true\nfoo\n')
   })
 
   it('defaults to `undefined` if no value is given', function () {
-    testStr('var-default-value', 'true')
-  })
-
-  it('can be changed anywhere in the code', function () {
-    testStr('var-changes', 'true\nfalse')
+    testFileStr('var-default-value', 'true')
   })
 
   it('`#unset` removes defined variables', function () {
-    testStr('var-unset', 'true\n', { values: { _TRUE: true } })
+    testFileStr('var-unset', 'true\n', { values: { _TRUE: true } })
   })
 
-  it('`$` is used to paste jscc variable values', function () {
-    testStr('var-paste', 'truetrue\n', { values: { _TRUE: true } })
+  it('can be changed anywhere in the code', function () {
+    testFileStr('var-changes', /^\s*true\s+false\s+\$_FOO\s*$/)
   })
 
   it('must recognize memvar with no line-ending', function () {
-    const result = preprocStr('$_TRUE', {
-      values: { _TRUE: true },
-    })
-    expect(result).toBe('true')
+    testStr('$_TRUE', /^true$/, { values: { _TRUE: true } })
   })
 
-  it('non defined vars in directives defaults to those in `global`', function () {
+  it('non defined vars in directives can take its value from `global`', function () {
     global._GLOBAL = true
-    testStr('var-eval-in-global', 'true')
+    debugger
+    testStr('//#set _G=_GLOBAL\n$_G', /true$/)
     delete global._GLOBAL
   })
 
   it('not defined vars are replaced with `undefined` during the evaluation', function () {
-    testStr('var-eval-not-defined', 'true')
+    testFileStr('var-eval-not-defined', 'true')
   })
 
   it('incorrect memvar names in `#set` raises "Invalid memvar"', function () {
@@ -225,6 +234,17 @@ describe('Compile-time variables', function () {
     }).toThrow(/values must be a plain object/)
   })
 
+  it('can recognize nested properties in objects', function () {
+    const input = [
+      '//#set _P=_O.p1.p2.p3+1',
+      '$_P',
+    ].join('\n')
+
+    testStr(input, /^2$/, { values: {
+      _O: { p1: { p2: { p3: 1 } } },
+    } })
+  })
+
   it('`options.prefixes` must be a string or array', function () {
 
     expect(preprocStr('@#set _F=1', { prefixes: ['@'] })).toBe('')
@@ -245,38 +265,81 @@ describe('Compile-time variables', function () {
     }).toThrow(/undefined/)
   })
 
-  it('mismatch argument length of macros', function () {
-    expect(function () {
-      preprocStr('//#set _FOO(bar, baz) console.log(bar, baz)\n$_FOO(obj)')
-    }).toThrow()
+})
+
+
+describe('Code replacement', function () {
+  //
+  it('memvars prefixed by "$" can be used for simple code replacement', function () {
+    testFileStr('var-code-replace', 'true==1\n"foo"')
   })
+
+  it('`$` is used to paste jscc variable values', function () {
+    testFileStr('var-paste', 'truetrue\n', { values: { _TRUE: true } })
+  })
+
+  it('Infinity, -Infinity, and RegExp has custom stringify output', function () {
+    testFile('var-custom-stringify', null, true)
+  })
+
+  it('must replace nested object properties', function () {
+    testStr('$_O.p1.p2.p3', /^1$/, { values: {
+      _O: { p1: { p2: { p3: 1 } } },
+    } })
+  })
+
+  it('must replace nested object properties (alt)', function () {
+    testStr('$_O.p1.p2', '{"p3":1}', { values: {
+      _O: { p1: { p2: { p3: 1 } } },
+    } })
+  })
+
+  it('must concatenate nested object properties', function () {
+    testStr('$_O1.p1.p2$_O2.p1.p2', /^V1$/, { values: {
+      _O1: { p1: { p2: 'V' } },
+      _O2: { p1: { p2: 1 } },
+    } })
+  })
+
+  it('must replace nested properties of objects in arrays', function () {
+    testStr('$_A.0.p1.p2', /^1$/, { values: {
+      _A: [{ p1: { p2: 1 } }],
+    } })
+  })
+
+  it('must replace nested properties of objects in arrays (alt)', function () {
+    testStr('$_A.0', '{"p1":{"p2":1}}', { values: {
+      _A: [{ p1: { p2: 1 } }],
+    } })
+  })
+
 })
 
 
 describe('Conditional compilation', function () {
 
   it('supports `#else`', function () {
-    testStr('cc-else', 'true\n')
+    testFileStr('cc-else', 'true\n')
   })
 
   it('and the `#elif` directive', function () {
-    testStr('cc-elif', 'true\n')
+    testFileStr('cc-elif', 'true\n')
   })
 
   it('have `#ifset` for testing variable existence (even undefined values)', function () {
-    testStr('cc-ifset', 'true\n')
+    testFileStr('cc-ifset', 'true\n')
   })
 
   it('and `#ifnset` for testing not defined variables', function () {
-    testStr('cc-ifnset', 'true\n')
+    testFileStr('cc-ifnset', 'true\n')
   })
 
   it('blocks can be nested', function () {
-    testStr('cc-nested', '\ntrue\ntrue\ntrue\n')
+    testFileStr('cc-nested', '\ntrue\ntrue\ntrue\n')
   })
 
   it('`#if` inside falsy `#else` must be ignored', function () {
-    testStr('cc-if-inside-falsy-else', /^true\s*$/)
+    testFileStr('cc-if-inside-falsy-else', /^true\s*$/)
   })
 
   it('you can throw an exception with custom message through `#error`', function () {
@@ -328,7 +391,7 @@ describe('Conditional compilation', function () {
   })
 
   it('`#else` and `#endif` ignores anything in their line', function () {
-    testStr('cc-else-endif-extra', 'true')
+    testFileStr('cc-else-endif-extra', 'true')
   })
 
   it('can use multiline comments by closing the comment after `//`', function () {
@@ -337,6 +400,14 @@ describe('Conditional compilation', function () {
 
   it('using multiline comments `/**/` allows hide content', function () {
     testFile('cc-hide-content')
+  })
+
+  it('can comment output lines (usefull to hide console.* and params)', function () {
+    testFileStr('var-hide-output', "//('DEBUG')")
+  })
+
+  it('...or can reveal lines if the condition is trueish', function () {
+    testFileStr('var-hide-output', /import [\S\s]+\$_DEBUGOUT\('DEBUG'\)/, { values: { _DEBUG: 1 } })
   })
 
 })
@@ -450,7 +521,7 @@ describe('Examples:', function () {
   })
 
   it('Changing prefixes to work with CoffeScript', function () {
-    testStr('ex-coffee1.coffee', 'debug mode', {
+    testFileStr('ex-coffee1.coffee', 'debug mode', {
       prefixes: ['# ', '### '],
     })
   })

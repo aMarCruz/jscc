@@ -34,5 +34,6 @@ export const getPackageVersion = (version?: string) => {
     path = path.replace(/\/[^/]*$/, '')
   }
 
+  // istanbul ignore next
   return ''
 }

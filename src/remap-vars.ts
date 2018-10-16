@@ -13,7 +13,7 @@ import MagicString from 'magic-string'
  */
 const stringifyFn = (_: string, value: any) => {
 
-  if (typeof value == 'number' && !Number.isFinite(value)) {
+  if (typeof value == 'number' && !Number.isFinite(value) && !Number.isNaN(value)) {
     return value > 0 ? Number.MAX_VALUE : Number.MIN_VALUE
   }
 
@@ -42,6 +42,12 @@ const stringifyValue = (value: any) => {
 
   // This is a non-null, non-NaN object, array, date, regexp, etc
   if (value && typeof value == 'object') {
+    if (value instanceof Date) {
+      return value.toISOString()
+    }
+    if (value instanceof RegExp) {
+      return value.source
+    }
     return JSON.stringify(value, stringifyFn)
   }
 
