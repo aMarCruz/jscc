@@ -1,19 +1,18 @@
 'use strict'
 
-const jscc   = require('../')
-const expect = require('expect.js')
-const path   = require('path')
-const fs     = require('fs')
+import expect from 'expect.js'
+import path from 'path'
+import fs from 'fs'
+
+// @ts-ignore hack for "module not found" when using '..'
+import _jscc from '..'
+const jscc = _jscc as Jscc
 
 process.chdir(__dirname)
 
 // Helpers ================================================
 
-function has (obj, prop) {
-  return !!obj && Object.hasOwnProperty.call(obj, prop)
-}
-
-function concat (name, subdir) {
+function concat (name: string, subdir?: string) {
   let file = path.join(__dirname, subdir || 'expected', name)
 
   file = file.replace(/\\/g, '/')
@@ -23,17 +22,17 @@ function concat (name, subdir) {
   return file
 }
 
-function getexpect (file) {
+function getExpected (file: string) {
   return fs.readFileSync(concat(file), 'utf8')
 }
 
-function preprocStr (code, opts) {
+function preprocStr (code: string, opts?: JsccOptions) {
   const result = jscc(code, '', opts)
 
   return result && result.code.replace(/[ \t]*$/gm, '')
 }
 
-function preprocFile (file, opts) {
+function preprocFile (file: string, opts?: JsccOptions) {
   const inFile = concat(file, 'fixtures')
   const code   = fs.readFileSync(inFile, 'utf8')
   const result = jscc(code, inFile, opts)
@@ -41,8 +40,8 @@ function preprocFile (file, opts) {
   return result && result.code.replace(/[ \t]*$/gm, '')
 }
 
-function testFile (file, opts, save) {
-  const expected = getexpect(file)
+function testFile (file: string, opts?: JsccOptions, save?: boolean) {
+  const expected = getExpected(file)
   const result   = preprocFile(file, opts)
 
   expect(result).to.be.a('string')
@@ -54,7 +53,7 @@ function testFile (file, opts, save) {
   expect(result).to.be(expected)
 }
 
-function testFileStr (file, expected, opts) {
+function testFileStr (file: string, expected: string | RegExp, opts?: JsccOptions) {
   const result = preprocFile(file, opts)
 
   if (expected instanceof RegExp) {
@@ -64,7 +63,7 @@ function testFileStr (file, expected, opts) {
   }
 }
 
-function testStr (str, expected, opts) {
+function testStr (str: string, expected?: string | RegExp, opts?: JsccOptions) {
   const result = preprocStr(str, opts)
 
   if (expected instanceof RegExp) {
@@ -87,12 +86,12 @@ describe('jscc', function () {
   })
 
   it('predefined variable `_VERSION` from package.json in the current path', function () {
-    const version = require('../package.json').version
+    const version = require('../package.json').version as string
     testFileStr('def-version-var', '@version ' + version)
   })
 
   it('predefined variable `_VERSION` skip package.json without version', function () {
-    const version = require('../package.json').version
+    const version = require('../package.json').version as string
     const cwdir = process.cwd()
 
     process.chdir(path.join(cwdir, 'noversion'))
@@ -191,9 +190,9 @@ describe('Compile-time variables', function () {
   })
 
   it('non defined vars in directives can take its value from `global`', function () {
-    global._GLOBAL = true
+    (global as any)._GLOBAL = true
     testStr('//#set _G=_GLOBAL\n$_G', /true$/)
-    delete global._GLOBAL
+    delete (global as any)._GLOBAL
   })
 
   it('not defined vars are replaced with `undefined` during the evaluation', function () {
@@ -224,6 +223,7 @@ describe('Compile-time variables', function () {
 
   it('non object values in `options` raises "values must be a plain object"', function () {
     expect(function () {
+      // @ts-ignore intentional error
       preprocStr('foo()', { values: true })
     }).to.throwError(/values must be a plain object/)
   })
@@ -243,6 +243,7 @@ describe('Compile-time variables', function () {
 
     expect(preprocStr('@#set _F=1', { prefixes: ['@'] })).to.be('')
     expect(function () {
+      // @ts-ignore intentional error
       preprocStr('foo()', { prefixes: 1 })
     }).to.throwError(/must be an array/)
   })
@@ -273,7 +274,7 @@ describe('Code replacement', function () {
   })
 
   it('Infinity, -Infinity, and RegExp has custom stringify output', function () {
-    testFile('var-custom-stringify', null)
+    testFile('var-custom-stringify')
   })
 
   it('must replace nested object properties', function () {
@@ -360,12 +361,15 @@ describe('Conditional compilation', function () {
 
   it('`#elif` inside `#else` must throw', function () {
     let err = ''
+
     expect(function () {
       preprocFile('cc-elif-inside-else')
     }).to.throwError(/Unexpected #elif/)
+
     preprocFile('cc-elif-inside-else', {
       errorHandler (message) {
         err = message
+        return undefined as never
       },
     })
     expect(err).to.contain('Unexpected #elif')
@@ -377,6 +381,7 @@ describe('Conditional compilation', function () {
     preprocStr(code, {
       errorHandler (message) {
         err = message
+        return undefined as never
       },
     })
     expect(err).to.contain('Unexpected #else')
@@ -413,25 +418,21 @@ describe('Conditional compilation', function () {
 
 describe('HTML processing', function () {
 
-  it('can be done including ".html" (whatever) in extensions', function () {
+  it('must work since jscc is language agnostic', function () {
     testFile('html-vars-js.html', {
-      extensions: ['html'],
       values: { _TITLE: 'My App' },
     })
   })
 
-  it('can handle html comments ("<!--") by default', function () {
+  it('must handle html comments ("<!--") by default', function () {
     testFile('html-comments.html', {
-      extensions: ['html'],
       prefixes: '<!--',
       values: { _TITLE: 'My App' },
     })
   })
 
-  it('can handle short html comments including "<!" in `prefixes`', function () {
+  it('must handle short html comments "<!" from v1.0', function () {
     testFile('html-short-cmts.html', {
-      extensions: ['html'],
-      prefixes: '<!',
       values: { _TITLE: 'My App' },
     })
   })
@@ -446,7 +447,9 @@ describe('Async operation', function () {
 
     jscc(source, '', null, (err, result) => {
       if (!err) {
-        expect(result.code).not.to.be(source)
+        expect(result).to.be.an('object')
+        expect(result).to.ok()
+        expect(result!.code).not.to.be(source)
       }
       done(err)
     })
@@ -455,7 +458,7 @@ describe('Async operation', function () {
   it('must return an error instead throw exceptions.', function (done) {
     jscc('//#if', '', null, (err, _) => {
       expect(err).to.be.a(Error)
-      expect(err.message).to.contain('Expression expected')
+      expect(err!.message).to.contain('Expression expected')
       done()
     })
   })
@@ -479,20 +482,6 @@ describe('Async operation', function () {
 
 describe('Options:', function () {
 
-  it('`extensions`="*" (as string) must include all the files', function () {
-    const result = preprocFile('html-comments.html', {
-      extensions: '*',
-    })
-    expect(result).to.be.a('string')
-  })
-
-  it('`include` limit the preprocess to certain paths', function () {
-    const result = preprocFile('defaults', {
-      include: ['**/fixtures/**'],
-    })
-    expect(result).to.be.a('string')
-  })
-
   it('`keepLines` preserve line-endings (keep line count w/o sourceMaps)', function () {
     const types = require('./fixtures/_types.js')
     testFile('htmlparser', { values: { _T: types }, keepLines: true })
@@ -511,27 +500,40 @@ describe('Options:', function () {
     const result = preprocStr('//#endif\nfalse\n//#endif', {
       errorHandler (message) {
         error = message
+        return undefined as never
       },
     })
     expect(result).to.be.a('string')
     expect(error).to.contain('nexpected')
   })
 
+  it('custom `prefixes` overwrite the predefined ones.', function () {
+    const str = [
+      '//~#if 1',
+      '//#if true',
+      '//#endif',
+      '//~#endif',
+    ].join('\n')
+
+    testStr(str, '//#if true', {
+      prefixes: ['//~', '||'],
+    })
+  })
+
   it('`prefixes` can include regexes in addition to strings', function () {
     const str = [
       '//#if 1',
-      '// #if 2',
+      '//-#if 2',
       '//  #if 3',
       'true',
       '//  #endif',
-      '// #endif',
+      '//-#endif',
       '//#endif',
     ].join('\n')
 
-    const result = preprocStr(str, {
-      prefixes: [/\/\/ */, '/*'],
+    testStr(str, /^true\s*$/, {
+      prefixes: [/\/\/ */, '//-'],
     })
-    expect(result.trim()).to.be('true')
   })
 
 })

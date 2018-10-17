@@ -14,7 +14,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "allowSyntheticDefaultImports": true,
-    //"esModuleInterop": true
+    "esModuleInterop": true
   },
   "files": [
     "index.d.ts",

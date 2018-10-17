@@ -13,6 +13,7 @@ Major refactorization after two years, using TypeScript v3.
 - Support for replacement with more than one object property.
 
 ### Changed
+- Rewrite test in TypeScript
 - Package "expect", now part of jest, is replaced with [expect.js](https://github.com/Automattic/expect.js).
 - Replacement in code accepts more than one object properties, Date and RegExp outputs strings, NaN outputs `null`.
 - Rewrite revars, evalExpr and remapVars, remove macro support, new logic for replacements.

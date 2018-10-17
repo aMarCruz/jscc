@@ -1,3 +1,31 @@
+/**
+ * jscc v1.0
+ *
+ * The JavaScript preprocessor for conditional comments and variable
+ * replacement in text files.
+ *
+ * @author aMarCruz
+ * @license MIT
+ */
+interface Jscc {
+  (
+    source: string,
+    filename: string | null | undefined,
+    options: JsccOptions | null | undefined,
+    callback: JsccCallback,
+  ): undefined
+  (
+    source: string,
+    filename?: string | null,
+    options?: JsccOptions | null,
+  ): JsccParserResult
+}
+
+declare module 'jscc' {
+  const jscc: Jscc
+  export default jscc
+}
+
 interface JsccOptions {
   /**
    * Allows to preserve the empty lines of the directives and blocks that were
@@ -38,7 +66,7 @@ interface JsccOptions {
    *
    * It has two predefined varnames: `_FILE` and `_VERSION`.
    */
-  values?: { [k: string]: string },
+  values?: { [k: string]: any },
   /**
    * Error handler. The default implementation throws an exception.
    */

@@ -72,6 +72,7 @@ export function parseBuffer (
   while (match) {
     const index = match.index
 
+    // If it is neccessary, replace memvars in the current chunk and flush it
     if (hasOutput && lastIndex < index) {
       if (pushCache(source.slice(lastIndex, index), lastIndex)) {
         changes = true
