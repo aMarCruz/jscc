@@ -2,7 +2,8 @@
   "name": "jscc",
   "version": "0.3.5",
   "description": "The JavaScript preprocessor for conditional comments and replacements in text files",
-  "main": "./dist/jscc.js",
+  "main": "index.js",
+  "module": "./dist/jscc.js",
   "license": "MIT",
   "engines": {
     "node": ">=6.0"

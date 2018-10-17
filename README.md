@@ -26,7 +26,9 @@ jscc is **not** a minifier tool, it only does what it does well...
 
 ## IMPORTANT
 
-jscc v1.0 has breaking changes, if you are using a previous version, please read this document before migrating your app.
+jscc v1.0 is a complete rewrite using TypeScript 3.0 and one enhanced set of test.
+
+This new version offers new characteristics, but has some breaking changes.
 
 ## Install
 
@@ -43,42 +45,13 @@ or install the jscc package from npm if you need direct access to its API:
 npm i jscc -D
 ```
 
-## Usage
+### Direct Usage
 
 ```js
 import jscc from 'jscc';
-import { fs } from 'fs';
 
-const source = fs.readFileSync('myfile.js', 'utf8')
-const result = jscc(source)
+const result = jscc(sourceCode, options)
 ```
-
-## Example
-
-```js
-//#set _DEBUG 1
-
-/*#if _DEBUG
-import mylib from 'mylib-debug';
-//#else */
-import mylib from 'mylib';
-//#endif
-
-mylib.log('Starting v$_VERSION...');
-```
-
-output:
-
-```js
-import mylib from 'mylib-debug';
-
-mylib.log('Starting v1.0.0...');
-```
-
-That's it.
-
-\* jscc has a predefined variable `_VERSION`, in addition to `_FILE`.
-
 
 ## API
 
@@ -143,23 +116,21 @@ You can read in the Wiki about:
 
 ## TODO
 
-This is work in progress, so please update jscc constantly, I hope the first stable version does not take too long.
+This is work in progress, so please update jscc constantly.
 
 Expected:
 
+- [ ] Babel 7 plugin.
 - [ ] Explanatory error messages, with location of the error
 - [ ] Async mode
 - [ ] Better documentation*
 - [ ] Syntax hilighter for some editores
-- [ ] You tell me...
 
 ---
 
 \* _For me, write in english is 10x harder than coding JS, so contributions are welcome..._
 
-
 Don't forget to give me your star!
-
 
 [build-image]:    https://img.shields.io/travis/aMarCruz/jscc.svg
 [build-url]:      https://travis-ci.org/aMarCruz/jscc

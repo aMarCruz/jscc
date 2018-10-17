@@ -4,4 +4,4 @@
  * @author aMarCruz
  * @license MIT
  */
-module.exports = require('./dist/jscc')
+module.exports = require('./dist/jscc').default
