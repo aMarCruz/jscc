@@ -9,6 +9,7 @@
     "node": ">=6.0"
   },
   "scripts": {
+    "start": "mocha --watch",
     "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- test/index.js",
     "pretest": "tsc",
     "lint": "eslint -c .eslintrc.js test/index.js src/**/*",

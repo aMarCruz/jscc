@@ -28,23 +28,17 @@ function getexpect (file) {
 }
 
 function preprocStr (code, opts) {
-  let result = jscc(code, '', opts)
+  const result = jscc(code, '', opts)
 
-  if (has(result, 'code')) {
-    result = result.code
-  }
-  return result && result.replace(/[ \t]*$/gm, '')
+  return result && result.code.replace(/[ \t]*$/gm, '')
 }
 
 function preprocFile (file, opts) {
   const inFile = concat(file, 'fixtures')
   const code   = fs.readFileSync(inFile, 'utf8')
-  let result = jscc(code, inFile, opts)
+  const result = jscc(code, inFile, opts)
 
-  if (has(result, 'code')) {
-    result = result.code
-  }
-  return result && result.replace(/[ \t]*$/gm, '')
+  return result && result.code.replace(/[ \t]*$/gm, '')
 }
 
 function testFile (file, opts, save) {
@@ -53,7 +47,8 @@ function testFile (file, opts, save) {
 
   expect(result).to.be.a('string')
   if (save) {
-    fs.writeFileSync(concat(file + '_out.js'), result || '')
+    throw new Error('If mocha is not watching, comment this to save the file.')
+    //fs.writeFileSync(concat(file + '_out.js'), result || '')
   }
 
   expect(result).to.be(expected)
@@ -278,7 +273,7 @@ describe('Code replacement', function () {
   })
 
   it('Infinity, -Infinity, and RegExp has custom stringify output', function () {
-    testFile('var-custom-stringify', null, true)
+    testFile('var-custom-stringify', null)
   })
 
   it('must replace nested object properties', function () {
@@ -339,6 +334,10 @@ describe('Conditional compilation', function () {
 
   it('`#if` inside falsy `#else` must be ignored', function () {
     testFileStr('cc-if-inside-falsy-else', /^true\s*$/)
+  })
+
+  it('can hide all the output', function () {
+    testStr('//#if false\nfoo()\n//#endif', /^$/)
   })
 
   it('you can throw an exception with custom message through `#error`', function () {
@@ -435,6 +434,44 @@ describe('HTML processing', function () {
       prefixes: '<!',
       values: { _TITLE: 'My App' },
     })
+  })
+
+})
+
+
+describe('Async operation', function () {
+
+  it('must be enabled if a callback is received.', function (done) {
+    const source = '$_VERSION'
+
+    jscc(source, '', null, (err, result) => {
+      if (!err) {
+        expect(result.code).not.to.be(source)
+      }
+      done(err)
+    })
+  })
+
+  it('must return an error instead throw exceptions.', function (done) {
+    jscc('//#if', '', null, (err, _) => {
+      expect(err).to.be.a(Error)
+      expect(err.message).to.contain('Expression expected')
+      done()
+    })
+  })
+
+  it('data object must be undefined when an error is generated.', function (done) {
+    jscc('//#if', '', null, (err, result) => {
+      expect(err).to.be.a(Error)
+      expect(result).to.be(undefined)
+      done()
+    })
+  })
+
+
+  it('jscc() must return undefined.', function (done) {
+    const ret = jscc('$_VERSION', '', null, done)
+    expect(ret).to.be(undefined)
   })
 
 })
