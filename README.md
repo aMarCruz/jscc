@@ -120,9 +120,9 @@ This is work in progress, so please update jscc constantly.
 
 Expected:
 
-- [ ] Babel 7 plugin.
+- [X] ~~Async mode~~ (v1.0.0)
 - [ ] Explanatory error messages, with location of the error
-- [ ] Async mode
+- [ ] WebPack plugin
 - [ ] Better documentation*
 - [ ] Syntax hilighter for some editores
 

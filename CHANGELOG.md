@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 Major refactorization after two years, using TypeScript v3.
 
 ### Added
+- Async operation.
 - Add prefix for `<!` (alt html comment) to the predefined prefixes.
 - Support for replacement with more than one object property.
 
