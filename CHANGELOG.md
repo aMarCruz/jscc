@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 Major refactorization after two years, using TypeScript v3.
 
+### Added
+- Add prefix for `<!` (alt html comment) to the predefined prefixes.
+- Support for replacement with more than one object property.
+
 ### Changed
 - Replacement in code accepts more than one object properties, Date and RegExp outputs strings, NaN outputs `null`.
 - Rewrite revars, evalExpr and remapVars, remove macro support, new logic for replacements.

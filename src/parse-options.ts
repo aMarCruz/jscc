@@ -3,6 +3,8 @@ import { getPackageVersion } from './lib/get-package-version'
 import { pathRelative } from './lib/path-relative'
 import { VARNAME } from './revars'
 
+const DEF_PREFIX = /\/[/*]|<!--|<!/.source
+
 /**
  * Default error handler throws an error.
  *
@@ -66,7 +68,7 @@ export function parseOptions (file: string, opts?: JsccOptions): JsccProps {
     })
   }
 
-  prefixes = prefixes.length ? (prefixes as string[]).join('|') : '//|/\\*|<!--'
+  prefixes = prefixes.length ? (prefixes as string[]).join('|') : DEF_PREFIX
 
   // Create and returns the normalized jscc props, we are done
   return {

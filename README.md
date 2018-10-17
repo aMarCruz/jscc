@@ -12,30 +12,36 @@ With jscc, you have:
 
 * Conditional inclusion/exclusion of code, based on compile-time variables*
 * Compile-time variables with all the power of JavaScript expressions
-* Replacement of variables inside the source (by value at compile-time)
-* Basic macro-like abilities (thanks to @bergi9)
+* Replacement of variables in the source code (by value at compile-time)
+* Plugins for
 * Source Map support
 
 \* This feature allows you the conditional declaration of ES6 imports (See the [example](#example)).
 
-jscc is **not** a minifier tool, it only does well that it does...
+jscc is derived on [jspreproc](http://amarcruz.github.io/jspreproc), the tiny source file preprocessor in JavaScript, enhanced with Source Map support but without the file importer nor the removal of comments ([rollup](https://rollupjs.org/guide/en) with [rollup-plugin-cleanup](https://www.npmjs.com/package/rollup-plugin-cleanup) does this better).
 
-jscc is derived on [jspreproc](http://amarcruz.github.io/jspreproc), the tiny source file preprocessor in JavaScript, enhanced with Source Map support but without the file importer ([rollup](https://github.com/rollup/rollup) and other bundlers does this better).
+jscc works in NodeJS 6 or later, with a minimal footprint and without external dependencies. It was designed to operate on small to medium pieces of code (like most nowadays) and, since the whole process is done in memory, it is _really fast_.
 
+jscc is **not** a minifier tool, it only does what it does well...
+
+## IMPORTANT
+
+jscc v1.0 has breaking changes, if you are using a previous version, please read this document before migrating your app.
 
 ## Install
 
-```sh
-npm i jscc -D
-```
-
-...or the plugin for your tool:
+Use the instructions of the plugin for your toolchain:
 
 - [Rollup](https://www.npmjs.com/package/rollup-plugin-jscc)
 - [Brunch](https://www.npmjs.com/package/jscc-brunch)
 - [Browserify](https://www.npmjs.com/package/jsccify)
 - [Gulp](https://www.npmjs.com/package/gulp-jscc)
 
+or install the jscc package from npm if you need direct access to its API:
+
+```sh
+npm i jscc -D
+```
 
 ## Usage
 
@@ -71,16 +77,67 @@ mylib.log('Starting v1.0.0...');
 
 That's it.
 
-\* jscc has the predefined `_VERSION` varname, in addition to `_FILE`.
+\* jscc has a predefined variable `_VERSION`, in addition to `_FILE`.
 
 
-## Documentation
+## API
+
+In this document I will refer to the names of the compile-time variables of jscc as __varnames__, to distinguish them from the JavaScript run-time variables.
+
+To be valid, a `<varname>` must match the regular expression `/^_[0-9A-Z][_0-9A-Z]*$/`.
+
+> That is, it must start with an underscore, followed by a digit or uppercase letter, and then zero or more underscores, digits or uppercase letters. The character `$` has a special use in jscc and is not allowed for varnames.
+
+### __`#set <varname> [=] <value>`__
+
+Defines or redefines a `varname`.
+
+The `value` can be a literal value, another varname, or an expression. If you don't specify a value, it is set to `undefined`.
+
+You can omit the equal sign.
+
+### __`#unset <varname>`__
+
+Removes the given `varname`.
+
+Both the definition or removal of a varname take immediate effect.
+
+### __`#if <expression>`__
+
+Remove the block of code that follows this `#if` if `expression` is _falsy_.
+
+You can nest multiple `#if` blocks.
+
+### __`#ifsef <varname>`__
+
+Check the existence of a `varname`.
+
+The returned value is `true` if the variable exists, even if its value is `undefined`. Out of this the behavior of `#ifset` is the same as `#if` so references to the latter will imply both.
+
+### __`#ifnsef <varname>`__
+
+This is the opposite to `#ifset`, it returns `false` if the `varname` does not exists.
+
+### __`#elif <expression>`__
+
+The behavior of `#elif` is similar to the JS `else if` construction.
+
+The `expression` will be evaluated if the previous `#if` or `#elif` was falsy.
+
+You can have zero or more `#elif` directives following one `#if`.
+
+### __`#endif`__
+
+Closes the previous conditional block.
+
+### __`#error <expression>`__
+
+It evaluates the `expression` of characters and with its result generates an exception at compile time.
 
 You can read in the Wiki about:
 
 - [Options](https://github.com/aMarCruz/jscc/wiki/Options)
 - [Basic Syntax](https://github.com/aMarCruz/jscc/wiki/Syntax)
-- [Keywords](https://github.com/aMarCruz/jscc/wiki/Keywords)
 - [Examples & Tricks](https://github.com/aMarCruz/jscc/wiki/Examples)
 
 

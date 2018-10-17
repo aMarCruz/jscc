@@ -12,7 +12,7 @@
     "pretest": "tsc",
     "lint": "eslint -c .eslintrc.js test/index.js src/**/*",
     "build": "rimraf dist/** && npm run lint && tsc",
-    "prepublish": "rimraf dist/** && npm run lint && npm test"
+    "prepublish": "npm run build"
   },
   "keywords": [
     "html",
