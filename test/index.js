@@ -197,7 +197,6 @@ describe('Compile-time variables', function () {
 
   it('non defined vars in directives can take its value from `global`', function () {
     global._GLOBAL = true
-    debugger
     testStr('//#set _G=_GLOBAL\n$_G', /true$/)
     delete global._GLOBAL
   })
