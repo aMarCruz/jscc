@@ -7,11 +7,7 @@ engines:
       - FIXME
       - BUG
 
-engines:
-  eslint:
-    enabled: true
-
 ratings:
-  paths: ["lib/jscc.js"]
+  paths: ["dist/**/*.js"]
 
-exclude_paths: ["src/**/*", "test/**/*", "lib/jscc.es.*"]
+exclude_paths: ["src/**/*", "test/**/*"]
