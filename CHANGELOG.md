@@ -28,6 +28,7 @@ Major refactorization after two years, using TypeScript v3.
 - Update devDependencies and minimum node.js version to 6.
 
 ### Removed
+- The undocumented option `errorHandler` was removed, which makes the logic more simpler and secure.
 - The "dist" folder holding the transpilled code is removed from CVS (gitignore)
 - (Internal) Remove babel, as the plugin now runs on node.js v6 or later.
 

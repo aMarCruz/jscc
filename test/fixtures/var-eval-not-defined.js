@@ -1,6 +1,6 @@
 //#ifset _FOO
 false
 //#endif
-//#if _FOO === undefined
+//#if _BAR === undefined
 true
 //#endif

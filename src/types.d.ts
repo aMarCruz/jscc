@@ -5,5 +5,5 @@ interface JsccProps {
   prefixes: string,
   sourceMap: boolean,
   values: JsccValues,
-  errorHandler: (message: string) => void,
+  errorHandler: (message: string | Error) => void,
 }

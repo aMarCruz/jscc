@@ -21,7 +21,6 @@ const enum State {
   WORKING,
   TESTING,
   ENDING,
-  ERROR,
 }
 
 // Matches a line with a directive, not including line-ending
@@ -54,19 +53,16 @@ export class Parser {
    */
   parse (match: RegExpExecArray) {
 
+    const key   = match[1]
+    const expr  = this._normalize(key, match[2])
     const cc    = this.cc
+
     let ccInfo  = cc[cc.length - 1]
     let state   = ccInfo.state
 
-    if (state === State.ERROR) {
-      return false
-    }
-
-    const key  = match[1]
-    const expr = this._normalize(key, match[2])
-
     switch (key) {
-      // Conditional blocks -- `#if-ifset-ifnset` pushes the state and `#endif` pop it
+      // Conditional blocks
+      // `#if-ifset-ifnset` pushes the state and `#endif` pop it
       case 'if':
       case 'ifset':
       case 'ifnset':
@@ -78,27 +74,24 @@ export class Parser {
         break
 
       case 'elif':
-        if (this._checkBlock(ccInfo, Block.IF, key)) {
-          if (state === State.TESTING && this._getValue('if', expr)) {
-            ccInfo.state = State.WORKING
-          } else if (state === State.WORKING) {
-            ccInfo.state = State.ENDING
-          }
+        this._checkBlock(ccInfo, Block.IF, key)
+        if (state === State.TESTING && this._getValue('if', expr)) {
+          ccInfo.state = State.WORKING
+        } else if (state === State.WORKING) {
+          ccInfo.state = State.ENDING
         }
         break
 
       case 'else':
-        if (this._checkBlock(ccInfo, Block.IF, key)) {
-          ccInfo.block = Block.ELSE
-          ccInfo.state = state === State.TESTING ? State.WORKING : State.ENDING
-        }
+        this._checkBlock(ccInfo, Block.IF, key)
+        ccInfo.block = Block.ELSE
+        ccInfo.state = state === State.TESTING ? State.WORKING : State.ENDING
         break
 
       case 'endif':
-        if (this._checkBlock(ccInfo, Block.IF | Block.ELSE, key)) {
-          cc.pop()
-          ccInfo = cc[cc.length - 1]
-        }
+        this._checkBlock(ccInfo, Block.IF | Block.ELSE, key)
+        cc.pop()
+        ccInfo = cc[cc.length - 1]
         break
 
       default:
@@ -125,12 +118,9 @@ export class Parser {
   _checkBlock (ccInfo: ParserState, mask: number, ckey: string) {
     const block = ccInfo.block
 
-    if (block !== Block.NONE && block === (block & mask)) {
-      return true
+    if (block === Block.NONE || block !== (block & mask)) {
+      this._emitError(`Unexpected #${ckey}`)
     }
-
-    this._emitError(`Unexpected #${ckey}`)
-    return false
   }
 
 
@@ -141,20 +131,15 @@ export class Parser {
    */
   close () {
     const cc  = this.cc
-    const len = cc.length
-    const err = len !== 1 || cc[0].state !== State.WORKING
+    const err = cc.length !== 1 || cc[0].state !== State.WORKING
 
-    if (err && cc[0].state !== State.ERROR) {
+    if (err) {
       this._emitError('Unexpected end of file')
     }
-    //this.options = undefined
-    return !err
   }
 
   /**
    * Returns a regex that matches directives through all the code.
-   *
-   * TODO: Test prefixes with special regex chars
    *
    * @returns {RegExp} Global-multiline regex
    */
@@ -169,9 +154,7 @@ export class Parser {
    * @param {string} message - Error description
    */
   _emitError (message: string) {
-    //message = `jspp [${this.cc.fname || 'input'}] : ${message}`
-    this.cc[this.cc.length - 1].state = this.cc[0].state = State.ERROR
-    this.options.errorHandler(message)
+    this.options.errorHandler(new Error(message))
   }
 
   /**
@@ -216,6 +199,7 @@ export class Parser {
    * @returns Evaluated expression.
    */
   _getValue (ckey: 'if' | 'ifset' | 'ifnset', expr: string) {
+
     if (ckey !== 'if') {
       const yes = expr in this.options.values ? 1 : 0
 

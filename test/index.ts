@@ -3,14 +3,11 @@
 import expect from 'expect.js'
 import path from 'path'
 import fs from 'fs'
-
-// @ts-ignore hack for "module not found" when using '..'
-import _jscc from '..'
-const jscc = _jscc as Jscc
+import jscc from './jscc'
 
 process.chdir(__dirname)
 
-// Helpers ================================================
+//#region Helpers ------------------------------------------------------------
 
 function concat (name: string, subdir?: string) {
   let file = path.join(__dirname, subdir || 'expected', name)
@@ -73,7 +70,14 @@ function testStr (str: string, expected?: string | RegExp, opts?: JsccOptions) {
   }
 }
 
-// The suites =============================================
+//#endregion Helpers
+
+//
+//  THE SUITES
+//  ==========
+//
+
+//#region General ------------------------------------------------------------
 
 describe('jscc', function () {
 
@@ -81,16 +85,20 @@ describe('jscc', function () {
     testFileStr('defaults', 'true')
   })
 
-  it('predefined variable `_FILE` is the relative path of the current file', function () {
+  it('the predefined varname `_FILE` is the relative path of the current file', function () {
     testFile('def-file-var')
   })
 
-  it('predefined variable `_VERSION` from package.json in the current path', function () {
+  it('user defined `_FILE` is overwritten by the current filename (even if empty)', function () {
+    testFile('def-file-var')
+  })
+
+  it('`_VERSION` comes from the package.json in the current or upper path', function () {
     const version = require('../package.json').version as string
     testFileStr('def-version-var', '@version ' + version)
   })
 
-  it('predefined variable `_VERSION` skip package.json without version', function () {
+  it('`_VERSION` ignores package.json without a `version` property', function () {
     const version = require('../package.json').version as string
     const cwdir = process.cwd()
 
@@ -100,22 +108,13 @@ describe('jscc', function () {
     expect(result).to.be(version)
   })
 
-  it('user defined `_VERSION` must not be overwritten', function () {
-    testStr('$_VERSION', /^WIP$/, { values: { _VERSION: 'WIP' } })
+  it('non-empty user defined `_VERSION` must be preserved', function () {
+    testStr('$_VERSION', /^@$/, { values: { _VERSION: '@' } })
   })
 
-  it('allows to define custom variables with the `values` option', function () {
-    testFile('custom-vars', {
-      values: {
-        _ZERO: 0,
-        _MYBOOL: false,
-        _MYSTRING: 'foo',
-        _INFINITY: Infinity,
-        _NAN: NaN,
-        _NULL: null,
-        _UNDEF: undefined,
-      },
-    })
+  it('empty user defined `_VERSION` must be overwritten', function () {
+    const version = require('../package.json').version as string
+    testStr('$_VERSION', version, { values: { _VERSION: '' } })
   })
 
   it('support conditional comments with the `#if _VAR` syntax', function () {
@@ -162,8 +161,151 @@ describe('jscc', function () {
 
 })
 
+//#endregion General
+//#region Options ------------------------------------------------------------
 
-describe('Compile-time variables', function () {
+describe('Options:', function () {
+
+  it('The `.values` option allows you to define custom variables', function () {
+    testFile('custom-vars', {
+      values: {
+        _ZERO: 0,
+        _MYBOOL: false,
+        _MYSTRING: 'foo',
+        _INFINITY: Infinity,
+        _NAN: NaN,
+        _NULL: null,
+        _UNDEF: undefined,
+      },
+    })
+  })
+
+  it('`keepLines:true` must preserve line-endings (useful w/o sourceMap)', function () {
+    const types = require('./fixtures/_types.js')
+    testFile('htmlparser', { values: { _T: types }, keepLines: true })
+  })
+
+  it('`sourceMap:false` must disable sourceMap creation', function () {
+    let result = jscc('//#set _A\n$_A')
+    expect(result.map).to.be.an('object')
+
+    result = jscc('//#set _A\n$_A', '', { sourceMap: false })
+    expect(result.map).to.be(undefined)
+  })
+
+  it('`sourceMap:true` must be ignored if the output has no changes', function () {
+    const source = '// set _A\n$_A'
+    const result = jscc(source, '', { sourceMap: true })
+
+    expect(result.code).to.be(source)
+    expect(result.map).to.be(undefined)
+  })
+
+  it('user provided `prefixes` must override the predefined ones', function () {
+    const str = [
+      '//~#if 1',
+      '//#if true',
+      '//#endif',
+      '//~#endif',
+    ].join('\n')
+
+    testStr(str, '//#if true', {
+      prefixes: ['//~', '||'],
+    })
+  })
+
+  it('`prefixes` can include regexes in addition to strings', function () {
+    const str = [
+      '//#if 1',
+      '//-#if 2',
+      '//  #if 3',
+      'true',
+      '//  #endif',
+      '//-#endif',
+      '//#endif',
+    ].join('\n')
+
+    testStr(str, /^true\s*$/, {
+      prefixes: [/\/\/ */, '//-'],
+    })
+  })
+
+  it('`prefixes` strings are sanitized before convert them to regex', function () {
+    const str = [
+      '[^a]#set _V1 1',
+      'b.#set _V2 1',
+      '[c]#set _V1 = _V1+_V2',
+      'bc#set _V2 = _V1+_V2',
+      'b.#set _V1 = _V1 + _V2',
+      '@$_V1@',
+    ].join('\n')
+
+    testStr(str, '@2@', {
+      prefixes: ['[^a]', 'b.'],
+    })
+  })
+
+  it('`prefixes` must accept one only string', function () {
+    const str = [
+      '//-#if 0',
+      'ups',
+      '//-#endif',
+    ].join('\n')
+
+    testStr(str, /^\s*$/, {
+      prefixes: '//-',
+    })
+  })
+
+  it('`prefixes` must accept one only regex', function () {
+    const str = [
+      '//-#if 0',
+      'ups',
+      '//-#endif',
+    ].join('\n')
+
+    testStr(str, /^\s*$/, {
+      prefixes: /\/\/-/,
+    })
+  })
+
+  describe('Errors in options', function () {
+
+    it('incorrect memvar names in `.values` must throw "Invalid memvar"', function () {
+      expect(function () {
+        preprocStr('foo()', { values: { FOO: 1 } })
+      }).to.throwError(/Invalid memvar/)
+    })
+
+    it('non object `.values` must throw "`values` must be a plain object"', function () {
+      expect(function () {
+        // @ts-ignore intentional error
+        preprocStr('foo()', { values: true })
+      }).to.throwError(/values must be a plain object/)
+    })
+
+    it('`.prefixes` must be a string, regex, or array', function () {
+      expect(function () {
+        // @ts-ignore intentional error
+        preprocStr('foo()', { prefixes: 1 })
+      }).to.throwError(/`prefixes` must be a/)
+    })
+
+    it('`.prefixes` as array must contain only string or regexes', function () {
+      expect(function () {
+        // @ts-ignore intentional error
+        preprocStr('foo()', { prefixes: ['', /\s/, 1] })
+      }).to.throwError(/`prefixes` must be a/)
+    })
+
+  })
+
+})
+
+//#endregion Options
+//#region Compile-time Variables ---------------------------------------------
+
+describe('Compile-time Variables', function () {
 
   it('can be defined within the code by `#set`', function () {
     testFileStr('var-inline-var', 'true\nfoo\n')
@@ -173,8 +315,12 @@ describe('Compile-time variables', function () {
     testFileStr('var-inline-expr', 'true\nfoo\n')
   })
 
-  it('defaults to `undefined` if no value is given', function () {
+  it('must default to `undefined` if no value is given', function () {
     testFileStr('var-default-value', 'true')
+  })
+
+  it('unexisting vars are replaced with `undefined` during the evaluation', function () {
+    testFileStr('var-eval-not-defined', 'true')
   })
 
   it('`#unset` removes defined variables', function () {
@@ -185,7 +331,7 @@ describe('Compile-time variables', function () {
     testFileStr('var-changes', /^\s*true\s+false\s+\$_FOO\s*$/)
   })
 
-  it('must recognize memvar with no line-ending', function () {
+  it('must recognize varname with no line-ending', function () {
     testStr('$_TRUE', /^true$/, { values: { _TRUE: true } })
   })
 
@@ -195,81 +341,63 @@ describe('Compile-time variables', function () {
     delete (global as any)._GLOBAL
   })
 
-  it('not defined vars are replaced with `undefined` during the evaluation', function () {
-    testFileStr('var-eval-not-defined', 'true')
-  })
-
-  it('incorrect memvar names in `#set` raises "Invalid memvar"', function () {
-    expect(function () {
-      preprocStr('//#set =_FOO')
-    }).to.throwError(/Invalid memvar/)
-  })
-
-  it('incorrect memvar names in `#unset` raises "Invalid memvar"', function () {
-    expect(function () {
-      preprocStr('//#unset FOO')
-    }).to.throwError(/Invalid memvar/)
-  })
-
-  it('undefined memvars deleted with `#unset` does not throw', function () {
-    expect(preprocStr('//#unset _FOO')).to.be('')
-  })
-
-  it('incorrect memvar names in `options` raises "Invalid memvar"', function () {
-    expect(function () {
-      preprocStr('foo()', { values: { FOO: 1 } })
-    }).to.throwError(/Invalid memvar/)
-  })
-
-  it('non object values in `options` raises "values must be a plain object"', function () {
-    expect(function () {
-      // @ts-ignore intentional error
-      preprocStr('foo()', { values: true })
-    }).to.throwError(/values must be a plain object/)
-  })
-
-  it('can recognize nested properties in objects', function () {
+  it('must recognize nested properties in objects', function () {
     const input = [
       '//#set _P=_O.p1.p2.p3+1',
-      '$_P',
+      '//#if _P === 2',
+      'two',
+      '//#endif',
     ].join('\n')
 
-    testStr(input, /^2$/, { values: {
+    testStr(input, /^two\s*$/, { values: {
       _O: { p1: { p2: { p3: 1 } } },
     } })
   })
 
-  it('`options.prefixes` must be a string or array', function () {
+  describe('Errors in compile-time variables & evaluation', function () {
 
-    expect(preprocStr('@#set _F=1', { prefixes: ['@'] })).to.be('')
-    expect(function () {
-      // @ts-ignore intentional error
-      preprocStr('foo()', { prefixes: 1 })
-    }).to.throwError(/must be an array/)
-  })
+    it('incorrect memvar names in `#set` throw "Invalid memvar"', function () {
+      expect(function () {
+        preprocStr('//#set =_FOO')
+      }).to.throwError(/Invalid memvar/)
+    })
 
-  it('syntax errors in expressions throws during the evaluation', function () {
-    expect(function () {
-      preprocStr('//#set _FOO 1+3)')
-    }).to.throwError()
-  })
+    it('incorrect memvar names in `#unset` throw "Invalid memvar"', function () {
+      expect(function () {
+        preprocStr('//#unset FOO')
+      }).to.throwError(/Invalid memvar/)
+    })
 
-  it('other runtime errors throws (like accesing props of undefined)', function () {
-    expect(function () {
-      preprocStr('//#set _FOO _FOO.foo.bar')
-    }).to.throwError(/undefined/)
+    it('non-existing memvars removed with `#unset` does not throw', function () {
+      expect(preprocStr('//#unset _FOO')).to.be('')
+    })
+
+    it('syntax errors in expressions throws during the evaluation', function () {
+      expect(function () {
+        preprocStr('//#set _FOO 1+3)')
+      }).to.throwError()
+    })
+
+    it('other runtime errors throws (like accesing props of `undefined`)', function () {
+      expect(function () {
+        preprocStr('//#set _FOO _FOO.foo.bar')
+      }).to.throwError(/undefined/)
+    })
+
   })
 
 })
 
+//#endregion Compile-time Variables
+//#region Code Replacement ---------------------------------------------------
 
-describe('Code replacement', function () {
+describe('Code Replacement', function () {
   //
   it('memvars prefixed by "$" can be used for simple code replacement', function () {
     testFileStr('var-code-replace', 'true==1\n"foo"')
   })
 
-  it('`$` is used to paste jscc variable values', function () {
+  it('the prefix "$" is used to paste jscc varname values', function () {
     testFileStr('var-paste', 'truetrue\n', { values: { _TRUE: true } })
   })
 
@@ -310,11 +438,41 @@ describe('Code replacement', function () {
 
 })
 
+//#endregion Code Replacement
+//#region Conditional Compilation --------------------------------------------
 
-describe('Conditional compilation', function () {
+describe('Conditional Compilation', function () {
 
-  it('supports `#else`', function () {
-    testFileStr('cc-else', 'true\n')
+  it('has the pair `#if`/`#endif` for basic conditional blocks', function () {
+    testStr('//#if 1\nOK\n//#endif', /^OK\s*$/)
+  })
+
+  it('supports `#elif expression`', function () {
+    const source = [
+      '//#set _FOO = 2',
+      '//#if !_FOO',
+      'error',
+      '//#elif _FOO===1+1',
+      'OK',
+      '//#endif',
+
+    ].join('\n')
+
+    testStr(source, 'OK\n')
+  })
+
+  it('has support for `#else`', function () {
+    const source = [
+      '//#set _FOO = false',
+      '//#if _FOO',
+      'error',
+      '//#else',
+      'OK',
+      '//#endif',
+
+    ].join('\n')
+
+    testStr(source, 'OK\n')
   })
 
   it('and the `#elif` directive', function () {
@@ -347,52 +505,6 @@ describe('Conditional compilation', function () {
     }).to.throwError(/boom!/)
   })
 
-  it('unclosed conditional blocks throws an exception', function () {
-    expect(function () {
-      preprocFile('cc-unclosed')
-    }).to.throwError(/Unexpected end of file/)
-  })
-
-  it('unbalanced blocks throws, too', function () {
-    expect(function () {
-      preprocFile('cc-unbalanced')
-    }).to.throwError(/Unexpected #/)
-  })
-
-  it('`#elif` inside `#else` must throw', function () {
-    let err = ''
-
-    expect(function () {
-      preprocFile('cc-elif-inside-else')
-    }).to.throwError(/Unexpected #elif/)
-
-    preprocFile('cc-elif-inside-else', {
-      errorHandler (message) {
-        err = message
-        return undefined as never
-      },
-    })
-    expect(err).to.contain('Unexpected #elif')
-  })
-
-  it('`#else` after `#else` must throw', function () {
-    const code = '//#if 1\n//#else\n//#else\n'
-    let err = ''
-    preprocStr(code, {
-      errorHandler (message) {
-        err = message
-        return undefined as never
-      },
-    })
-    expect(err).to.contain('Unexpected #else')
-  })
-
-  it('directive without expression raises "Expression expected"', function () {
-    expect(function () {
-      preprocStr('//#if\n//#endif')
-    }).to.throwError(/Expression expected/)
-  })
-
   it('`#else` and `#endif` ignores anything in their line', function () {
     testFileStr('cc-else-endif-extra', 'true')
   })
@@ -413,10 +525,53 @@ describe('Conditional compilation', function () {
     testFileStr('var-hide-output', /import [\S\s]+\$_DEBUGOUT\('DEBUG'\)/, { values: { _DEBUG: 1 } })
   })
 
+  describe('Errors in Conditional Compilation', function () {
+
+    it('unclosed conditional blocks throws an exception', function () {
+      expect(function () {
+        preprocFile('cc-unclosed')
+      }).to.throwError(/Unexpected end of file/)
+    })
+
+    it('unbalanced blocks throws, too', function () {
+      expect(function () {
+        preprocFile('cc-unbalanced')
+      }).to.throwError(/Unexpected #/)
+    })
+
+    it('`#elif` without its previous `#if` must throw', function () {
+      expect(() => {
+        preprocStr('#if 1\n//#elif 1\n//#endif')
+      }).to.throwError(/Unexpected #elif/)
+    })
+
+    it('`#elif` inside `#else` must throw', function () {
+      expect(() => {
+        preprocFile('cc-elif-inside-else')
+      }).to.throwError(/Unexpected #elif/)
+    })
+
+    it('`#else` after `#else` must throw', function () {
+      expect(() => {
+        const code = '//#if 1\n//#else\n//#else\n'
+        preprocStr(code)
+      }).to.throwError(/Unexpected #else/)
+    })
+
+    it('directive without expression raises "Expression expected"', function () {
+      expect(function () {
+        preprocStr('//#if\n//#endif')
+      }).to.throwError(/Expression expected/)
+    })
+
+  })
+
 })
 
+//#endregion Conditional Compilation
+//#region Non-JS Processing --------------------------------------------------
 
-describe('HTML processing', function () {
+describe('HTML Processing', function () {
 
   it('must work since jscc is language agnostic', function () {
     testFile('html-vars-js.html', {
@@ -439,8 +594,10 @@ describe('HTML processing', function () {
 
 })
 
+//#endregion Non-JS Processing
+//#region Async Operation ----------------------------------------------------
 
-describe('Async operation', function () {
+describe('Async Operation', function () {
 
   it('must be enabled if a callback is received.', function (done) {
     const source = '$_VERSION'
@@ -479,65 +636,8 @@ describe('Async operation', function () {
 
 })
 
-
-describe('Options:', function () {
-
-  it('`keepLines` preserve line-endings (keep line count w/o sourceMaps)', function () {
-    const types = require('./fixtures/_types.js')
-    testFile('htmlparser', { values: { _T: types }, keepLines: true })
-  })
-
-  it('source maps can be disabled with `sourceMap: false`', function () {
-    let result = jscc('//#set _A\n$_A')
-    expect(result.map).to.be.an('object')
-
-    result = jscc('//#set _A\n$_A', '', { sourceMap: false })
-    expect(result.map).to.be(undefined)
-  })
-
-  it('`errorHandler` method can be customized', function () {
-    let error = ''
-    const result = preprocStr('//#endif\nfalse\n//#endif', {
-      errorHandler (message) {
-        error = message
-        return undefined as never
-      },
-    })
-    expect(result).to.be.a('string')
-    expect(error).to.contain('nexpected')
-  })
-
-  it('custom `prefixes` overwrite the predefined ones.', function () {
-    const str = [
-      '//~#if 1',
-      '//#if true',
-      '//#endif',
-      '//~#endif',
-    ].join('\n')
-
-    testStr(str, '//#if true', {
-      prefixes: ['//~', '||'],
-    })
-  })
-
-  it('`prefixes` can include regexes in addition to strings', function () {
-    const str = [
-      '//#if 1',
-      '//-#if 2',
-      '//  #if 3',
-      'true',
-      '//  #endif',
-      '//-#endif',
-      '//#endif',
-    ].join('\n')
-
-    testStr(str, /^true\s*$/, {
-      prefixes: [/\/\/ */, '//-'],
-    })
-  })
-
-})
-
+//#endregion Async Operation
+//#region Examples -----------------------------------------------------------
 
 describe('Examples:', function () {
 
@@ -571,3 +671,5 @@ describe('Examples:', function () {
   })
 
 })
+
+//#endregion Examples

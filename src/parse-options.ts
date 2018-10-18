@@ -8,10 +8,13 @@ const DEF_PREFIX = /\/[/*]|<!--|<!/.source
 /**
  * Default error handler throws an error.
  *
- * @param message Error message
+ * @param error Error instance or string with the error
  */
-const defErrorHandler = (message: string) => {
-  throw new Error(message)
+const defErrorHandler = (error: string | Error) => {
+  if (typeof error == 'string') {
+    error = new Error(error)
+  }
+  throw error
 }
 
 /**
@@ -23,8 +26,7 @@ const defErrorHandler = (message: string) => {
 export function parseOptions (file: string, opts?: JsccOptions): JsccProps {
   opts = opts || {}
 
-  const errorHandler = typeof opts.errorHandler == 'function'
-    ? opts.errorHandler : defErrorHandler
+  const errorHandler = defErrorHandler
 
   // Extract the user defined values ----------------------------------------
 

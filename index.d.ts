@@ -67,10 +67,6 @@ interface JsccOptions {
    * It has two predefined varnames: `_FILE` and `_VERSION`.
    */
   values?: { [k: string]: any },
-  /**
-   * Error handler. The default implementation throws an exception.
-   */
-  errorHandler?: (message: string) => never,
 }
 
 interface JsccParserResult {

@@ -1,0 +1,4 @@
+# Set the must simple report and other options
+--check-leaks
+--require ts-node/register
+--watch-extensions ts

@@ -13,8 +13,8 @@
     "lint": "eslint --report-unused-disable-directives -c .eslintrc.js --ext ts test src",
     "prepublish": "npm run build",
     "pretest": "tsc",
-    "start": "mocha --require ts-node/register --watch --watch-extensions ts test/*.ts",
-    "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- --require ts-node/register test/*.ts",
+    "start": "mocha --watch test/*.ts",
+    "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- --reporter spec test/*.ts",
     "tsc": "tsc"
   },
   "keywords": [
