@@ -1,0 +1,23 @@
+/*
+  TSLint deshabilitado a nivel proyecto
+*/
+{
+  "typescript.disableAutomaticTypeAcquisition": true,
+  "typescript.format.insertSpaceAfterConstructor": true,
+  "typescript.format.insertSpaceBeforeFunctionParenthesis": true,
+  "typescript.suggest.completeFunctionCalls": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "eslint.enable": true,
+  "eslint.packageManager": "yarn",
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "eslint.workingDirectories": [
+    "./src",
+    "./test"
+  ],
+  "todo-tree.rootFolder": "${workspaceFolder}/src",
+}

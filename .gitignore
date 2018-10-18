@@ -1,35 +1,27 @@
-# Logs
-logs
-*.log
+# Exclude the transpiled code from the repo
+dist
 
-# Runtime data
+# Include sources and tests (it is excluded in .npmignore)
+!src
+!test
+
+# Share VSCode config, launcher, and tasks setup, but no more
+.vscode/**/*
+!.vscode/launch.json
+!.vscode/settings.json
+!.vscode/tasks.json
+
+# Common git and npm ignored folders and files
+cov-int
+coverage
+lib-cov
+node_modules
+package-lock.json
+yarn.lock
+logs
 pids
 *.pid
 *.seed
-
-# Coverage directories
-coverage
-cov-int
-lib-cov
-
-# Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
-.grunt
-
-# node-waf configuration
-.lock-wscript
-
-# Compiled binary addons (http://nodejs.org/api/addons.html)
-build/Release
-
-# Dependency directory
-node_modules
-
-# VS Code
-.vscode
-jsconfig.js
-
-# Other
-dist
-jscc*.tgz
-package-lock.json
-yarn.lock
+**/*.log
+**/*.bak
+*.tgz

@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 Major refactorization after two years, using TypeScript v3.
 
 ### Added
+- Share .vscode setup for launch, settings, and tasks in CVS.
+- .npmignore files, for distribution with minimal stuff.
 - Sync test for async operation.
 - Async operation.
 - Add prefix for `<!` (alt html comment) to the predefined prefixes.
@@ -30,7 +32,7 @@ Major refactorization after two years, using TypeScript v3.
 
 ### Removed
 - The undocumented option `errorHandler` was removed, which makes the logic more simpler and secure.
-- The "dist" folder holding the transpilled code is removed from CVS (gitignore)
+- The "dist" folder holding the transpilled code is excluded from CVS (slim PRs, simpler CI config)
 - (Internal) Remove babel, as the plugin now runs on node.js v6 or later.
 
 ## [0.3.5] - 2016-10-23

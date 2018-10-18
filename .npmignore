@@ -1,0 +1,29 @@
+# Exclude source and tests files from the package
+src
+test
+
+# Include the ready to run code w/o sourcemaps
+!dist
+**/*.map
+
+# Exclude VSCode, CI, and Dev related stuff
+.vscode
+appveyor.*
+.codeclimate.*
+.travis.*
+Makefile
+
+# Common git and npm ignored folders and files
+cov-int
+coverage
+lib-cov
+node_modules
+package-lock.json
+yarn.lock
+logs
+pids
+*.pid
+*.seed
+**/*.log
+**/*.bak
+*.tgz
