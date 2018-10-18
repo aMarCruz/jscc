@@ -1,9 +1,9 @@
 import fs from 'fs'
 import jscc from '../jscc'
-import { concatFile } from './concat-file'
+import { concatPath } from './concat-path'
 
 export const transformFile = (file: string, opts?: JsccOptions) => {
-  const inFile = concatFile('fixtures', file)
+  const inFile = concatPath('fixtures', file)
   const code = fs.readFileSync(inFile, 'utf8')
 
   return jscc(code, inFile, opts).code.replace(/\s*$/, '')

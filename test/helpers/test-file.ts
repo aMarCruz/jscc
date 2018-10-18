@@ -1,11 +1,11 @@
 import fs from 'fs'
 import expect from 'expect.js'
 
-import { concatFile } from './concat-file'
+import { concatPath } from './concat-path'
 import { transformFile } from './transform-file'
 
 const getExpected = (file: string) => fs
-  .readFileSync(concatFile('expected', file), 'utf8').replace(/\s*$/, '')
+  .readFileSync(concatPath('expected', file), 'utf8').replace(/\s*$/, '')
 
 export const testFile = (file: string, opts?: JsccOptions, save?: boolean) => {
   const expected = getExpected(file)
