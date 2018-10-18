@@ -1,6 +1,6 @@
 {
   "name": "jscc",
-  "version": "0.3.5",
+  "version": "1.0.0",
   "description": "The JavaScript preprocessor for conditional comments and replacements in text files",
   "main": "./index.js",
   "module": "./dist/jscc.js",

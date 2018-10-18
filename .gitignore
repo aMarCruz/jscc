@@ -30,5 +30,6 @@ jsconfig.js
 
 # Other
 dist
+jscc*.tgz
 package-lock.json
 yarn.lock

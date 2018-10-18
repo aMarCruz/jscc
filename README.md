@@ -26,9 +26,9 @@ jscc is **not** a minifier tool, it only does what it does well...
 
 ## IMPORTANT
 
-jscc v1.0 is a complete rewrite using TypeScript 3.0 and one enhanced set of test.
+jscc v1.0 is a complete rewrite and may have breaking changes for you.
 
-This new version offers new characteristics, but has some breaking changes.
+Please see [Changes in This Version](#changes-in-this-version) for more info, the Wiki will be updated in a few days.
 
 ## Install
 
@@ -114,6 +114,31 @@ You can read in the Wiki about:
 - [Examples & Tricks](https://github.com/aMarCruz/jscc/wiki/Examples)
 
 
+## Changes in This Version
+
+The code base and test of v1.0 was completely rewritten in [TypeScript](typescriptlang.org) 3 with ES6 output, so it has undergone numerous internal and external changes. However, I believe that the public API has been kept stable and will not prevent migration to this version, mainly because its main use is through plugins, which will make it relatively transparent.
+
+These are the main changes, the detail you can see in the [CHANGELOG](CHANGELOG.md):
+
+- The minimum supported version is node 6. Since node 5 may work, it was not tested and there's no plans for a downgrade.
+
+- The transpiled code is now in the "dist" folder and has been excluded from all branches, except "master". This code is used to serve both, the CommonJS and ES6 versions. The CommonJS export is index.js, in the root folder, and the ES6 modules in "dist", addressed (in accordance to common practices) by the "main" and "module" properties of package.json.
+
+- The function exported by jscc supports a fourth parameter of type "function" (a _callback_). If you use it, jscc will return `undefined` and it will change to an asynchronous behavior of type NodeJS: In case of success, the callback will receive `null` in the first parameter and the results in the second. If there is an error, it will receive a single parameter with the corresponding `Error` object.
+
+- The short sequence for opening HTML comments (`<!`) has been added to the predefined prefixes.
+
+- Now the output of `NaN` is `null`, for consistency with the output from `JSON.stringify`. This is applied to raw or boxed values like those of the invalid dates.
+
+- `JSON.stringify` does not support infinite numbers and convert them to `null`, so (in an attempt) to preserve a more accurate output of this values on stringified objects, `Infinity` is replaced by `Number.MAX_VALUE` and `-Infinity` by `Number.MIN_VALUE`. However, the output of the replaced values in the code does is the correct.
+
+- For the above reason, `RegExp` instances are converted to strings using its `source` property (note that the flags are lost in the process). The output of replaced values is the same as for the strings so, if you want regenerate a regex, must enclose it in slashes and add the flags by yourself.
+
+- The replacement of values admits more than one object property (example: `$_OBJ.p.p2.p3`). The restriction to the dot notation is still valid.
+
+- The undocumented option `errorHandler` was removed, which makes error control more simpler and secure.
+
+
 ## TODO
 
 This is work in progress, so please update jscc constantly.
@@ -124,7 +149,7 @@ Expected:
 - [ ] Explanatory error messages, with location of the error
 - [ ] WebPack plugin
 - [ ] Better documentation*
-- [ ] Syntax hilighter for some editores
+- [ ] Syntax hilighter for some editores? Perhaps you want contribute.
 
 ---
 
