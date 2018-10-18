@@ -14,7 +14,7 @@
     "prepublish": "npm run build",
     "pretest": "tsc",
     "start": "mocha --watch test/*.ts",
-    "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- --reporter spec test/*.ts",
+    "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- test/*.ts",
     "tsc": "tsc"
   },
   "keywords": [

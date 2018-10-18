@@ -51,8 +51,6 @@ export const JSCC_VARS = /(^|[^$\w.])(_[0-9A-Z][_0-9A-Z]*)(?=[^$0-9a-z]|$)/g
  *
  * - $1: var name
  * - $2: optional expression
- *
- * TODO: More testing on multiple properties and concatenation.
  */
 export const VARS_TO_REPL = /(?:(\$_[0-9A-Z][_0-9A-Z]*)((?:\.\w+)+)*)(?=\W|$)/g
 

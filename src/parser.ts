@@ -1,7 +1,7 @@
 /*
   Parser for conditional comments
 */
-import { STRINGS, ASSIGNMENT, VARNAME } from './revars'
+import { STRINGS, ASSIGNMENT, VARNAME } from './regexes'
 import { evalExpr } from './eval-expr'
 
 interface ParserState {
@@ -61,8 +61,7 @@ export class Parser {
     let state   = ccInfo.state
 
     switch (key) {
-      // Conditional blocks
-      // `#if-ifset-ifnset` pushes the state and `#endif` pop it
+      // #if* pushes WORKING or TESTING, unless the state is ENDING
       case 'if':
       case 'ifset':
       case 'ifnset':
@@ -74,6 +73,7 @@ export class Parser {
         break
 
       case 'elif':
+        // #elif swap the state, unless it is ENDING
         this._checkBlock(ccInfo, Block.IF, key)
         if (state === State.TESTING && this._getValue('if', expr)) {
           ccInfo.state = State.WORKING
@@ -83,19 +83,21 @@ export class Parser {
         break
 
       case 'else':
+        // #else set the state to WORKING or ENDING
         this._checkBlock(ccInfo, Block.IF, key)
         ccInfo.block = Block.ELSE
         ccInfo.state = state === State.TESTING ? State.WORKING : State.ENDING
         break
 
       case 'endif':
+        // #endif pops the state
         this._checkBlock(ccInfo, Block.IF | Block.ELSE, key)
         cc.pop()
         ccInfo = cc[cc.length - 1]
         break
 
       default:
-        // set-unset-error is processed only for working blocks
+        // #set #unset #error is processed for working blocks only
         if (state === State.WORKING) {
           switch (key) {
             case 'set':

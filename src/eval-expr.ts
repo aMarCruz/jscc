@@ -1,4 +1,4 @@
-import { STRINGS, JSCC_VARS } from './revars'
+import { STRINGS, JSCC_VARS } from './regexes'
 
 // For replacing of jscc variables ($1 = prefix, $2 = varname)
 const VARS_TO_EVL = RegExp(`${STRINGS.source}|${JSCC_VARS.source}`, 'g')

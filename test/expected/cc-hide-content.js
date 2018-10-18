@@ -4,7 +4,7 @@
 */
 
 // Generate options in debug mode
-function initialize(options) {
+function initialize (options) {
   // You can put almost anything here, except multiline comments.
   const _DEBUG = true
   const stderr = console.error.bind(console) //eslint-disable-line no-console
@@ -12,6 +12,6 @@ function initialize(options) {
   // ...it can have a lot of code
 }
 
-function main() {
+function main () {
   initialize()
 }

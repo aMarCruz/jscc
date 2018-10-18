@@ -1,7 +1,7 @@
 /*
   Variable replacement inside the code.
 */
-import { VARS_TO_REPL } from './revars'
+import { VARS_TO_REPL } from './regexes'
 import MagicString from 'magic-string'
 
 /**

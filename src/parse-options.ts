@@ -1,7 +1,7 @@
 import { escapeRegex } from './lib/escape-regex'
 import { getPackageVersion } from './lib/get-package-version'
 import { pathRelative } from './lib/path-relative'
-import { VARNAME } from './revars'
+import { VARNAME } from './regexes'
 
 const DEF_PREFIX = /\/[/*]|<!--|<!/.source
 
