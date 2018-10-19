@@ -1,5 +1,3 @@
-sudo: false
-
 language: node_js
 
 node_js:
@@ -11,7 +9,18 @@ branches:
         - master
         - dev
 
-after_success: make sendcover
+git:
+    depth: 3
+    quiet: true
+
+before_script:
+    - setup_cover
+
+script:
+    - yarn lint && yarn test
+
+after_script:
+    - send_cover
 
 notifications:
     email: false

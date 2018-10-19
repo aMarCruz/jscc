@@ -1,11 +1,11 @@
 # jscc
 
 [![Build Status][build-image]][build-url]
-[![codebeat][codebeat-image]][codebeat-url]
-[![DeepScan grade][deepscan-image]][deepscan-url]
+[![CodeClimate][climate-image]][climate-url]
 [![Coverage][coverage-image]][coverage-url]
 [![npm][npm-image]][npm-url]
 [![License][license-image]][license-url]
+[![codecov](https://codecov.io/gh/aMarCruz/jscc/branch/dev/graph/badge.svg)](https://codecov.io/gh/aMarCruz/jscc)
 
 Featuring some of the C preprocessor characteristics through special, configurable comments, jscc can be used in any type of files to build multiple versions of your software from the same code base.
 
@@ -157,6 +157,10 @@ Expected:
 \* _For me, write in english is 10x harder than coding JS, so contributions are welcome..._
 
 Don't forget to give me your star!
+
+[![codebeat][codebeat-image]][codebeat-url]
+[![Coverity][coverity-image]][coverity-url]
+[![DeepScan grade][deepscan-image]][deepscan-url]
 
 [build-image]:    https://img.shields.io/travis/aMarCruz/jscc.svg
 [build-url]:      https://travis-ci.org/aMarCruz/jscc

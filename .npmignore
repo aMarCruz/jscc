@@ -14,6 +14,7 @@ appveyor.*
 Makefile
 
 # Common git and npm ignored folders and files
+~misc
 cov-int
 coverage
 lib-cov
@@ -27,3 +28,4 @@ pids
 **/*.log
 **/*.bak
 *.tgz
+*.nyc_output

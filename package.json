@@ -14,7 +14,10 @@
     "prepublish": "npm run build",
     "pretest": "tsc",
     "start": "mocha --watch test/*.ts",
-    "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- test/*.ts",
+    "test": "./node_modules/mocha/bin/_mocha -- test/*.ts",
+    "pretravis": "yarn lint && tsc --sourceMap false --inlineSourceMap",
+    "travis": "nyc --produce-source-map -s -e ts -e js mocha test/*.ts",
+    "posttravis": "nyc report -r=json -r=lcov",
     "tsc": "tsc"
   },
   "keywords": [
@@ -51,7 +54,6 @@
     "eslint": "^5.7.0",
     "eslint-plugin-typescript": "^0.12.0",
     "expect.js": "^0.3.1",
-    "istanbul": "^0.4.5",
     "mocha": "^5.2.0",
     "rimraf": "^2.6.2",
     "ts-node": "^7.0.1",
