@@ -1,6 +1,22 @@
 import { join } from 'path'
 
 /**
+ * Returns the version on package.json.
+ *
+ * @param path Current or some parent path
+ */
+const extractVersion = (path: string) => {
+
+  // Try to get the version, the package may not contain one.
+  try {
+    const pkgname = join(path, 'package.json')
+    return require(pkgname).version as string
+  } catch { /**/ }
+
+  return ''
+}
+
+/**
  * Get the version of the package.json in the current or one of the parents
  * directories.
  *
@@ -20,21 +36,16 @@ export const getPackageVersion = (version: string) => {
   let path = process.cwd().replace(/\\/g, '/')
   version = ''
 
-  do {
-    // Try to get the version, the package may not contain one.
-    try {
-      const pkgname = join(path, 'package.json')
-      version = require(pkgname).version || ''
-    } catch { /**/ }
+  while (~path.indexOf('/')) {
 
+    version = extractVersion(path)
     if (version) {
       break
     }
 
     // package.json not found or does not contains version, move up
     path = path.replace(/\/[^/]*$/, '')
-
-  } while (~path.indexOf('/'))
+  }
 
   return version
 }
