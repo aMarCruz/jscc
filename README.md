@@ -1,9 +1,7 @@
 # jscc
 
 [![AppVeyor][appveypr-image]][appveypr-url]
-[![Build Status][build-image]][build-url]
-[![CodeClimate][climate-image]][climate-url]
-[![codebeat][codebeat-image]][codebeat-url]
+[![Build Status][travis-image]][travis-url]
 [![Coverage][codecov-image]][codecov-url]
 [![npm][npm-image]][npm-url]
 [![License][license-image]][license-url]
@@ -160,18 +158,20 @@ Expected:
 Don't forget to give me your star!
 
 
+[![CodeClimate][climate-image]][climate-url]
+[![Issues][issues-image]][issues-url]
+[![Coverity][coverity-image]][coverity-url]
+[![codebeat][codebeat-image]][codebeat-url]
+
+
 [appveypr-image]: https://ci.appveyor.com/api/projects/status/hdsef0p6q0oqr127?svg=true
 [appveypr-url]:   https://ci.appveyor.com/project/aMarCruz/jscc
-[build-image]:    https://img.shields.io/travis/aMarCruz/jscc.svg
-[build-url]:      https://travis-ci.org/aMarCruz/jscc
-[wbuild-image]:   https://img.shields.io/appveyor/ci/aMarCruz/jscc/master.svg?style=flat-square
-[wbuild-url]:     https://ci.appveyor.com/project/aMarCruz/jscc/branch/master
+[travis-image]:   https://img.shields.io/travis/aMarCruz/jscc.svg
+[travis-url]:     https://travis-ci.org/aMarCruz/jscc
 [climate-image]:  https://codeclimate.com/github/aMarCruz/jscc/badges/gpa.svg
 [climate-url]:    https://codeclimate.com/github/aMarCruz/jscc
 [issues-image]:   https://codeclimate.com/github/aMarCruz/jscc/badges/issue_count.svg
 [issues-url]:     https://codeclimate.com/github/aMarCruz/jscc
-[deepscan-image]: https://deepscan.io/api/teams/2412/projects/3458/branches/31081/badge/grade.svg
-[deepscan-url]:   https://deepscan.io/dashboard#view=project&tid=2412&pid=3458&bid=31081
 [codebeat-image]: https://codebeat.co/badges/7e15dc9d-42a8-4ea2-8bae-a21c09490fbe
 [codebeat-url]:   https://codebeat.co/projects/github-com-amarcruz-jscc-dev
 [coverity-image]: https://scan.coverity.com/projects/10389/badge.svg
