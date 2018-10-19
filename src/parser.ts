@@ -48,6 +48,11 @@ export class Parser {
   constructor (private options: JsccProps) {
   }
 
+  get hasOutput () {
+    const index = this._cc.length - 1
+    return index >= 0 && this._cc[index].state === State.WORKING
+  }
+
   /**
    * Parses conditional comments to determinate if we need disable the output.
    *
@@ -61,25 +66,26 @@ export class Parser {
     const cc    = this._cc
 
     let ccInfo  = cc[cc.length - 1]
-    let state   = ccInfo.state
 
     switch (key) {
       // #if* pushes WORKING or TESTING, unless the state is ENDING
       case 'if':
       case 'ifset':
       case 'ifnset':
-        state = state === State.ENDING ? state
-          :  this._getValue(key, expr) ? State.WORKING : State.TESTING
-        ccInfo = { state, block: Block.IF }
+        ccInfo = {
+          block: Block.IF,
+          state: ccInfo.state === State.ENDING ? State.ENDING
+          :          this._getValue(key, expr) ? State.WORKING : State.TESTING,
+        }
         cc.push(ccInfo)
         break
 
       case 'elif':
         // #elif swap the state, unless it is ENDING
         this._checkBlock(ccInfo, key)
-        if (state === State.WORKING) {
+        if (ccInfo.state === State.WORKING) {
           ccInfo.state = State.ENDING
-        } else if (state === State.TESTING && this._getValue('if', expr)) {
+        } else if (ccInfo.state === State.TESTING && this._getValue('if', expr)) {
           ccInfo.state = State.WORKING
         }
         break
@@ -88,7 +94,7 @@ export class Parser {
         // #else set the state to WORKING or ENDING
         this._checkBlock(ccInfo, key)
         ccInfo.block = Block.ELSE
-        ccInfo.state = state === State.TESTING ? State.WORKING : State.ENDING
+        ccInfo.state = ccInfo.state === State.TESTING ? State.WORKING : State.ENDING
         break
 
       case 'endif':
@@ -100,7 +106,7 @@ export class Parser {
 
       default:
         // #set #unset #error is processed for working blocks only
-        this._handleInstruction(key, expr, state)
+        this._handleInstruction(key, expr, ccInfo.state)
         break
     }
 
@@ -180,16 +186,16 @@ export class Parser {
    * Intercepts the `#ifset-#ifnset` shorthands, call `evalExpr` for `#if`
    * statements.
    *
-   * @param ckey The key name
+   * @param key The key name
    * @param expr The extracted expression
    * @returns Evaluated expression.
    */
-  private _getValue (ckey: 'if' | 'ifset' | 'ifnset', expr: string) {
+  private _getValue (key: 'if' | 'ifset' | 'ifnset', expr: string) {
 
-    if (ckey !== 'if') {
+    if (key !== 'if') {
       const yes = expr in this.options.values ? 1 : 0
 
-      return ckey === 'ifnset' ? yes ^ 1 : yes
+      return key === 'ifnset' ? yes ^ 1 : yes
     }
 
     // returns the raw value of the expression

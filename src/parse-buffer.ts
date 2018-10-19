@@ -15,7 +15,6 @@ export function parseBuffer (
   filename: string,
   props: JsccProps
 ) {
-
   const magicStr = new MagicString(source)
 
   /**
@@ -66,8 +65,8 @@ export function parseBuffer (
   if (changes && props.sourceMap) {
     result.map = magicStr.generateMap({
       source: filename || undefined,
-      includeContent: props.mapContent === true,
-      hires: props.mapHires !== false,
+      includeContent: props.mapContent,
+      hires: props.mapHires,
     })
   }
 

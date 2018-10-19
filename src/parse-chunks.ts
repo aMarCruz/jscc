@@ -19,59 +19,55 @@ export const parseChunks = function (
 ) {
   const parser = new Parser(props)
 
-  let changes     = false       // for performance, avoid generating sourceMap
-  let hasOutput   = true        // the output state of the parser starts `true`
-  let hideStart   = 0           // keep the start position of the block to hide
-  let lastIndex   = 0           // keep the position of the next chunk to parse
+  let changes   = false         // for performance, avoid generating sourceMap
+  let hideStart = 0             // keep the start position of the block to hide
+  let lastIndex = 0             // keep the position of the next chunk to parse
 
   const re = parser.getRegex()  // $1:keyword, $2:expression
-  let match = re.exec(source)
+  let match
 
-  while (match) {
+  while ((match = re.exec(source))) {
     const index = match.index
+    const hasOutput = parser.hasOutput
 
     // If it is neccessary, replace memvars in the current chunk and flush it
-    if (hasOutput && lastIndex < index) {
-      if (flush(source.slice(lastIndex, index), lastIndex)) {
-        changes = true
-      }
+    if (hasOutput && index > lastIndex &&
+        flush(source.slice(lastIndex, index), lastIndex)) {
+      changes = true
     }
-
-    lastIndex = re.lastIndex
 
     if (hasOutput === parser.parse(match)) {
       // The output state has not changed: if the output is enabled, remove
       // the line of the processed directive.
       // (otherwise it will removed together with the current hidden block).
       if (hasOutput) {
-        lastIndex = re.lastIndex = remove(index, lastIndex)
+        re.lastIndex = remove(index, re.lastIndex)
         changes = true
       }
 
     } else if (hasOutput) {
       // The output ends: for now, we only save the position where this new
       // hidden block begins.
-      hasOutput = false
       hideStart = index
 
     } else {
       // The output begins: remove the hidden block that we are leaving.
       // (hasOutput is initialized with `true`, so a hidden block exists)
-      hasOutput = changes = true
-      lastIndex = re.lastIndex = remove(hideStart, lastIndex)
+      re.lastIndex = remove(hideStart, re.lastIndex)
+      changes = true
     }
 
-    match = re.exec(source)
+    lastIndex = re.lastIndex
   }
 
   // This will throw if the buffer has unbalanced blocks
   parser.close()
 
-  if (hasOutput && source.length > lastIndex &&
+  // This final flush is necessary, don't delete it
+  if (parser.hasOutput && source.length > lastIndex &&
       flush(source.slice(lastIndex), lastIndex)) {
     changes = true
   }
 
-  // always returns an object
   return changes
 }

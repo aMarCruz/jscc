@@ -10,11 +10,21 @@ const DEF_PREFIX = /\/[/*]|<!--|<!/.source
  *
  * @param error Error instance or string with the error
  */
-const defErrorHandler = (error: string | Error) => {
+const errorHandler = (error: string | Error) => {
   if (typeof error == 'string') {
     error = new Error(error)
   }
   throw error
+}
+
+const parsePrefix = (prefix: any) => {
+  if (prefix instanceof RegExp) {
+    return prefix.source
+  }
+  if (typeof prefix == 'string') {
+    return escapeRegex(prefix)
+  }
+  return errorHandler('jscc `prefixes` must be an array of strings or regexes')
 }
 
 /**
@@ -25,8 +35,6 @@ const defErrorHandler = (error: string | Error) => {
  */
 export function parseOptions (file: string, opts?: JsccOptions): JsccProps {
   opts = opts || {}
-
-  const errorHandler = defErrorHandler
 
   // Extract the user defined values ----------------------------------------
 
@@ -59,15 +67,7 @@ export function parseOptions (file: string, opts?: JsccOptions): JsccProps {
     const list = Array.isArray(prefixes) ? prefixes : [prefixes]
 
     // Discard empty prefixes and ensure to get a string from the rest
-    prefixes = list.filter(Boolean).map((prefix) => {
-      if (prefix instanceof RegExp) {
-        return prefix.source
-      }
-      if (typeof prefix == 'string') {
-        return escapeRegex(prefix)
-      }
-      return errorHandler('jscc `prefixes` must be an array of strings or regexes')
-    })
+    prefixes = list.filter(Boolean).map(parsePrefix)
   }
 
   prefixes = prefixes.length ? (prefixes as string[]).join('|') : DEF_PREFIX
@@ -76,7 +76,7 @@ export function parseOptions (file: string, opts?: JsccOptions): JsccProps {
   return {
     keepLines:  !!opts.keepLines,
     mapContent: !!opts.mapContent,
-    mapHires:   !!opts.mapHires,
+    mapHires:   opts.mapHires  !== false,
     sourceMap:  opts.sourceMap !== false,
     errorHandler,
     prefixes,
