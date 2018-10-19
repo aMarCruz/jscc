@@ -5,8 +5,8 @@ import { STRINGS, ASSIGNMENT, VARNAME } from './regexes'
 import { evalExpr } from './eval-expr'
 
 interface ParserState {
-  state: State,
-  block: Block,
+  state: State;
+  block: Block;
 }
 
 // branch type
@@ -23,6 +23,9 @@ const enum State {
   ENDING,
 }
 
+// Want this to check endif scope
+const ENDIF_MASK = Block.IF | Block.ELSE
+
 // Matches a line with a directive, not including line-ending
 const S_RE_BASE = /^[ \t\f\v]*(?:@)#(if|ifn?set|elif|else|endif|set|unset|error)(?:(?=[ \t])(.*)|\/\/.*)?$/.source
 
@@ -37,7 +40,7 @@ const R_LASTCMT = new RegExp(`${STRINGS.source}|(//)`, 'g')
  */
 export class Parser {
 
-  private cc = [{
+  private _cc = [{
     state: State.WORKING,
     block: Block.NONE,
   }]
@@ -55,7 +58,7 @@ export class Parser {
 
     const key   = match[1]
     const expr  = this._normalize(key, match[2])
-    const cc    = this.cc
+    const cc    = this._cc
 
     let ccInfo  = cc[cc.length - 1]
     let state   = ccInfo.state
@@ -65,66 +68,44 @@ export class Parser {
       case 'if':
       case 'ifset':
       case 'ifnset':
-        if (state !== State.ENDING) {
-          state = this._getValue(key, expr) ? State.WORKING : State.TESTING
-        }
+        state = state === State.ENDING ? state
+          :  this._getValue(key, expr) ? State.WORKING : State.TESTING
         ccInfo = { state, block: Block.IF }
         cc.push(ccInfo)
         break
 
       case 'elif':
         // #elif swap the state, unless it is ENDING
-        this._checkBlock(ccInfo, Block.IF, key)
-        if (state === State.TESTING && this._getValue('if', expr)) {
-          ccInfo.state = State.WORKING
-        } else if (state === State.WORKING) {
+        this._checkBlock(ccInfo, key)
+        if (state === State.WORKING) {
           ccInfo.state = State.ENDING
+        } else if (state === State.TESTING && this._getValue('if', expr)) {
+          ccInfo.state = State.WORKING
         }
         break
 
       case 'else':
         // #else set the state to WORKING or ENDING
-        this._checkBlock(ccInfo, Block.IF, key)
+        this._checkBlock(ccInfo, key)
         ccInfo.block = Block.ELSE
         ccInfo.state = state === State.TESTING ? State.WORKING : State.ENDING
         break
 
       case 'endif':
         // #endif pops the state
-        this._checkBlock(ccInfo, Block.IF | Block.ELSE, key)
+        this._checkBlock(ccInfo, key)
         cc.pop()
         ccInfo = cc[cc.length - 1]
         break
 
       default:
         // #set #unset #error is processed for working blocks only
-        if (state === State.WORKING) {
-          switch (key) {
-            case 'set':
-              this._set(expr)
-              break
-            case 'unset':
-              this._unset(expr)
-              break
-            case 'error':
-              this._error(expr)
-          }
-        }
+        this._handleInstruction(key, expr, state)
         break
     }
 
     return ccInfo.state === State.WORKING
   }
-
-  // Inner helper - throws if the current block is not of the expected type
-  _checkBlock (ccInfo: ParserState, mask: number, ckey: string) {
-    const block = ccInfo.block
-
-    if (block === Block.NONE || block !== (block & mask)) {
-      this._emitError(`Unexpected #${ckey}`)
-    }
-  }
-
 
   /**
    * Check unclosed blocks before vanish.
@@ -132,7 +113,7 @@ export class Parser {
    * @returns {boolean} `true` if no error.
    */
   close () {
-    const cc  = this.cc
+    const cc  = this._cc
     const err = cc.length !== 1 || cc[0].state !== State.WORKING
 
     if (err) {
@@ -150,12 +131,15 @@ export class Parser {
   }
 
   /**
-   * Internal error handler. Set the state to ERROR and calls the
-   * method `options.errorHandler`, if any, or throws an error.
+   * Internal error handler.
+   * This wrap a call to `options.errorHandler` that throws an exception.
    *
-   * @param {string} message - Error description
+   * _NOTE:_ Sending `Error` enhances coverage of errorHandler that must
+   *    be prepared to receive Error objects in addition to strings.
+   *
+   * @param {string} message - Description of the error
    */
-  _emitError (message: string) {
+  private _emitError (message: string) {
     this.options.errorHandler(new Error(message))
   }
 
@@ -164,19 +148,19 @@ export class Parser {
    * It is necessary to skip quoted strings and avoid truncation
    * of expressions like "file:///path"
    *
-   * @param   {string} ckey - The key name
-   * @param   {string} expr - The extracted expression
-   * @returns {string}      Normalized expression.
+   * @param {string} key The key name
+   * @param {string} expr The extracted expression
+   * @returns {string} Normalized expression.
    */
-  _normalize (ckey: string, expr: string) {
+  private _normalize (key: string, expr: string) {
     // anything after `#else/#endif` is ignored
-    if (ckey === 'else' || ckey === 'endif') {
+    if (key === 'else' || key === 'endif') {
       return ''
     }
 
     // ...other keywords must have an expression
     if (!expr) {
-      this._emitError(`Expression expected for #${ckey}`)
+      this._emitError(`Expression expected for #${key}`)
     }
 
     let match
@@ -200,7 +184,7 @@ export class Parser {
    * @param expr The extracted expression
    * @returns Evaluated expression.
    */
-  _getValue (ckey: 'if' | 'ifset' | 'ifnset', expr: string) {
+  private _getValue (ckey: 'if' | 'ifset' | 'ifnset', expr: string) {
 
     if (ckey !== 'if') {
       const yes = expr in this.options.values ? 1 : 0
@@ -213,11 +197,44 @@ export class Parser {
   }
 
   /**
+   * Throws if the current block is not of the expected type.
+   */
+  private _checkBlock (ccInfo: ParserState, key: string) {
+    const block = ccInfo.block
+    const mask = key === 'endif' ? ENDIF_MASK : Block.IF
+
+    if (block === Block.NONE || block !== (block & mask)) {
+      this._emitError(`Unexpected #${key}`)
+    }
+  }
+
+  /**
+   * Handles an instruction that change a varname or emit an error
+   * (currenty #set, #unset, and #error).
+   *
+   * @param expr Normalized expression
+   */
+  private _handleInstruction (key: string, expr: string, state: State) {
+    if (state === State.WORKING) {
+      switch (key) {
+        case 'set':
+          this._set(expr)
+          break
+        case 'unset':
+          this._unset(expr)
+          break
+        case 'error':
+          this._error(expr)
+      }
+    }
+  }
+
+  /**
    * Evaluates an expression and add the result to the `values` property.
    *
    * @param expr Expression normalized in the "varname=value" format
    */
-  _set (expr: string) {
+  private _set (expr: string) {
     const match = expr.match(ASSIGNMENT)
 
     if (match) {
@@ -236,7 +253,7 @@ export class Parser {
    *
    * @param varname Variable name
    */
-  _unset (varname: string) {
+  private _unset (varname: string) {
     if (varname.match(VARNAME)) {
       delete this.options.values[varname]
     } else {
@@ -249,7 +266,7 @@ export class Parser {
    *
    * @param expr Expression
    */
-  _error (expr: string) {
+  private _error (expr: string) {
     expr = String(evalExpr(this.options, expr))
     this._emitError(expr)
   }

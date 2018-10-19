@@ -1,5 +1,5 @@
 import MagicString from 'magic-string'
-import { Parser } from './parser'
+import { parseChunks } from './parse-chunks'
 import { remapVars } from './remap-vars'
 
 /**
@@ -16,8 +16,7 @@ export function parseBuffer (
   props: JsccProps
 ) {
 
-  const magicStr  = new MagicString(source)
-  const parser    = new Parser(props)
+  const magicStr = new MagicString(source)
 
   /**
    * If the parsed `chunk` seems to contain varnames to replace, call the
@@ -28,7 +27,7 @@ export function parseBuffer (
    * @param start Position of the chunk into the original buffer
    * @returns `true` if the chunk was changed
    */
-  const pushCache = (str: string, start: number) => {
+  const flush = (str: string, start: number) => {
     return ~str.indexOf('$_') &&
       remapVars(magicStr, props.values, str, start)
   }
@@ -41,7 +40,7 @@ export function parseBuffer (
    * @param end Ending position of the chunk (the line-ending)
    * @returns The position of the character following the removed block.
    */
-  const removeBlock = (start: number, end: number) => {
+  const remove = (start: number, end: number) => {
     let block = ''
 
     if (props.keepLines) {
@@ -55,74 +54,19 @@ export function parseBuffer (
     return end
   }
 
-  /*
-    The main routine search the starting of jscc directives through the buffer.
-    For each match found, call the parser with the result of the regex.
-    The parser will return the next position from which to continue the search.
-  */
+  // Parse the buffer chunk by chunk and get the changed status
+  const changes = parseChunks(source, props, flush, remove)
 
-  let changes     = false       // for performance, avoid generating sourceMap
-  let hasOutput   = true        // the output state of the parser starts `true`
-  let hideStart   = 0           // keep the start position of the block to hide
-  let lastIndex   = 0           // keep the position of the next chunk to parse
-
-  const re = parser.getRegex()  // $1:keyword, $2:expression
-  let match = re.exec(source)
-
-  while (match) {
-    const index = match.index
-
-    // If it is neccessary, replace memvars in the current chunk and flush it
-    if (hasOutput && lastIndex < index) {
-      if (pushCache(source.slice(lastIndex, index), lastIndex)) {
-        changes = true
-      }
-    }
-
-    lastIndex = re.lastIndex
-
-    if (hasOutput === parser.parse(match)) {
-      // The output state has not changed: if the output is enabled, remove
-      // the line of the processed directive.
-      // (otherwise it will removed together with the current hidden block).
-      if (hasOutput) {
-        lastIndex = re.lastIndex = removeBlock(index, lastIndex)
-        changes = true
-      }
-
-    } else if (hasOutput) {
-      // The output ends: for now, we only save the position where this new
-      // hidden block begins.
-      hasOutput = false
-      hideStart = index
-
-    } else {
-      // The output begins: remove the hidden block that we are leaving.
-      // (hasOutput is initialized with `true`, so a hidden block exists)
-      hasOutput = changes = true
-      lastIndex = re.lastIndex = removeBlock(hideStart, lastIndex)
-    }
-
-    match = re.exec(source)
-  }
-
-  // This will throw if the buffer has unbalanced blocks
-  parser.close()
-
-  if (hasOutput && source.length > lastIndex &&
-      pushCache(source.slice(lastIndex), lastIndex)) {
-    changes = true
-  }
-
-  // always returns an object
+  // Always returns an object, the sourceMap will be added only...
   const result: JsccParserResult = {
     code: changes ? magicStr.toString() : source,
   }
 
+  // ...if it is requiered and the source has changed.
   if (changes && props.sourceMap) {
     result.map = magicStr.generateMap({
       source: filename || undefined,
-      includeContent: props.mapContent !== false,
+      includeContent: props.mapContent === true,
       hires: props.mapHires !== false,
     })
   }

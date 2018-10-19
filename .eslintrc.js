@@ -8,6 +8,10 @@ module.exports = {
   root: YES,
   parser: 'typescript-eslint-parser',
 
+  plugins: [
+    'typescript',
+  ],
+
   parserOptions: {
     ecmaVersion: 2017,
     impliedStrict: YES,
@@ -35,6 +39,7 @@ module.exports = {
     'comma-dangle': [ON, 'always-multiline'],
     'comma-spacing': ON,
     'comma-style': ON,
+    'complexity': [ON, 13],   // default is 20
     'computed-property-spacing': ON,
     'consistent-return': ON,
     'consistent-this': [ON, '_self'],
@@ -52,9 +57,9 @@ module.exports = {
     'key-spacing': [ON, { mode: 'minimum' }],
     'keyword-spacing': ON,
     'linebreak-style': [ON, 'unix'],
-    'max-depth': [ON, 5],
+    'max-depth': ON,
     'max-len': [1, 120, 4, { ignoreUrls: YES, ignorePattern: '=\\s+/.+/' }],
-    'max-nested-callbacks': [ON, 5],
+    'max-nested-callbacks': [ON, 5],  // default is 10
     'new-parens': ON,
     'no-alert': ON,
     'no-array-constructor': ON,
@@ -134,9 +139,16 @@ module.exports = {
     'wrap-iife': [ON, 'inside'],
     'yield-star-spacing': ON,
     'yoda': [ON, 'never'],
+
+    // Typescript ------------------------------------------------------------
+    'typescript/adjacent-overload-signatures': ON,
+    'typescript/class-name-casing': ON,
+    'typescript/member-delimiter-style': ON,
+    'typescript/member-naming': [ON, { private: '^_', protected: '^_' }],
+    'typescript/no-use-before-define': [ON, { functions: false, typedefs: false }],
   },
   overrides: {
-    files: ['test/*.js'],
+    files: ['test/'],
     env: {
       mocha: YES,
     },

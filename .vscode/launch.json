@@ -7,7 +7,7 @@
       "request": "launch",
       "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
       "stopOnEntry": false,
-      "args": ["--no-timeouts", "--check-leaks"],
+      "args": ["--no-timeouts", "--check-leaks", "${workspaceRoot}/test/*.ts"],
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "npm: pretest",
       "runtimeExecutable": null,

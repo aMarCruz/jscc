@@ -13,12 +13,12 @@ interface Jscc {
     filename: string | null | undefined,
     options: JsccOptions | null | undefined,
     callback: JsccCallback,
-  ): undefined
+  ): undefined;
   (
     source: string,
     filename?: string | null,
     options?: JsccOptions | null,
-  ): JsccParserResult
+  ): JsccParserResult;
 }
 
 declare module 'jscc' {
@@ -35,21 +35,21 @@ interface JsccOptions {
    * keeping the line count.
    * @default false
    */
-  keepLines?: boolean,
+  keepLines?: boolean;
   /**
    * Include the original source in the sourceMap.
    */
-  mapContent?: boolean,
+  mapContent?: boolean;
   /**
    * Make a hi-res sourceMap.
    */
-  mapHires?: boolean,
+  mapHires?: boolean;
   /**
    * String or array of strings with sequences that starts a directive.
    * That is, the characters before the pound sign, usually the start of comments.
    * @default ['//','/*','<!--']
    */
-  prefixes?: string | RegExp | Array<string | RegExp>,
+  prefixes?: string | RegExp | Array<string | RegExp>;
   /**
    * Set this option to `false` to suppress source map generation.
    *
@@ -57,7 +57,7 @@ interface JsccOptions {
    * should take its value from equivalent property of the parent tool.
    * @default true
    */
-  sourceMap?: boolean,
+  sourceMap?: boolean;
   /**
    * Plain object defining the variables used by jscc during the preprocessing.
    *
@@ -66,22 +66,22 @@ interface JsccOptions {
    *
    * It has two predefined varnames: `_FILE` and `_VERSION`.
    */
-  values?: { [k: string]: any },
+  values?: { [k: string]: any };
 }
 
 interface JsccParserResult {
-  code: string,
-  map?: import('magic-string').SourceMap,
+  code: string;
+  map?: import('magic-string').SourceMap;
 }
 
 interface JsccCallback {
-  (error: Error | null, data?: JsccParserResult): void
+  (error: Error | null, data?: JsccParserResult): void;
 }
 
 type JsccValidTypes = any
 
 interface JsccValues {
-  [k: string]: JsccValidTypes,
-  _VERSION: string,
-  _FILE: string
+  [k: string]: JsccValidTypes;
+  _VERSION: string;
+  _FILE: string;
 }
