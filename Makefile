@@ -25,6 +25,7 @@ endif
 send_cover:
 ifeq ($(CURBUILD),$(REQBUILD))
 	@ ./cc-test-reporter after-build --exit-code $(TRAVIS_TEST_RESULT)
+	@ codecov -f coverage/*.json
 endif
 
 .PHONY: setup_cover send_cover
