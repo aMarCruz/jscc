@@ -7,9 +7,6 @@ REQBUILD = "6.0"
 setup_cover:
 ifeq ($(CURBUILD),$(REQBUILD))
   @ npm i -g nyc codecov
-	@ curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-	@ chmod +x ./cc-test-reporter
-	@ ./cc-test-reporter before-build
 else
 	@ echo Coverage will be sent in $(REQBUILD)
 endif
@@ -24,7 +21,6 @@ endif
 
 send_cover:
 ifeq ($(CURBUILD),$(REQBUILD))
-	@ ./cc-test-reporter after-build --exit-code $(TRAVIS_TEST_RESULT)
 	@ codecov -f coverage/*.json
 endif
 
