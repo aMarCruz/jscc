@@ -8,6 +8,6 @@ engines:
       - BUG
 
 ratings:
-  paths: ["dist/**/*.js"]
+  paths: ["src/**/*.ts"]
 
-exclude_paths: ["src/**/*", "test/**/*"]
+exclude_paths: ["dist/", "test/", "cov-int/", "coverage/"]
