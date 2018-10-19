@@ -40,40 +40,56 @@ const stringifyValue = (value: any) => {
     return 'null'
   }
 
-  // This is a non-null, non-NaN object, array, date, regexp, etc
   if (value && typeof value == 'object') {
+
+    // This is a non-null, non-NaN object, array, date, regexp, etc
     if (value instanceof Date) {
-      return value.toISOString()
+      value = value.toISOString()
+
+    } else if (value instanceof RegExp) {
+      value = value.source
+
+    } else {
+      value = JSON.stringify(value, stringifyFn)
     }
-    if (value instanceof RegExp) {
-      return value.source
-    }
-    return JSON.stringify(value, stringifyFn)
+
+  } else {
+    // This is a primitive value or null or undefined.
+    value = String(value)
   }
 
-  // This is a primitive value or null or undefined.
-  return String(value)
+  return value
 }
 
 /**
- * Returns the value of the property or properties 'props' of 'obj'.
+ * Returns the given value or the property value if this is an object
+ * and the replaced string has a property list.
  *
- * @param obj Source object
- * @param props properties in dot notation
+ * @param value Source value or object
+ * @param match Contain the property in $2
  * @throws TypeError if you try to read the prop on a null object.
  */
-const getPropsValue = (obj: any, props: string) => {
-  const list = props.split('.')
+const getValue = (value: any, match: RegExpExecArray) => {
 
-  while (list.length) {
-    const prop = list.shift()!
+  // Check object properties
+  const propPath = match[2] && match[2].slice(1)
 
-    // the next assignment will raise a TypeError if obj is null or undefined,
-    // or convent obj to undefined if obj is a primitive value... it is ok.
-    obj = obj[prop]
+  // Replace with the property value only if this is an aobject
+  if (propPath && typeof value == 'object') {
+    const props = propPath.split('.')
+
+    while (props.length) {
+      const prop = props.shift()!
+
+      // the next assignment will raise a TypeError if obj is null or undefined,
+      // or convent obj to undefined if obj is a primitive value... it is ok.
+      value = value[prop]
+    }
+
+    match[1] = match[0]   // to replace all the match
   }
 
-  return obj
+  return value
 }
 
 /**
@@ -99,17 +115,10 @@ export function remapVars (magicStr: MagicString, values: JsccValues, fragment: 
     const vname = match[1].slice(1)    // strip the prefix '$'
 
     if (vname in values) {
-      const props = match[2] && match[2].slice(1)
-      const idx = start + match.index
-      let value = values[vname]
+      const index = start + match.index
+      const value = getValue(values[vname], match)
 
-      // Check for non-null objects first.
-      if (props && typeof value == 'object') {
-        value = getPropsValue(value, props)
-        match[1] = match[0]
-      }
-
-      magicStr.overwrite(idx, idx + match[1].length, stringifyValue(value))
+      magicStr.overwrite(index, index + match[1].length, stringifyValue(value))
       changes = true
     }
 
