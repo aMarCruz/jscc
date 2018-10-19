@@ -14,7 +14,7 @@
     "prepublish": "npm run build",
     "pretest": "tsc",
     "start": "mocha --watch test/*.ts",
-    "test": "./node_modules/mocha/bin/_mocha -- test/*.ts",
+    "test": "mocha -- test/*.ts",
     "pretravis": "yarn lint && tsc --sourceMap false --inlineSourceMap",
     "travis": "nyc --produce-source-map -s -e ts -e js mocha test/*.ts",
     "posttravis": "nyc report -r=json -r=lcov",

@@ -1,11 +1,12 @@
 # jscc
 
+[![AppVeyor][appveypr-image]][appveypr-url]
 [![Build Status][build-image]][build-url]
 [![CodeClimate][climate-image]][climate-url]
-[![Coverage][coverage-image]][coverage-url]
+[![codebeat][codebeat-image]][codebeat-url]
+[![Coverage][codecov-image]][codecov-url]
 [![npm][npm-image]][npm-url]
 [![License][license-image]][license-url]
-[![codecov](https://codecov.io/gh/aMarCruz/jscc/branch/dev/graph/badge.svg)](https://codecov.io/gh/aMarCruz/jscc)
 
 Featuring some of the C preprocessor characteristics through special, configurable comments, jscc can be used in any type of files to build multiple versions of your software from the same code base.
 
@@ -158,10 +159,9 @@ Expected:
 
 Don't forget to give me your star!
 
-[![codebeat][codebeat-image]][codebeat-url]
-[![Coverity][coverity-image]][coverity-url]
-[![DeepScan grade][deepscan-image]][deepscan-url]
 
+[appveypr-image]: https://ci.appveyor.com/api/projects/status/hdsef0p6q0oqr127?svg=true
+[appveypr-url]:   https://ci.appveyor.com/project/aMarCruz/jscc
 [build-image]:    https://img.shields.io/travis/aMarCruz/jscc.svg
 [build-url]:      https://travis-ci.org/aMarCruz/jscc
 [wbuild-image]:   https://img.shields.io/appveyor/ci/aMarCruz/jscc/master.svg?style=flat-square
@@ -176,8 +176,8 @@ Don't forget to give me your star!
 [codebeat-url]:   https://codebeat.co/projects/github-com-amarcruz-jscc-dev
 [coverity-image]: https://scan.coverity.com/projects/10389/badge.svg
 [coverity-url]:   https://scan.coverity.com/projects/amarcruz-jscc
-[coverage-image]: https://codeclimate.com/github/aMarCruz/jscc/badges/coverage.svg
-[coverage-url]:   https://codeclimate.com/github/aMarCruz/jscc/coverage
+[codecov-image]:  https://codecov.io/gh/aMarCruz/jscc/branch/dev/graph/badge.svg
+[codecov-url]:    https://codecov.io/gh/aMarCruz/jscc
 [npm-image]:      https://img.shields.io/npm/v/jscc.svg
 [npm-url]:        https://www.npmjs.com/package/jscc
 [license-image]:  https://img.shields.io/npm/l/express.svg
