@@ -9,31 +9,32 @@ import { join } from 'path'
  * @param {any} [version] Already defined version
  * @returns {string} Package version, or empty if it could not be found.
  */
-export const getPackageVersion = (version?: string) => {
+export const getPackageVersion = (version: string) => {
 
-  // keep already defined version, if any
+  // Keep any already defined user version
   if (version && typeof version == 'string') {
     return version
   }
 
-  // start with the current working directory, with normalized slashes
+  // Start with the current working directory, with normalized slashes
   let path = process.cwd().replace(/\\/g, '/')
+  version = ''
 
-  // search up to the root
-  while (~path.indexOf('/')) {
+  do {
+    // Try to get the version, the package may not contain one.
     try {
       const pkgname = join(path, 'package.json')
-      const pkgjson = require(pkgname)
-
-      if (pkgjson.version) {
-        return pkgjson.version
-      }
+      version = require(pkgname).version || ''
     } catch { /**/ }
+
+    if (version) {
+      break
+    }
 
     // package.json not found or does not contains version, move up
     path = path.replace(/\/[^/]*$/, '')
-  }
 
-  // istanbul ignore next
-  return ''
+  } while (~path.indexOf('/'))
+
+  return version
 }
