@@ -14,8 +14,7 @@ import { Parser } from './parser'
 export const parseChunks = function (
   source: string,
   props: JsccProps,
-  flush: ChunkFlusher,
-  remove: ChunkRemover
+  helper: { flush: ChunkFlusher, remove: ChunkRemover }
 ) {
   const parser = new Parser(props)
 
@@ -32,7 +31,7 @@ export const parseChunks = function (
 
     // If it is neccessary, replace memvars in the current chunk and flush it
     if (hasOutput && index > lastIndex &&
-        flush(source.slice(lastIndex, index), lastIndex)) {
+        helper.flush(source.slice(lastIndex, index), lastIndex)) {
       changes = true
     }
 
@@ -41,7 +40,7 @@ export const parseChunks = function (
       // the line of the processed directive.
       // (otherwise it will removed together with the current hidden block).
       if (hasOutput) {
-        re.lastIndex = remove(index, re.lastIndex)
+        re.lastIndex = helper.remove(index, re.lastIndex)
         changes = true
       }
 
@@ -53,7 +52,7 @@ export const parseChunks = function (
     } else {
       // The output begins: remove the hidden block that we are leaving.
       // (hasOutput is initialized with `true`, so a hidden block exists)
-      re.lastIndex = remove(hideStart, re.lastIndex)
+      re.lastIndex = helper.remove(hideStart, re.lastIndex)
       changes = true
     }
 
@@ -65,7 +64,7 @@ export const parseChunks = function (
 
   // This final flush is necessary, don't delete it
   if (parser.hasOutput && source.length > lastIndex &&
-      flush(source.slice(lastIndex), lastIndex)) {
+      helper.flush(source.slice(lastIndex), lastIndex)) {
     changes = true
   }
 

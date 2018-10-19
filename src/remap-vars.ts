@@ -108,8 +108,8 @@ export function remapVars (magicStr: MagicString, values: JsccValues, fragment: 
   const re = new RegExp(VARS_TO_REPL.source, 'g')
   let match = re.exec(fragment)
 
-  // $1 = varname including the prefix '$'
-  // $2 = optional property name(s)
+  // $1: varname including the prefix '$'
+  // $2: optional property name(s)
 
   while (match) {
     const vname = match[1].slice(1)    // strip the prefix '$'
