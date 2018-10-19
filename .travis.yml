@@ -14,13 +14,13 @@ git:
     quiet: true
 
 before_script:
-    - setup_cover
+    - make setup_cover
 
 script:
-    - yarn lint && yarn test
+    - make run_test
 
 after_script:
-    - send_cover
+    - make send_cover
 
 notifications:
     email: false
