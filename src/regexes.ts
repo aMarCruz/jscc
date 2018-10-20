@@ -61,3 +61,8 @@ export const VARS_TO_REPL = /(?:(\$_[0-9A-Z][_0-9A-Z]*)((?:\.\w+)+)*)(?=\W|$)/g
  * It has no captures.
  */
 export const STRINGS = RegExp(STR_BASE + '|' + STR_BASE.replace(/"/g, "'"), 'g')
+
+/**
+ * Matches line-ending of win, mac, and unix type
+ */
+export const EOLS = /[^\r\n]+/g

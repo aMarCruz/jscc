@@ -1,4 +1,5 @@
 import { remapVars } from './remap-vars'
+import { EOLS } from './regexes'
 
 /**
  * Helper class for the `parseChunks` function.
@@ -45,20 +46,19 @@ export class ParseHelper {
    * @returns Position of the character following the removed block.
    */
   remove (start: number, end: number, output: boolean) {
-    let block = ''
 
-    if (this.props.keepLines) {
-      if (output) {
-        block = this.source.slice(start, end).replace(/[^\r\n]+/g, '')
-      }
-
-    } else if (end < this.source.length) {
+    if (end < this.source.length) {
       end += this.source[end] === '\r' && this.source[end + 1] === '\n' ? 2 : 1
     }
 
+    // Only do the replacement if the output is enabled
     if (output) {
+      const block = this.props.keepLines
+        ? this.source.slice(start, end).replace(EOLS, '') : ''
+
       this.props.magicStr.overwrite(start, end, block)
     }
+
     return end
   }
 }
