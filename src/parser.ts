@@ -50,10 +50,10 @@ export class Parser {
   constructor (private options: JsccProps) {
   }
 
-  get hasOutput () {
-    const index = this._cc.length - 1
-    return index >= 0 && this._cc[index].state === State.WORKING
-  }
+  /**
+   * Is the output active?
+   */
+  hasOutput = true
 
   /**
    * Returns a regex that matches directives through all the code.
@@ -74,9 +74,8 @@ export class Parser {
 
     const key   = match[1]
     const expr  = this._normalize(key, match[2])
-    const cc    = this._cc
 
-    let ccInfo  = cc[cc.length - 1]
+    let ccInfo  = this._cc[this._cc.length - 1]
 
     switch (key) {
       // #if* pushes WORKING or TESTING, unless the state is ENDING
@@ -104,10 +103,9 @@ export class Parser {
       default:
         // #set #unset #error is processed for working blocks only
         this._handleInstruction(key, expr, ccInfo.state)
-        break
     }
 
-    return ccInfo.state === State.WORKING
+    return (this.hasOutput = ccInfo.state === State.WORKING)
   }
 
   /**
@@ -184,7 +182,7 @@ export class Parser {
   /**
    * Push a if, ifset, or ifnset directive
    */
-  _pushState (ccInfo: ParserState, key: IfDirective, expr: string) {
+  private _pushState (ccInfo: ParserState, key: IfDirective, expr: string) {
     ccInfo = {
       block: Block.IF,
       state: ccInfo.state === State.ENDING ? State.ENDING
@@ -197,7 +195,7 @@ export class Parser {
   /**
    * Handles elif directives
    */
-  _handleElif (ccInfo: ParserState, key: string, expr: string) {
+  private _handleElif (ccInfo: ParserState, key: string, expr: string) {
     this._checkBlock(ccInfo, key)
 
     if (ccInfo.state === State.WORKING) {
@@ -210,7 +208,7 @@ export class Parser {
   /**
    * Handles else directives
    */
-  _handleElse (ccInfo: ParserState, key: string) {
+  private _handleElse (ccInfo: ParserState, key: string) {
     this._checkBlock(ccInfo, key)
 
     ccInfo.block = Block.ELSE
@@ -220,7 +218,7 @@ export class Parser {
   /**
    * Pop the if, ifset, or ifnset directives after endif.
    */
-  _popState (ccInfo: ParserState, key: string) {
+  private _popState (ccInfo: ParserState, key: string) {
     this._checkBlock(ccInfo, key)
 
     const cc = this._cc
@@ -244,7 +242,9 @@ export class Parser {
           this._unset(expr)
           break
         case 'error':
-          this._error(expr)
+          expr = String(evalExpr(this.options, expr))
+          this._emitError(expr)
+          break
       }
     }
   }
@@ -282,16 +282,6 @@ export class Parser {
   }
 
   /**
-   * Throws an user generated error.
-   *
-   * @param expr Expression
-   */
-  private _error (expr: string) {
-    expr = String(evalExpr(this.options, expr))
-    this._emitError(expr)
-  }
-
-  /**
    * Evaluates the expression of a `#if`, `#ifset`, or `#ifnset` directive.
    *
    * For `#ifset` and #ifnset, the value is evaluated here,
@@ -305,12 +295,15 @@ export class Parser {
 
     // Returns the raw value for #if expressions
     if (key === 'if') {
-      return evalExpr(this.options, expr)
+      return evalExpr(this.options, expr) ? 1 : 0
     }
 
     // Returns a boolean-like number for ifdef/ifndef
-    return expr in this.options.values
-      ? (key === 'ifset' ? 1 : 0)
-      : (key === 'ifset' ? 0 : 1)
+    let yes = expr in this.options.values ? 1 : 0
+    if (key === 'ifnset') {
+      yes ^= 1  // invert
+    }
+
+    return yes
   }
 }
