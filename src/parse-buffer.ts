@@ -1,7 +1,7 @@
 import MagicString from 'magic-string'
 import { Parser } from './parser'
 import { parseChunks } from './parse-chunks'
-import { createHelper } from './parse-helper'
+import { ParseHelper } from './parse-helper'
 
 /**
  * Parse the received buffer and returns an object with the parsed code and its
@@ -17,7 +17,7 @@ export function parseBuffer (
 
   // Add the MagicString instance to the props as well.
   const magicStr  = props.magicStr = new MagicString(source)
-  const helper    = createHelper(source, props)
+  const helper    = new ParseHelper(source, props)
 
   // Parse the buffer chunk by chunk and get the changed status
   const changes   = parseChunks(new Parser(props), source, helper)

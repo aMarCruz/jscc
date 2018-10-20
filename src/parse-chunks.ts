@@ -1,4 +1,6 @@
+// typings
 import { Parser } from './parser'
+import { ParseHelper } from './parse-helper'
 
 /**
  * This routine search for the start of jscc directives through a buffer.
@@ -9,7 +11,7 @@ import { Parser } from './parser'
  * @param source The original source
  * @param helper Functions to flush and remove chuncks
  */
-export const parseChunks = function (parser: Parser, source: string, helper: ChunkHelper) {
+export const parseChunks = function (parser: Parser, source: string, helper: ParseHelper) {
 
   let hideStart = 0             // keep the start position of the block to hide
   let lastIndex = 0             // keep the position of the next chunk to parse
@@ -24,11 +26,8 @@ export const parseChunks = function (parser: Parser, source: string, helper: Chu
 
     changes = true
 
-    // If it is neccessary, replace memvars in the current chunk and flush it
-    if (output) {
-      //helper.flush(source.slice(lastIndex, index), lastIndex)
-      helper.commit(lastIndex, index)
-    }
+    // Replace varnames in the current chunk and flush it, if necessary.
+    helper.commit(lastIndex, index, output)
 
     if (output !== parser.parse(match)) {
       // Output state changed
@@ -48,17 +47,16 @@ export const parseChunks = function (parser: Parser, source: string, helper: Chu
       // will remove the line of the processed directive.
       hideStart = index
 
-      // Otherwise it will removed together with the current hidden block
-      // when this hidden block ends.
+      // Otherwise, it will be removed together with the current hidden
+      // block when this ends.
     }
 
-    lastIndex = output
-      ? (re.lastIndex = helper.remove(hideStart, re.lastIndex)) : re.lastIndex
+    lastIndex = re.lastIndex = helper.remove(hideStart, re.lastIndex, output)
   }
 
   // This will throw if the buffer has unbalanced blocks
   parser.close()
 
   // This final flush is necessary, don't delete it
-  return output && helper.commit(lastIndex, source.length) || changes
+  return helper.commit(lastIndex, source.length, true) || changes
 }
