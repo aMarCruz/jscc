@@ -11,14 +11,12 @@
   "scripts": {
     "build": "rimraf dist/** && yarn lint && tsc",
     "lint": "eslint --report-unused-disable-directives -c .eslintrc.js --ext ts test src",
-    "prepublish": "yarn build",
+    "prepublish": "yarn build && mocha test/*.ts",
     "prestart": "yarn lint & tsc",
     "start": "mocha --watch test/*.ts",
     "pretest": "yarn lint && tsc",
-    "test": "mocha -- test/*.ts",
-    "pretravis": "yarn lint && tsc",
-    "travis": "nyc -e ts -e js mocha test/*.ts",
-    "posttravis": "nyc report -r=json",
+    "test": "nyc mocha test/*.ts",
+    "coverage": "nyc report -r=text-lcov > coverage.lcov",
     "tsc": "tsc"
   },
   "keywords": [
@@ -56,6 +54,7 @@
     "eslint-plugin-typescript": "^0.12.0",
     "expect.js": "^0.3.1",
     "mocha": "^5.2.0",
+    "nyc": "^13.1.0",
     "rimraf": "^2.6.2",
     "ts-node": "^7.0.1",
     "tslib": "^1.9.3",

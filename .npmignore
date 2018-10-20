@@ -8,15 +8,16 @@ test
 
 # Exclude VSCode, CI, and Dev related stuff
 .vscode
-appveyor.*
-.codeclimate.*
-.travis.*
+.eslint*
+*.yml
+tsconfig*
 Makefile
 
 # Common git and npm ignored folders and files
 ~misc
 cov-int
 coverage
+coverage.*
 lib-cov
 node_modules
 package-lock.json
@@ -25,7 +26,8 @@ logs
 pids
 *.pid
 *.seed
-**/*.log
-**/*.bak
 *.tgz
 *.nyc_output
+**/*.bak
+**/*.lcov
+**/*.log

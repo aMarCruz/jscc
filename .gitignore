@@ -15,6 +15,7 @@ dist
 ~misc
 cov-int
 coverage
+coverage.*
 lib-cov
 node_modules
 package-lock.json
@@ -23,7 +24,8 @@ logs
 pids
 *.pid
 *.seed
-**/*.log
-**/*.bak
 *.tgz
 *.nyc_output
+**/*.bak
+**/*.lcov
+**/*.log

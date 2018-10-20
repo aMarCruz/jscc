@@ -2,7 +2,7 @@ language: node_js
 
 node_js:
     - "10"
-    - "6.0"
+    - "6.0.0"
 
 branches:
     only:
@@ -17,9 +17,9 @@ before_script:
     - make setup_cover
 
 script:
-    - make run_test
+    - yarn test
 
-after_script:
+after_success:
     - make send_cover
 
 notifications:
