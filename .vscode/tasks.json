@@ -18,11 +18,7 @@
     },
     {
       "type": "npm",
-      "script": "test",
-      "group": {
-        "kind": "test",
-        "isDefault": true
-      }
+      "script": "tsc",
     },
     {
       "type": "npm",

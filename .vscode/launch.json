@@ -9,7 +9,7 @@
       "stopOnEntry": false,
       "args": ["--no-timeouts", "--check-leaks", "${workspaceRoot}/test/*.ts"],
       "cwd": "${workspaceRoot}",
-      "preLaunchTask": "npm: pretest",
+      "preLaunchTask": "npm: tsc",
       "runtimeExecutable": null,
       "runtimeArgs": ["--nolazy"],
       "env": {

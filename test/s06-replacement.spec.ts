@@ -16,6 +16,17 @@ describe('Code Replacement', function () {
     testStr('$_TRUE$_TRUE', 'OKOK', { values: { _TRUE: 'OK' } })
   })
 
+  it('primitive string or String intance must output its unquoted value', function () {
+    testStr([
+      '$_V1$_V2',
+      '$_O.v1$_O.v2',
+      '$_O',
+    ], 'OKOK\nOKOK\n{"v1":"OK","v2":"OK"}', {
+      // eslint-disable-next-line no-new-wrappers
+      values: { _V1: 'OK', _V2: new String('OK'), _O: { v1: 'OK', v2: new String('OK') } },
+    })
+  })
+
   it('Infinity, -Infinity, and RegExp has custom stringify output', function () {
     testStr([
       '//#set _DATE new Date("2018-10-17T00:00:00Z")',
@@ -35,6 +46,24 @@ describe('Code Replacement', function () {
       'x = new Date("2018-10-17T00:00:00.000Z")',
       'x = null',
     ].join('\n'))
+  })
+
+  it('can use `Number` instances for the replacement', function () {
+    testStr([
+      '//#set _N1 new Number(Infinity)',
+      '//#set _N2 new Number(-Infinity)',
+      '$_N1',
+      '$_N2',
+    ], 'Infinity\n-Infinity')
+  })
+
+  it('`NaN` values on object instances must output `null`', function () {
+    testStr([
+      '//#set _N new Number(NaN)',
+      '//#set _D new Date(NaN)',
+      '$_N',
+      '$_D',
+    ], 'null\nnull')
   })
 
   it('must replace nested object properties (prop value)', function () {

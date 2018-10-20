@@ -17,15 +17,13 @@ const stringifyFn = (_: string, value: any) => {
     only returns `true` if value is Infinity or "Infinity" and the like
     for -Infinity.
   */
-  if (typeof value != 'string') {
-    // eslint-disable-next-line eqeqeq
-    if (value == Infinity) {
-      return Number.MAX_VALUE
-    }
-    // eslint-disable-next-line eqeqeq
-    if (value == -Infinity) {
-      return Number.MIN_VALUE
-    }
+  // eslint-disable-next-line eqeqeq
+  if (value == Infinity && value.constructor.name === 'Number') {
+    return Number.MAX_VALUE
+  }
+  // eslint-disable-next-line eqeqeq
+  if (value == -Infinity && value.constructor.name === 'Number') {
+    return Number.MIN_VALUE
   }
 
   return value instanceof RegExp ? value.source : value
@@ -42,7 +40,7 @@ const stringifyFn = (_: string, value: any) => {
  * @param obj Trueish object
  * @returns String representation of the object
  */
-const stringifyObject = (obj: object) => {
+const stringObject = (obj: object) => {
   let str
 
   // toISOString throw with NaN dates, toJSON returns `null`
@@ -51,6 +49,12 @@ const stringifyObject = (obj: object) => {
 
   } else if (obj instanceof RegExp) {
     str = obj.source
+
+  } else if (obj instanceof String) {
+    str = obj.valueOf()
+
+  } else if (obj instanceof Number) {
+    str = isNaN(obj as any) ? 'null' : String(obj)
 
   } else {
     str = JSON.stringify(obj, stringifyFn)
@@ -80,7 +84,7 @@ const stringValue = (value: any) => {
   }
 
   // stringifyObject accepts `NaN` object but no `null`s.
-  return value && typeof value == 'object' ? stringifyObject(value) : String(value)
+  return value && typeof value == 'object' ? stringObject(value) : String(value)
 }
 
 /**
