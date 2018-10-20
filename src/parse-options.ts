@@ -6,7 +6,7 @@ import { VARNAME } from './regexes'
 const DEF_PREFIX = /\/[/*]|<!--|<!/.source
 
 /**
- * Default error handler throws an error.
+ * Default error handler to throw an error.
  *
  * @param error Error instance or string with the error
  */
@@ -17,6 +17,14 @@ const errorHandler = (error: string | Error) => {
   throw error
 }
 
+/**
+ * Helper function to convert prefixes to regex sources.
+ *
+ * If `prefix` is a regex, return its source, if it is a string, return it
+ * escaped. Throw an Error if `prefix` is another type.
+ *
+ * @param prefix String or regex
+ */
 const parsePrefix = (prefix: any) => {
   if (prefix instanceof RegExp) {
     return prefix.source
@@ -28,18 +36,17 @@ const parsePrefix = (prefix: any) => {
 }
 
 /**
- * Get the normalized user options.
+ * Check the user provided values of the source object.
+ * If there's no error returns a shallow copy that includes the default
+ * values for `_VERSION` and `_FILE`.
  *
- * @param file Name of the file to process
- * @param opts User options
+ * Throws an Error if any the source object or a varname is invalid.
+ *
+ * @param srcValues User values
+ * @param file Current filename
  */
-export function parseOptions (file: string, opts?: JsccOptions): JsccProps {
-  opts = opts || {}
-
-  // Extract the user defined values ----------------------------------------
-
-  const srcValues = opts.values || {}
-  const values = {} as JsccValues
+const getValues = (srcValues: { [k: string]: any }, file: string) => {
+  const values = Object.create(null) as JsccValues
 
   if (typeof srcValues != 'object') {
     return errorHandler('jscc values must be a plain object')
@@ -59,6 +66,21 @@ export function parseOptions (file: string, opts?: JsccOptions): JsccProps {
 
   // Set _VERSION once, keep any already existing
   values._VERSION = getPackageVersion(srcValues._VERSION)
+
+  return values
+}
+
+/**
+ * Get the normalized user options.
+ *
+ * @param file Name of the file to process
+ * @param opts User options
+ */
+export function parseOptions (file: string, opts?: JsccOptions): JsccProps {
+  opts = opts || {}
+
+  // Extract the user defined values
+  const values = getValues(opts.values || {}, file)
 
   // Extract the prefixes ---------------------------------------------------
 
