@@ -7,8 +7,6 @@ REQBUILD = "6.0"
 setup_cover:
 ifeq ($(CURBUILD),$(REQBUILD))
   @ npm i -g nyc codecov
-else
-	@ echo Coverage will be sent in $(REQBUILD)
 endif
 
 run_test:
@@ -21,7 +19,11 @@ endif
 
 send_cover:
 ifeq ($(CURBUILD),$(REQBUILD))
+	@ echo Sending coverage report...
 	@ codecov -f coverage/*.json
+	@ echo The report was sent.
+else
+	@ echo The coverage report will be sent in $(REQBUILD)
 endif
 
-.PHONY: setup_cover send_cover
+.PHONY: setup_cover run_test send_cover
