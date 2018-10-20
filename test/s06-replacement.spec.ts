@@ -27,34 +27,74 @@ describe('Code Replacement', function () {
     })
   })
 
-  it('Infinity, -Infinity, and RegExp has custom stringify output', function () {
+  it('Date objects must output its unquoted JSON value', function () {
+    const D = new Date('2018-10-17T00:00:00.0Z').toJSON()
     testStr([
-      '//#set _DATE new Date("2018-10-17T00:00:00Z")',
-      '//#set _X {INFINITY:Infinity, NEGINFINITY:-Infinity, REGEX:/\\S+/, NAN:NaN}',
-      'x = $_X',
-      'x = $_X.INFINITY',
-      'x = $_X.NEGINFINITY',
-      'x = /$_X.REGEX/ig',
-      'x = new Date("$_DATE")',
-      'x = $_X.NAN',
-    ],
-    [
-      'x = {"INFINITY":1.7976931348623157e+308,"NEGINFINITY":5e-324,"REGEX":"\\\\S+","NAN":null}',
-      'x = Infinity',
-      'x = -Infinity',
-      'x = /\\S+/ig',
-      'x = new Date("2018-10-17T00:00:00.000Z")',
-      'x = null',
+      `//#set _V1 new Date("${D}")`,
+      '//#set _V2 new Date(NaN)',
+      `//#set _O {v1:new Date("${D}"),v2:new Date(NaN)}`,
+      '$_V1',
+      '$_V2',
+      '$_O.v1,$_O.v2',
+      '$_O',
+    ], [
+      D,
+      'null',
+      D + ',null',
+      `{"v1":"${D}","v2":null}`,
     ].join('\n'))
   })
 
-  it('can use `Number` instances for the replacement', function () {
+  it('Regex objects must output its unquoted `source` value', function () {
+    const R1 = /\s\\/.source
+    const R2 = R1.replace(/\\/g, '\\\\')
     testStr([
-      '//#set _N1 new Number(Infinity)',
-      '//#set _N2 new Number(-Infinity)',
-      '$_N1',
-      '$_N2',
-    ], 'Infinity\n-Infinity')
+      `//#set _R1 new RegExp("${R2}")`,
+      `//#set _R2 /${R1}/`,
+      `//#set _O {r:/${R1}/}`,
+      '/$_R1/',
+      '/$_R2/',
+      '/$_O.r/',
+      '$_O',
+    ],
+    [
+      `/${R1}/`,
+      `/${R1}/`,
+      `/${R1}/`,
+      `{"r":"${R2}"}`,
+    ].join('\n'))
+  })
+
+  it('Infinity, -Infinity, and NaN numbers has custom output', function () {
+    const v1 = JSON.stringify(Number.MAX_VALUE)
+    const v2 = JSON.stringify(Number.MIN_VALUE)
+    testStr([
+      '//#set _V1 Infinity',
+      '//#set _V2 new Number(Infinity)',
+      '//#set _V3 -Infinity',
+      '//#set _V4 new Number(-Infinity)',
+      '//#set _O {v1:Infinity, v2:-Infinity, v3:new Number(-Infinity), v4:NaN}',
+      '$_V1',
+      '$_V2',
+      '$_V3',
+      '$_V4',
+      '$_O.v1',
+      '$_O.v2',
+      '$_O.v3',
+      '$_O.v4',
+      '$_O',
+    ],
+    [
+      'Infinity',
+      'Infinity',
+      '-Infinity',
+      '-Infinity',
+      'Infinity',
+      '-Infinity',
+      '-Infinity',
+      'null',
+      `{"v1":${v1},"v2":${v2},"v3":${v2},"v4":null}`,
+    ].join('\n'))
   })
 
   it('`NaN` values on object instances must output `null`', function () {
