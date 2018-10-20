@@ -5,7 +5,7 @@ import { VARS_TO_REPL } from './regexes'
 import MagicString from 'magic-string'
 
 /**
- * Helper for `JSON.stringify`.
+ * Helper for call `JSON.stringify` in `stringifyObject`.
  *
  * It outputs a valid number for non-finite numbers and the source string of
  * regexes because stringify converts `Infinity` and `-Infinity` to `null`
@@ -13,11 +13,41 @@ import MagicString from 'magic-string'
  */
 const stringifyFn = (_: string, value: any) => {
 
-  if (typeof value == 'number' && !Number.isFinite(value) && !Number.isNaN(value)) {
-    return value > 0 ? Number.MAX_VALUE : Number.MIN_VALUE
+  if (typeof value == 'number' || value instanceof Number) {
+    // @ts-ignore bad typings
+    if (Number.isFinite(value) && !Number.isNaN(value)) {
+      return value > 0 ? Number.MAX_VALUE : Number.MIN_VALUE
+    }
   }
 
   return value instanceof RegExp ? value.source : value
+}
+
+/**
+ * Stringify the given non-empty, non-NaN object `obj` using this rules:
+ *
+ * - RegExp -> Regex source
+ * - Date   -> Date string in JSON format
+ * - other  -> JSON.stringify(obj)
+ *
+ * @param obj Trueish object
+ * @returns String representation of the object
+ */
+const stringifyObject = (obj: object) => {
+  let str
+
+  // This is a non-null, non-NaN object, array, date, regexp, etc
+  if (obj instanceof Date) {
+    str = obj.toISOString()
+
+  } else if (obj instanceof RegExp) {
+    str = obj.source
+
+  } else {
+    str = JSON.stringify(obj, stringifyFn)
+  }
+
+  return str
 }
 
 /**
@@ -40,25 +70,8 @@ const stringifyValue = (value: any) => {
     return 'null'
   }
 
-  if (value && typeof value == 'object') {
-
-    // This is a non-null, non-NaN object, array, date, regexp, etc
-    if (value instanceof Date) {
-      value = value.toISOString()
-
-    } else if (value instanceof RegExp) {
-      value = value.source
-
-    } else {
-      value = JSON.stringify(value, stringifyFn)
-    }
-
-  } else {
-    // This is a primitive value or null or undefined.
-    value = String(value)
-  }
-
-  return value
+  return value && typeof value == 'object'
+    ? stringifyObject(value) : String(value)
 }
 
 /**
@@ -106,12 +119,12 @@ export function remapVars (magicStr: MagicString, values: JsccValues, fragment: 
 
   // node.js is async, make local copy of the regex
   const re = new RegExp(VARS_TO_REPL.source, 'g')
-  let match = re.exec(fragment)
+  let match
 
   // $1: varname including the prefix '$'
   // $2: optional property name(s)
 
-  while (match) {
+  while ((match = re.exec(fragment))) {
     const vname = match[1].slice(1)    // strip the prefix '$'
 
     if (vname in values) {
@@ -121,8 +134,6 @@ export function remapVars (magicStr: MagicString, values: JsccValues, fragment: 
       magicStr.overwrite(index, index + match[1].length, stringifyValue(value))
       changes = true
     }
-
-    match = re.exec(fragment)
   }
 
   return changes
