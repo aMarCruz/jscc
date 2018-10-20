@@ -19,7 +19,7 @@ before_script:
 script:
     - yarn test
 
-after_success:
+after_script:
     - make send_cover
 
 notifications:
