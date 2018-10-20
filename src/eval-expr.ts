@@ -1,7 +1,16 @@
 import { STRINGS, JSCC_VARS } from './regexes'
 
-// For replacing of jscc variables ($1 = prefix, $2 = varname)
+/**
+ * Regex for replacing of jscc varnames ($1 = prefix, $2 = varname).
+ */
 const VARS_TO_EVL = RegExp(`${STRINGS.source}|${JSCC_VARS.source}`, 'g')
+
+/**
+ * Replacing function
+ */
+const _repVars = function (this: JsccValues, match: string, prech: string, vname: string) {
+  return vname ? prech + (vname in this ? `this.${vname}` : `global.${vname}`) : match
+}
 
 /**
  * Method to perform the evaluation of the given string using a function
@@ -14,16 +23,10 @@ export function evalExpr (ctx: JsccProps, exprStr: string) {
   const values = ctx.values
 
   // var replacement
-  const _repVars = (m: string, p: string, v: string) => {
-    return v
-      ? p + (v in values ? `this.${v}` : v in global ? `global.${v}` : 'undefined')
-      : m
-  }
-
   const expr = exprStr
     .replace(/\n/g, '\\n')
     .replace(/\r/g, '\\r')
-    .replace(VARS_TO_EVL, _repVars)
+    .replace(VARS_TO_EVL, _repVars.bind(values))
 
   let result
   try {

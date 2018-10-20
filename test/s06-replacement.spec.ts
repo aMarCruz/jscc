@@ -18,12 +18,39 @@ describe('Code Replacement', function () {
 
   it('primitive string or String intance must output its unquoted value', function () {
     testStr([
-      '$_V1$_V2',
-      '$_O.v1$_O.v2',
+      '$_V1',
+      '$_V2',
+      '$_O.v1',
+      '$_O.v2',
       '$_O',
-    ], 'OKOK\nOKOK\n{"v1":"OK","v2":"OK"}', {
+    ], [
+      'OK',
+      'OK',
+      'OK',
+      'OK',
+      '{"v1":"OK","v2":"OK"}',
+    ].join('\n'), {
       // eslint-disable-next-line no-new-wrappers
       values: { _V1: 'OK', _V2: new String('OK'), _O: { v1: 'OK', v2: new String('OK') } },
+    })
+  })
+
+  it('quotes inside strings must be included in the output', function () {
+    testStr([
+      '$_V1',
+      '$_V2',
+      '$_O.v1',
+      '$_O.v2',
+      '$_O',
+    ], [
+      '"OK"',
+      "'OK'",
+      '"OK"',
+      "'OK'",
+      '{"v1":"\\"OK\\"","v2":"\'OK\'"}',
+    ].join('\n'), {
+      // eslint-disable-next-line no-new-wrappers
+      values: { _V1: '"OK"', _V2: new String("'OK'"), _O: { v1: '"OK"', v2: new String("'OK'") } },
     })
   })
 
