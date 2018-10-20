@@ -9,6 +9,8 @@ interface ParserState {
   block: Block;
 }
 
+type IfDirective = 'if' | 'ifset' | 'ifnset'
+
 // branch type
 const enum Block {
   NONE,
@@ -54,6 +56,15 @@ export class Parser {
   }
 
   /**
+   * Returns a regex that matches directives through all the code.
+   *
+   * @returns {RegExp} Global-multiline regex
+   */
+  getRegex () {
+    return RegExp(S_RE_BASE.replace('@', this.options.prefixes), 'gm')
+  }
+
+  /**
    * Parses conditional comments to determinate if we need disable the output.
    *
    * @param   {Array} match - Object with the key/value of the directive
@@ -72,36 +83,22 @@ export class Parser {
       case 'if':
       case 'ifset':
       case 'ifnset':
-        ccInfo = {
-          block: Block.IF,
-          state: ccInfo.state === State.ENDING ? State.ENDING
-          :          this._getValue(key, expr) ? State.WORKING : State.TESTING,
-        }
-        cc.push(ccInfo)
+        ccInfo = this._pushState(ccInfo, key, expr)
         break
 
       case 'elif':
         // #elif swap the state, unless it is ENDING
-        this._checkBlock(ccInfo, key)
-        if (ccInfo.state === State.WORKING) {
-          ccInfo.state = State.ENDING
-        } else if (ccInfo.state === State.TESTING && this._getValue('if', expr)) {
-          ccInfo.state = State.WORKING
-        }
+        this._handleElif(ccInfo, key, expr)
         break
 
       case 'else':
         // #else set the state to WORKING or ENDING
-        this._checkBlock(ccInfo, key)
-        ccInfo.block = Block.ELSE
-        ccInfo.state = ccInfo.state === State.TESTING ? State.WORKING : State.ENDING
+        this._handleElse(ccInfo, key)
         break
 
       case 'endif':
         // #endif pops the state
-        this._checkBlock(ccInfo, key)
-        cc.pop()
-        ccInfo = cc[cc.length - 1]
+        ccInfo = this._popState(ccInfo, key)
         break
 
       default:
@@ -125,15 +122,6 @@ export class Parser {
     if (err) {
       this._emitError('Unexpected end of file')
     }
-  }
-
-  /**
-   * Returns a regex that matches directives through all the code.
-   *
-   * @returns {RegExp} Global-multiline regex
-   */
-  getRegex () {
-    return RegExp(S_RE_BASE.replace('@', this.options.prefixes), 'gm')
   }
 
   /**
@@ -182,27 +170,6 @@ export class Parser {
   }
 
   /**
-   * Expression evaluation for `#if-#ifset-#ifnset`.
-   * Intercepts the `#ifset-#ifnset` shorthands, call `evalExpr` for `#if`
-   * statements.
-   *
-   * @param key The key name
-   * @param expr The extracted expression
-   * @returns Evaluated expression.
-   */
-  private _getValue (key: 'if' | 'ifset' | 'ifnset', expr: string) {
-
-    if (key !== 'if') {
-      const yes = expr in this.options.values ? 1 : 0
-
-      return key === 'ifnset' ? yes ^ 1 : yes
-    }
-
-    // returns the raw value of the expression
-    return evalExpr(this.options, expr)
-  }
-
-  /**
    * Throws if the current block is not of the expected type.
    */
   private _checkBlock (ccInfo: ParserState, key: string) {
@@ -212,6 +179,53 @@ export class Parser {
     if (block === Block.NONE || block !== (block & mask)) {
       this._emitError(`Unexpected #${key}`)
     }
+  }
+
+  /**
+   * Push a if, ifset, or ifnset directive
+   */
+  _pushState (ccInfo: ParserState, key: IfDirective, expr: string) {
+    ccInfo = {
+      block: Block.IF,
+      state: ccInfo.state === State.ENDING ? State.ENDING
+      :        this._getIfValue(key, expr) ? State.WORKING : State.TESTING,
+    }
+    this._cc.push(ccInfo)
+    return ccInfo
+  }
+
+  /**
+   * Handles elif directives
+   */
+  _handleElif (ccInfo: ParserState, key: string, expr: string) {
+    this._checkBlock(ccInfo, key)
+
+    if (ccInfo.state === State.WORKING) {
+      ccInfo.state = State.ENDING
+    } else if (ccInfo.state === State.TESTING && this._getIfValue('if', expr)) {
+      ccInfo.state = State.WORKING
+    }
+  }
+
+  /**
+   * Handles else directives
+   */
+  _handleElse (ccInfo: ParserState, key: string) {
+    this._checkBlock(ccInfo, key)
+
+    ccInfo.block = Block.ELSE
+    ccInfo.state = ccInfo.state === State.TESTING ? State.WORKING : State.ENDING
+  }
+
+  /**
+   * Pop the if, ifset, or ifnset directives after endif.
+   */
+  _popState (ccInfo: ParserState, key: string) {
+    this._checkBlock(ccInfo, key)
+
+    const cc = this._cc
+    cc.pop()
+    return cc[cc.length - 1]
   }
 
   /**
@@ -275,5 +289,28 @@ export class Parser {
   private _error (expr: string) {
     expr = String(evalExpr(this.options, expr))
     this._emitError(expr)
+  }
+
+  /**
+   * Evaluates the expression of a `#if`, `#ifset`, or `#ifnset` directive.
+   *
+   * For `#ifset` and #ifnset, the value is evaluated here,
+   * For `#if`, it calls `evalExpr`.
+   *
+   * @param key The key name
+   * @param expr The extracted expression
+   * @returns Evaluated expression.
+   */
+  private _getIfValue (key: IfDirective, expr: string) {
+
+    // Returns the raw value for #if expressions
+    if (key === 'if') {
+      return evalExpr(this.options, expr)
+    }
+
+    // Returns a boolean-like number for ifdef/ifndef
+    return expr in this.options.values
+      ? (key === 'ifset' ? 1 : 0)
+      : (key === 'ifset' ? 0 : 1)
   }
 }
