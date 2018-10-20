@@ -141,12 +141,9 @@ These are the main changes, the detail you can see in the [CHANGELOG](CHANGELOG.
 
 ## TODO
 
-This is work in progress, so please update jscc constantly.
-
-Expected:
-
 - [X] ~~Async mode~~ (v1.0.0)
 - [ ] Explanatory error messages, with location of the error
+- [ ] Different prefixes for different file types.
 - [ ] WebPack plugin
 - [ ] Better documentation*
 - [ ] Syntax hilighter for some editores? Perhaps you want contribute.
