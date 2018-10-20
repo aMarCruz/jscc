@@ -3,6 +3,7 @@
 */
 
 interface JsccProps {
+  magicStr: import('magic-string').default;
   keepLines: boolean;
   mapContent: boolean;
   mapHires: boolean;
@@ -12,10 +13,7 @@ interface JsccProps {
   errorHandler: (message: string | Error) => void;
 }
 
-interface ChunkFlusher {
-  (str: string, start: number): number | boolean;
-}
-
-interface ChunkRemover {
-  (start: number, end: number): number;
+interface ChunkHelper {
+  commit(start: number, end: number): boolean;
+  remove(start: number, end: number): number;
 }

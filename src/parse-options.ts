@@ -106,6 +106,7 @@ export function parseOptions (filename: string, opts: JsccOptions): JsccProps {
 
   // Create and returns the normalized jscc props, we are done
   return {
+    magicStr:   {} as any,  // makes TS happy
     keepLines:  !!opts.keepLines,
     mapContent: !!opts.mapContent,
     mapHires:   opts.mapHires  !== false,

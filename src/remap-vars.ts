@@ -2,7 +2,6 @@
   Variable replacement inside the code.
 */
 import { VARS_TO_REPL } from './regexes'
-import MagicString from 'magic-string'
 
 /**
  * Helper for call `JSON.stringify` in `stringifyObject`.
@@ -119,15 +118,15 @@ const getValue = (value: any, match: RegExpExecArray) => {
 }
 
 /**
- * Replaces jscc memvars with its values in a code fragment and add it to an
- * instance of MagicString.
+ * Replaces memvars in a source fragment with its current values.
  *
- * @param magicStr MagicString instance
- * @param values User values
+ * @param props Jscc properties with the MagicString instance and the values
  * @param fragment Fragment of code to replace and add to `magicStr`
  * @param start Offset where the replacement starts in magicStr.
  */
-export function remapVars (magicStr: MagicString, values: JsccValues, fragment: string, start: number) {
+export function remapVars (props: JsccProps, fragment: string, start: number) {
+
+  const values = props.values
   let changes = false
 
   // node.js is async, make local copy of the regex
@@ -144,7 +143,7 @@ export function remapVars (magicStr: MagicString, values: JsccValues, fragment: 
       const index = start + match.index
       const value = getValue(values[vname], match)
 
-      magicStr.overwrite(index, index + match[1].length, stringValue(value))
+      props.magicStr.overwrite(index, index + match[1].length, stringValue(value))
       changes = true
     }
   }

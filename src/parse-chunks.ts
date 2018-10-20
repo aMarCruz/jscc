@@ -1,10 +1,5 @@
 import { Parser } from './parser'
 
-type Helper = {
-  flush: ChunkFlusher;
-  remove: ChunkRemover;
-}
-
 /**
  * This routine search for the start of jscc directives through a buffer.
  * For each match found, calls the parser with the result of the regex and
@@ -14,7 +9,7 @@ type Helper = {
  * @param source The original source
  * @param helper Functions to flush and remove chuncks
  */
-export const parseChunks = function (parser: Parser, source: string, helper: Helper) {
+export const parseChunks = function (parser: Parser, source: string, helper: ChunkHelper) {
 
   let hideStart = 0             // keep the start position of the block to hide
   let lastIndex = 0             // keep the position of the next chunk to parse
@@ -30,8 +25,9 @@ export const parseChunks = function (parser: Parser, source: string, helper: Hel
     changes = true
 
     // If it is neccessary, replace memvars in the current chunk and flush it
-    if (output && index > lastIndex) {
-      helper.flush(source.slice(lastIndex, index), lastIndex)
+    if (output) {
+      //helper.flush(source.slice(lastIndex, index), lastIndex)
+      helper.commit(lastIndex, index)
     }
 
     if (output !== parser.parse(match)) {
@@ -64,6 +60,5 @@ export const parseChunks = function (parser: Parser, source: string, helper: Hel
   parser.close()
 
   // This final flush is necessary, don't delete it
-  return output && source.length > lastIndex &&
-    helper.flush(source.slice(lastIndex), lastIndex) || changes
+  return output && helper.commit(lastIndex, source.length) || changes
 }
