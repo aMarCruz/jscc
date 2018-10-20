@@ -35,6 +35,25 @@ const parsePrefix = (prefix: any) => {
   return errorHandler('jscc `prefixes` must be an array of strings or regexes')
 }
 
+const valuesWithConst = (values: JsccValues, filename: string, version: string) => {
+  /*
+    v1.0 adds the predefined variables as a readonly properties.
+    This is a breaking change from previous version
+  */
+  return Object.defineProperties(values, {
+    // File name is valid only for this instance
+    _FILE: {
+      value: pathRelative(filename || ''),
+      enumerable: true,
+    },
+    // Set _VERSION once, keep any already existing
+    _VERSION: {
+      value: version,
+      enumerable: true,
+    },
+  })
+}
+
 /**
  * Check the user provided values of the source object.
  * If there's no error returns a shallow copy that includes the default
@@ -43,9 +62,8 @@ const parsePrefix = (prefix: any) => {
  * Throws an Error if any the source object or a varname is invalid.
  *
  * @param srcValues User values
- * @param file Current filename
  */
-const getValues = (srcValues: { [k: string]: any }, file: string) => {
+const getValues = (filename: string, srcValues: { [k: string]: any }) => {
   const values = Object.create(null) as JsccValues
 
   if (typeof srcValues != 'object') {
@@ -61,26 +79,18 @@ const getValues = (srcValues: { [k: string]: any }, file: string) => {
     }
   })
 
-  // File name is valid only for this instance
-  values._FILE = pathRelative(file)
-
-  // Set _VERSION once, keep any already existing
-  values._VERSION = getPackageVersion(srcValues._VERSION)
-
-  return values
+  return valuesWithConst(values, filename, getPackageVersion(srcValues._VERSION))
 }
 
 /**
  * Get the normalized user options.
  *
- * @param file Name of the file to process
  * @param opts User options
  */
-export function parseOptions (file: string, opts?: JsccOptions): JsccProps {
-  opts = opts || {}
+export function parseOptions (filename: string, opts: JsccOptions): JsccProps {
 
   // Extract the user defined values
-  const values = getValues(opts.values || {}, file)
+  const values = getValues(filename, opts.values || {})
 
   // Extract the prefixes ---------------------------------------------------
 

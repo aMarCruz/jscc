@@ -57,12 +57,10 @@ const createHelper = function (magicStr: MagicString, source: string, props: Jsc
  * sourceMap, if required by `props` and the buffer has changed.
  *
  * @param source Source code
- * @param filename Full filename
  * @param props Parsed user options
  */
 export function parseBuffer (
   source: string,
-  filename: string,
   props: JsccProps
 ) {
   const magicStr  = new MagicString(source)
@@ -79,7 +77,7 @@ export function parseBuffer (
   // ...if it is requiered and the source has changed.
   if (changes && props.sourceMap) {
     result.map = magicStr.generateMap({
-      source: filename || undefined,
+      source: props.values._FILE || undefined,
       includeContent: props.mapContent,
       hires: props.mapHires,
     })

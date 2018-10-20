@@ -16,6 +16,7 @@ Major refactorization after two years, using TypeScript v3.
 - Support for replacement with more than one object property.
 
 ### Changed
+- Make readonly the predefined variables `_FILE` and `_VERSION`.
 - Integrate Coverity (static analysis), CodeClimate (quality), Codebeat (quiality/analysis) and Codecov (coverage).
 - More strict ESLint rules.
 - Test modularizated and ready, 100% coverage.
