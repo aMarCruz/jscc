@@ -106,6 +106,33 @@ describe('Code Replacement', function () {
     ], 'null\nnull')
   })
 
+  it('Do not confuse `Infinity` with the string "Infinity"', function () {
+    testStr([
+      '//#set _V1 "Infinity"',
+      '//#set _V2 new String("Infinity")',
+      '//#set _V3 "-Infinity"',
+      '//#set _V4 new String("-Infinity")',
+      '//#set _O {v1:_V1,v2:_V2,v3:_V3}',
+      '$_V1',
+      '$_V2',
+      '$_V3',
+      '$_V4',
+      '$_O.v1',
+      '$_O.v2',
+      '$_O.v3',
+      '$_O',
+    ], [
+      'Infinity',
+      'Infinity',
+      '-Infinity',
+      '-Infinity',
+      'Infinity',
+      'Infinity',
+      '-Infinity',
+      '{"v1":"Infinity","v2":"Infinity","v3":"-Infinity"}',
+    ].join('\n'))
+  })
+
   it('must replace nested object properties (prop value)', function () {
     testStr('$_O.p1.p2.p3', '1', { values: {
       _O: { p1: { p2: { p3: 1 } } },
