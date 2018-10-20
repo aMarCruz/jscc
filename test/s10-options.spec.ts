@@ -3,19 +3,32 @@ import jscc from './jscc'
 
 // common helpers
 import { testStr } from './helpers/test-str'
-import { testFile } from './helpers/test-file'
 import { preprocStr } from './helpers/preproc-str'
+
+const rawJscc = (code: string, opts?: JsccOptions) => jscc(code, '', opts).code
 
 describe('Options:', function () {
 
   it('The `.values` option allows you to define custom variables', function () {
-    testFile('custom-vars', {
+    testStr([
+      '$_ZERO',
+      '$_MYBOOL',
+      '$_MYSTRING',
+      '$_NULL',
+      '$_UNDEF',
+      '$_NOT_DEFINED',
+    ], [
+      '0',
+      'false',
+      'foo',
+      'null',
+      'undefined',
+      '$_NOT_DEFINED',
+    ].join('\n'), {
       values: {
         _ZERO: 0,
         _MYBOOL: false,
         _MYSTRING: 'foo',
-        _INFINITY: Infinity,
-        _NAN: NaN,
         _NULL: null,
         _UNDEF: undefined,
       },
@@ -23,8 +36,26 @@ describe('Options:', function () {
   })
 
   it('`.keepLines:true` must preserve line-endings (useful w/o sourceMap)', function () {
-    const types = require('./fixtures/_types.js')
-    testFile('htmlparser', { values: { _T: types }, keepLines: true })
+    const source = [
+      '//#set _V1 1',
+      '//#set _V2 2',
+      '',
+      '//#if _V1',
+      'one',
+      '//#endif',
+      '',
+    ].join('\n')
+    const expected = [
+      '',
+      '',
+      '',
+      '',
+      'one',
+      '',
+      '',
+    ].join('\n')
+
+    expect(rawJscc(source, { keepLines: true })).to.be(expected)
   })
 
   it('`.sourceMap:false` must disable sourceMap creation', function () {
