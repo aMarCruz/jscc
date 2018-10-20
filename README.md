@@ -1,10 +1,11 @@
 # jscc
 
-[![AppVeyor][appveypr-image]][appveypr-url]
-[![Build Status][travis-image]][travis-url]
-[![Coverage][codecov-image]][codecov-url]
 [![npm][npm-image]][npm-url]
 [![License][license-image]][license-url]
+[![AppVeyor][appveypr-image]][appveypr-url]
+[![Build Status][travis-image]][travis-url]
+[![codebeat][codebeat-image]][codebeat-url]
+[![Coverage][codecov-image]][codecov-url]
 
 Featuring some of the C preprocessor characteristics through special, configurable comments, jscc can be used in any type of files to build multiple versions of your software from the same code base.
 
@@ -120,7 +121,7 @@ The code base and test of v1.0 was completely rewritten in [TypeScript](typescri
 
 These are the main changes, the detail you can see in the [CHANGELOG](CHANGELOG.md):
 
-- The minimum supported version is node 6. Since node 5 may work, it was not tested and there's no plans for a downgrade.
+- The minimum supported version is node 6. Since node 5 may work, it was not tested and there's no plans for to downgrade.
 
 - The transpiled code is now in the "dist" folder and has been excluded from all branches, except "master". This code is used to serve both, the CommonJS and ES6 versions. The CommonJS export is index.js, in the root folder, and the ES6 modules in "dist", addressed (in accordance to common practices) by the "main" and "module" properties of package.json.
 
@@ -145,37 +146,53 @@ These are the main changes, the detail you can see in the [CHANGELOG](CHANGELOG.
 - [ ] Explanatory error messages, with location of the error
 - [ ] Different prefixes for different file types.
 - [ ] WebPack plugin
-- [ ] Better documentation*
-- [ ] Syntax hilighter for some editores? Perhaps you want contribute.
+- [ ] Better documentation
+- [ ] Syntax hilighter for some editores? Perhaps you want to contribute.
 
----
+## Support my Work
 
-\* _For me, write in english is 10x harder than coding JS, so contributions are welcome..._
+I'm a full-stack developer with more than 20 year of experience and I try to share most of my work for free and help others, but this takes a significant amount of time and effort so, if you like my work, please consider...
 
-Don't forget to give me your star!
+[![Buy Me a Coffee][bmc-image]][bmc-url]
 
+Of course, feedback, PRs, and stars are also welcome :)
+
+Thanks for your support!
+
+
+## License
+
+The [MIT](LICENSE) License.
+
+Copyright (c) 2018, Alberto Martínez.
 
 [![CodeClimate][climate-image]][climate-url]
 [![Issues][issues-image]][issues-url]
+[![Test Coverage][cccover-image]][cccover-url]
 [![Coverity][coverity-image]][coverity-url]
-[![codebeat][codebeat-image]][codebeat-url]
 
-
+<!-- Badges at the top -->
 [appveypr-image]: https://ci.appveyor.com/api/projects/status/hdsef0p6q0oqr127?svg=true
 [appveypr-url]:   https://ci.appveyor.com/project/aMarCruz/jscc
 [travis-image]:   https://img.shields.io/travis/aMarCruz/jscc.svg
 [travis-url]:     https://travis-ci.org/aMarCruz/jscc
-[climate-image]:  https://codeclimate.com/github/aMarCruz/jscc/badges/gpa.svg
-[climate-url]:    https://codeclimate.com/github/aMarCruz/jscc
-[issues-image]:   https://codeclimate.com/github/aMarCruz/jscc/badges/issue_count.svg
-[issues-url]:     https://codeclimate.com/github/aMarCruz/jscc
-[codebeat-image]: https://codebeat.co/badges/7e15dc9d-42a8-4ea2-8bae-a21c09490fbe
-[codebeat-url]:   https://codebeat.co/projects/github-com-amarcruz-jscc-dev
-[coverity-image]: https://scan.coverity.com/projects/10389/badge.svg
-[coverity-url]:   https://scan.coverity.com/projects/amarcruz-jscc
 [codecov-image]:  https://codecov.io/gh/aMarCruz/jscc/branch/dev/graph/badge.svg
 [codecov-url]:    https://codecov.io/gh/aMarCruz/jscc
 [npm-image]:      https://img.shields.io/npm/v/jscc.svg
 [npm-url]:        https://www.npmjs.com/package/jscc
 [license-image]:  https://img.shields.io/npm/l/express.svg
 [license-url]:    https://github.com/aMarCruz/jscc/blob/master/LICENSE
+<!-- Badges at bottom -->
+[climate-image]:  https://codeclimate.com/github/aMarCruz/jscc/badges/gpa.svg
+[climate-url]:    https://codeclimate.com/github/aMarCruz/jscc
+[issues-image]:   https://codeclimate.com/github/aMarCruz/jscc/badges/issue_count.svg
+[issues-url]:     https://codeclimate.com/github/aMarCruz/jscc
+[cccover-image]:  https://api.codeclimate.com/v1/badges/50d60a10ec7c9156b429/test_coverage
+[cccover-url]:    https://codeclimate.com/github/aMarCruz/jscc/test_coverage
+[coverity-image]: https://scan.coverity.com/projects/10389/badge.svg
+[coverity-url]:   https://scan.coverity.com/projects/amarcruz-jscc
+[codebeat-image]: https://codebeat.co/badges/7e15dc9d-42a8-4ea2-8bae-a21c09490fbe
+[codebeat-url]:   https://codebeat.co/projects/github-com-amarcruz-jscc-dev
+<!-- Others -->
+[bmc-image]:      https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png
+[bmc-url]:        https://www.buymeacoffee.com/aMarCruz

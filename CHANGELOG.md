@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 Major refactorization after two years, using TypeScript v3.
 
 ### Added
+- Badges of the different services used to take care of the quality of the code.
+- Buy me a Coffee link.
 - Support for replacement with instances of `Number`.
 - Share .vscode setup for launch, settings, and tasks in CVS.
 - .npmignore files, for distribution with minimal stuff.
@@ -16,6 +18,7 @@ Major refactorization after two years, using TypeScript v3.
 - Support for replacement with more than one object property.
 
 ### Changed
+- Revised Readme (WIP)
 - Make readonly the predefined variables `_FILE` and `_VERSION`.
 - Integrate Coverity (static analysis), CodeClimate (quality), Codebeat (quiality/analysis) and Codecov (coverage).
 - More strict ESLint rules.
