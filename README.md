@@ -4,6 +4,7 @@
 [![License][license-image]][license-url]
 [![AppVeyor][appveypr-image]][appveypr-url]
 [![Build Status][travis-image]][travis-url]
+[![Coverity][coverity-image]][coverity-url]
 [![codebeat][codebeat-image]][codebeat-url]
 [![Coverage][codecov-image]][codecov-url]
 
@@ -169,19 +170,24 @@ Copyright (c) 2018, Alberto Martínez.
 [![CodeClimate][climate-image]][climate-url]
 [![Issues][issues-image]][issues-url]
 [![Test Coverage][cccover-image]][cccover-url]
-[![Coverity][coverity-image]][coverity-url]
+[![Commits][commits-image]][commits-url]
 
 <!-- Badges at the top -->
+[npm-image]:      https://img.shields.io/npm/v/jscc.svg
+[npm-url]:        https://www.npmjs.com/package/jscc
+[license-image]:  https://img.shields.io/github/license/mashape/apistatus.svg
+[license-url]:    https://github.com/aMarCruz/jscc/blob/master/LICENSE
 [appveypr-image]: https://ci.appveyor.com/api/projects/status/hdsef0p6q0oqr127?svg=true
 [appveypr-url]:   https://ci.appveyor.com/project/aMarCruz/jscc
 [travis-image]:   https://img.shields.io/travis/aMarCruz/jscc.svg
 [travis-url]:     https://travis-ci.org/aMarCruz/jscc
+[coverity-image]: https://scan.coverity.com/projects/10389/badge.svg
+[coverity-url]:   https://scan.coverity.com/projects/amarcruz-jscc
+[codebeat-image]: https://codebeat.co/badges/7e15dc9d-42a8-4ea2-8bae-a21c09490fbe
+[codebeat-url]:   https://codebeat.co/projects/github-com-amarcruz-jscc-dev
 [codecov-image]:  https://codecov.io/gh/aMarCruz/jscc/branch/dev/graph/badge.svg
 [codecov-url]:    https://codecov.io/gh/aMarCruz/jscc
-[npm-image]:      https://img.shields.io/npm/v/jscc.svg
-[npm-url]:        https://www.npmjs.com/package/jscc
-[license-image]:  https://img.shields.io/npm/l/express.svg
-[license-url]:    https://github.com/aMarCruz/jscc/blob/master/LICENSE
+
 <!-- Badges at bottom -->
 [climate-image]:  https://codeclimate.com/github/aMarCruz/jscc/badges/gpa.svg
 [climate-url]:    https://codeclimate.com/github/aMarCruz/jscc
@@ -189,10 +195,9 @@ Copyright (c) 2018, Alberto Martínez.
 [issues-url]:     https://codeclimate.com/github/aMarCruz/jscc
 [cccover-image]:  https://api.codeclimate.com/v1/badges/50d60a10ec7c9156b429/test_coverage
 [cccover-url]:    https://codeclimate.com/github/aMarCruz/jscc/test_coverage
-[coverity-image]: https://scan.coverity.com/projects/10389/badge.svg
-[coverity-url]:   https://scan.coverity.com/projects/amarcruz-jscc
-[codebeat-image]: https://codebeat.co/badges/7e15dc9d-42a8-4ea2-8bae-a21c09490fbe
-[codebeat-url]:   https://codebeat.co/projects/github-com-amarcruz-jscc-dev
+[commits-image]:  https://img.shields.io/github/commits-since/aMarCruz/jscc/latest.svg
+[commits-url]:    https://github.com/aMarCruz/jscc/commits/dev
+
 <!-- Others -->
 [bmc-image]:      https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png
 [bmc-url]:        https://www.buymeacoffee.com/aMarCruz
