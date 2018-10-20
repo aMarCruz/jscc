@@ -1,4 +1,5 @@
 import MagicString from 'magic-string'
+import { Parser } from './parser'
 import { parseChunks } from './parse-chunks'
 import { remapVars } from './remap-vars'
 
@@ -23,8 +24,7 @@ const createHelper = function (magicStr: MagicString, source: string, props: Jsc
      * @returns `true` if the chunk was changed
      */
     flush (str: string, start: number) {
-      return ~str.indexOf('$_') &&
-        remapVars(magicStr, props.values, str, start)
+      return str.indexOf('$_') > -1 && remapVars(magicStr, props.values, str, start)
     },
 
     /**
@@ -67,7 +67,7 @@ export function parseBuffer (
   const helper    = createHelper(magicStr, source, props)
 
   // Parse the buffer chunk by chunk and get the changed status
-  const changes   = parseChunks(source, props, helper)
+  const changes   = parseChunks(new Parser(props), source, helper)
 
   // Always returns an object, the sourceMap will be added only...
   const result: JsccParserResult = {

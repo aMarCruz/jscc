@@ -51,11 +51,6 @@ export class Parser {
   }
 
   /**
-   * Is the output active?
-   */
-  hasOutput = true
-
-  /**
    * Returns a regex that matches directives through all the code.
    *
    * @returns {RegExp} Global-multiline regex
@@ -102,7 +97,7 @@ export class Parser {
         this._handleInstruction(key, expr, ccInfo.state)
     }
 
-    return (this.hasOutput = ccInfo.state === State.WORKING)
+    return ccInfo.state === State.WORKING
   }
 
   /**
