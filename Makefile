@@ -1,6 +1,6 @@
 # Send coverage report from node 6 builds of any branch
 
-CURBUILD = $(TRAVIS_NODE_VERSION)
+CURBUILD = "$(TRAVIS_NODE_VERSION)"
 REQBUILD = "6.0.0"
 
 setup_cover:
