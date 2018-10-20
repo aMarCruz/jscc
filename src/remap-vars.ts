@@ -12,11 +12,19 @@ import MagicString from 'magic-string'
  * and regexes to `{}` (an empty object).
  */
 const stringifyFn = (_: string, value: any) => {
-
-  if (typeof value == 'number' || value instanceof Number) {
-    // @ts-ignore bad typings
-    if (Number.isFinite(value) && !Number.isNaN(value)) {
-      return value > 0 ? Number.MAX_VALUE : Number.MIN_VALUE
+  /*
+    Testing `value == Infinity` with primitive number or Number intance
+    only returns `true` if value is Infinity or "Infinity" and the like
+    for -Infinity.
+  */
+  if (typeof value != 'string') {
+    // eslint-disable-next-line eqeqeq
+    if (value == Infinity) {
+      return Number.MAX_VALUE
+    }
+    // eslint-disable-next-line eqeqeq
+    if (value == -Infinity) {
+      return Number.MIN_VALUE
     }
   }
 
@@ -24,8 +32,9 @@ const stringifyFn = (_: string, value: any) => {
 }
 
 /**
- * Stringify the given non-empty, non-NaN object `obj` using this rules:
+ * Stringify a non-null object `obj` using the following rules:
  *
+ * - NaN    -> 'null' (a Number or Date with a NaN value)
  * - RegExp -> Regex source
  * - Date   -> Date string in JSON format
  * - other  -> JSON.stringify(obj)
@@ -36,9 +45,9 @@ const stringifyFn = (_: string, value: any) => {
 const stringifyObject = (obj: object) => {
   let str
 
-  // This is a non-null, non-NaN object, array, date, regexp, etc
+  // toISOString throw with NaN dates, toJSON returns `null`
   if (obj instanceof Date) {
-    str = obj.toISOString()
+    str = obj.toJSON() || 'null'
 
   } else if (obj instanceof RegExp) {
     str = obj.source
@@ -62,7 +71,7 @@ const stringifyObject = (obj: object) => {
  *
  * @param value any value, including undefined
  */
-const stringifyValue = (value: any) => {
+const stringValue = (value: any) => {
 
   // `NaN` returns `null`, for consistency with `JSON.stringify`
   // eslint-disable-next-line no-self-compare
@@ -70,8 +79,8 @@ const stringifyValue = (value: any) => {
     return 'null'
   }
 
-  return value && typeof value == 'object'
-    ? stringifyObject(value) : String(value)
+  // stringifyObject accepts `NaN` object but no `null`s.
+  return value && typeof value == 'object' ? stringifyObject(value) : String(value)
 }
 
 /**
@@ -131,7 +140,7 @@ export function remapVars (magicStr: MagicString, values: JsccValues, fragment: 
       const index = start + match.index
       const value = getValue(values[vname], match)
 
-      magicStr.overwrite(index, index + match[1].length, stringifyValue(value))
+      magicStr.overwrite(index, index + match[1].length, stringValue(value))
       changes = true
     }
   }
