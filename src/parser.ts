@@ -86,13 +86,10 @@ export class Parser {
         break
 
       case 'elif':
-        // #elif swap the state, unless it is ENDING
-        this._handleElif(ccInfo, key, expr)
-        break
-
       case 'else':
+        // #elif swap the state, unless it is ENDING
         // #else set the state to WORKING or ENDING
-        this._handleElse(ccInfo, key)
+        this._handleElses(ccInfo, key, expr)
         break
 
       case 'endif':
@@ -180,7 +177,7 @@ export class Parser {
   }
 
   /**
-   * Push a if, ifset, or ifnset directive
+   * Push a `#if`, `#ifset`, or `#ifnset` directive
    */
   private _pushState (ccInfo: ParserState, key: IfDirective, expr: string) {
     ccInfo = {
@@ -193,26 +190,21 @@ export class Parser {
   }
 
   /**
-   * Handles elif directives
+   * Handles `#elif` and `#else` directives.
    */
-  private _handleElif (ccInfo: ParserState, key: string, expr: string) {
+  private _handleElses (ccInfo: ParserState, key: string, expr: string) {
     this._checkBlock(ccInfo, key)
 
-    if (ccInfo.state === State.WORKING) {
+    if (key === 'else') {
+      ccInfo.block = Block.ELSE
+      ccInfo.state = ccInfo.state === State.TESTING ? State.WORKING : State.ENDING
+
+    } else if (ccInfo.state === State.WORKING) {
       ccInfo.state = State.ENDING
+
     } else if (ccInfo.state === State.TESTING && this._getIfValue('if', expr)) {
       ccInfo.state = State.WORKING
     }
-  }
-
-  /**
-   * Handles else directives
-   */
-  private _handleElse (ccInfo: ParserState, key: string) {
-    this._checkBlock(ccInfo, key)
-
-    ccInfo.block = Block.ELSE
-    ccInfo.state = ccInfo.state === State.TESTING ? State.WORKING : State.ENDING
   }
 
   /**
@@ -244,7 +236,6 @@ export class Parser {
         case 'error':
           expr = String(evalExpr(this.options, expr))
           this._emitError(expr)
-          break
       }
     }
   }
