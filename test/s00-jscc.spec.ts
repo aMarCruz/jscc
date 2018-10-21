@@ -118,7 +118,7 @@ describe('jscc', function () {
 
   it('must preserve tuf8 BOM in the source', function () {
     // Seems nodeJS uses \uFEFF to mark any enconding
-    testFileStr('utf8-bom.txt', /^\ufeff\nOK$/)
+    testFileStr('utf8-bom.txt', /^\ufeffOK$/)
   })
 
 })

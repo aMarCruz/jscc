@@ -3,6 +3,13 @@ import { Parser } from './parser'
 import { ParseHelper } from './parse-helper'
 
 /**
+ * Workaround for possible error with a BOM mark in the source.
+ */
+const withoutBOMmark = (source: string) => {
+  return source.charCodeAt(0) === 0xFEFF ? '\n' + source.slice(1) : source
+}
+
+/**
  * This routine search for the start of jscc directives through a buffer.
  * For each match found, calls the parser with the result of the regex and
  * the parser returns the next position from which to continue the search.
@@ -15,16 +22,15 @@ export const parseChunks = function (parser: Parser, source: string, helper: Par
 
   let hideStart = 0             // keep the start position of the block to hide
   let lastIndex = 0             // keep the position of the next chunk to parse
-  let changes   = false         // for performance, avoid generating sourceMap
   let output    = true
 
   const re = parser.getRegex()  // $1:keyword, $2:expression
-  let match
 
-  while ((match = re.exec(source))) {
+  let match = re.exec(withoutBOMmark(source))
+  const changes = !!match       // avoid send sourceMap if there's no changes
+
+  while (match) {
     const index = match.index
-
-    changes = true
 
     // Replace varnames in the current chunk and flush it, if necessary.
     helper.commit(lastIndex, index, output)
@@ -52,6 +58,7 @@ export const parseChunks = function (parser: Parser, source: string, helper: Par
     }
 
     lastIndex = re.lastIndex = helper.remove(hideStart, re.lastIndex, output)
+    match = re.exec(source)
   }
 
   // This will throw if the buffer has unbalanced blocks

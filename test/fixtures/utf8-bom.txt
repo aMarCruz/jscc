@@ -1,5 +1,4 @@
-﻿
-//#if 0
+﻿//#if 0
 BOM
 //#else
 OK

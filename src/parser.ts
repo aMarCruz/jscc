@@ -4,7 +4,7 @@
 import { STRINGS, ASSIGNMENT, VARNAME } from './regexes'
 import { evalExpr } from './eval-expr'
 
-interface ParserState {
+interface StateInfo {
   state: State;
   block: Block;
 }
@@ -28,11 +28,22 @@ const enum State {
 // Want this to check endif scope
 const ENDIF_MASK = Block.IF | Block.ELSE
 
-// Matches a line with a directive, not including line-ending
+/**
+ * Matches a line with a directive without its line-ending because it can be
+ * at the end of the file with no last EOL.
+ *
+ * $1: Directive without the '#' ('if', 'elif', 'else', etc)
+ * $2: Possible expression (can be empty or have a comment)
+ */
 const S_RE_BASE = /^[ \t\f\v]*(?:@)#(if|ifn?set|elif|else|endif|set|unset|error)(?:(?=[ \t])(.*)|\/\/.*)?$/.source
 
-// Matches a substring that includes the first unquoted `//`
-const R_LASTCMT = new RegExp(`${STRINGS.source}|(//)`, 'g')
+/**
+ * Matches a quoted string or a substring that includes the first unquoted
+ * double slash (the starting of one-line comments) in a line.
+ *
+ * $1: If the regex found a comment, it is '//', otherwise, it is `undefined`
+ */
+const R_LINECMNT = new RegExp(`${STRINGS.source}|(//)`, 'g')
 
 /**
  * Conditional comments parser
@@ -43,17 +54,17 @@ const R_LASTCMT = new RegExp(`${STRINGS.source}|(//)`, 'g')
 export class Parser {
 
   private _cc = [{
-    state: State.WORKING,
     block: Block.NONE,
+    state: State.WORKING,
   }]
 
   constructor (private options: JsccProps) {
   }
 
   /**
-   * Returns a regex that matches directives through all the code.
+   * Returns a regex that matches lines with directives through all the buffer.
    *
-   * @returns {RegExp} Global-multiline regex
+   * @returns {RegExp} regex with the flags `global` and `multiline`
    */
   getRegex () {
     return RegExp(S_RE_BASE.replace('@', this.options.prefixes), 'gm')
@@ -148,8 +159,8 @@ export class Parser {
     }
 
     let match
-    R_LASTCMT.lastIndex = 0
-    while ((match = R_LASTCMT.exec(expr))) {
+    R_LINECMNT.lastIndex = 0
+    while ((match = R_LINECMNT.exec(expr))) {
       if (match[1]) {
         expr = expr.slice(0, match.index)
         break
@@ -162,7 +173,7 @@ export class Parser {
   /**
    * Throws if the current block is not of the expected type.
    */
-  private _checkBlock (ccInfo: ParserState, key: string) {
+  private _checkBlock (ccInfo: StateInfo, key: string) {
     const block = ccInfo.block
     const mask = key === 'endif' ? ENDIF_MASK : Block.IF
 
@@ -174,7 +185,7 @@ export class Parser {
   /**
    * Push a `#if`, `#ifset`, or `#ifnset` directive
    */
-  private _pushState (ccInfo: ParserState, key: IfDirective, expr: string) {
+  private _pushState (ccInfo: StateInfo, key: IfDirective, expr: string) {
     ccInfo = {
       block: Block.IF,
       state: ccInfo.state === State.ENDING ? State.ENDING
@@ -187,7 +198,7 @@ export class Parser {
   /**
    * Handles `#elif` and `#else` directives.
    */
-  private _handleElses (ccInfo: ParserState, key: string, expr: string) {
+  private _handleElses (ccInfo: StateInfo, key: string, expr: string) {
     this._checkBlock(ccInfo, key)
 
     if (key === 'else') {
@@ -205,7 +216,7 @@ export class Parser {
   /**
    * Pop the if, ifset, or ifnset directives after endif.
    */
-  private _popState (ccInfo: ParserState, key: string) {
+  private _popState (ccInfo: StateInfo, key: string) {
     this._checkBlock(ccInfo, key)
 
     const cc = this._cc
