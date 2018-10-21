@@ -53,7 +53,7 @@ describe('jscc', function () {
     testStr('$_VERSION', version, { values: { _VERSION: '' } })
   })
 
-  it('support conditional comments with the `#if _VAR` syntax', function () {
+  it('support conditional comments with the `#if expression` syntax', function () {
     testStr([
       '//#if _FALSE',
       'false',
@@ -70,26 +70,55 @@ describe('jscc', function () {
     testFileStr('directive-ending', 'true')
   })
 
-  it('can handle Windows line-endings', function () {
+  it('must preserve Windows line-endings', function () {
     const code = [
       '//#set _A 1',
       '//#if _A',
       'Win',
       '//#endif',
       'OK',
+      '',
     ].join('\r\n')
-    expect(preprocStr(code)).to.be('Win\r\nOK')
+    expect(preprocStr(code)).to.be('Win\r\nOK\r\n')
   })
 
-  it('can handle Mac line-endings', function () {
+  it('must preserve Windows line-endings (2)', function () {
+    const code = [
+      '//#if 1',
+      'Win',
+      'OK',
+      '//#endif',
+      '',
+    ].join('\r\n')
+    expect(preprocStr(code)).to.be('Win\r\nOK\r\n')
+  })
+
+  it('must preserve Mac line-endings', function () {
     const code = [
       '//#set _A 1',
       '//#if _A',
       'Mac',
       '//#endif',
       'OK',
+      '',
     ].join('\r')
-    expect(preprocStr(code)).to.be('Mac\rOK')
+    expect(preprocStr(code)).to.be('Mac\rOK\r')
+  })
+
+  it('must preserve Mac line-endings (2)', function () {
+    const code = [
+      '//#if 1',
+      'Mac',
+      'OK',
+      '//#endif',
+      '',
+    ].join('\r')
+    expect(preprocStr(code)).to.be('Mac\rOK\r')
+  })
+
+  it('must preserve tuf8 BOM in the source', function () {
+    // Seems nodeJS uses \uFEFF to mark any enconding
+    testFileStr('utf8-bom.txt', /^\ufeff\nOK$/)
   })
 
 })
