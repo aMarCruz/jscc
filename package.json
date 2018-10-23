@@ -1,9 +1,10 @@
 {
   "name": "jscc",
   "version": "1.0.0",
-  "description": "The JavaScript preprocessor for conditional comments and replacements in text files",
-  "main": "./index.js",
-  "module": "./dist/jscc.js",
+  "description": "Tiny and powerful preprocessor for conditional comments and compile-time replacements in source files",
+  "main": "index.js",
+  "module": "dist/jscc.js",
+  "source": "src/jscc.ts",
   "license": "MIT",
   "engines": {
     "node": ">=6.0"
@@ -13,10 +14,10 @@
     "lint": "eslint --report-unused-disable-directives -c .eslintrc.js --ext ts test src",
     "prepublish": "yarn build && mocha test/*.ts",
     "prestart": "yarn lint & tsc",
-    "start": "mocha --watch test/*.ts",
+    "start": "mocha --watch --check-leaks test/*.ts",
     "pretest": "yarn lint && tsc",
-    "test": "nyc mocha test/*.ts",
-    "coverage": "nyc report -r=text-lcov > coverage.lcov",
+    "test": "nyc mocha --check-leaks test/*.ts",
+    "coverage": "nyc report -r=lcov",
     "tsc": "tsc"
   },
   "keywords": [
@@ -24,6 +25,7 @@
     "html5",
     "parser",
     "javascript",
+    "typescript",
     "es6",
     "conditional",
     "comments",
