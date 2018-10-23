@@ -16,10 +16,18 @@ describe('Async Operation', function () {
     })
   })
 
-  it('must return an error instead throw exceptions.', function (done) {
-    jscc('//#if', '', null, (err, _) => {
+  it('must reject with an Error object instead throw an exception.', function (done) {
+    jscc('//#if', '', null, (err) => {
       expect(err).to.be.a(Error)
       expect(err!.message).to.contain('Expression expected')
+      done()
+    })
+  })
+
+  it('the `#error` directive must reject with an Error object as well.', function (done) {
+    jscc('//#error "ERROR"', '', null, (err) => {
+      expect(err).to.be.a(Error)
+      expect(err!.message).to.contain('ERROR')
       done()
     })
   })
@@ -32,10 +40,12 @@ describe('Async Operation', function () {
     })
   })
 
-
-  it('jscc() must return undefined.', function (done) {
-    const ret = jscc('$_VERSION', '', null, done)
-    expect(ret).to.be(undefined)
+  it('jscc() function in async mode must return undefined.', function (done) {
+    const result = jscc('$_VERSION', '', null, (err) => {
+      expect(err).to.be(null)
+    })
+    expect(result).to.be(undefined)
+    done()
   })
 
 })

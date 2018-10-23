@@ -3,11 +3,10 @@
     "target": "es6",
     "module": "commonjs",
     "lib": ["es2017"],
-    "allowJs": false,
     "sourceMap": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "importHelpers": true,
+    //"importHelpers": false,
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -16,11 +15,9 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true
   },
-  "files": [
-    "index.d.ts",
-  ],
   "include": [
-    "src/**/*",
+    "./index.d.ts",
+    "./src/**/*",
   ],
   "exclude": [
     "node_modules",

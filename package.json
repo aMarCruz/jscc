@@ -9,7 +9,7 @@
     "node": ">=6.0"
   },
   "scripts": {
-    "build": "rimraf dist/** && yarn lint && tsc",
+    "build": "rimraf ./dist/** && yarn lint && tsc",
     "lint": "eslint --report-unused-disable-directives -c .eslintrc.js --ext ts test src",
     "prepublish": "yarn build && mocha test/*.ts",
     "prestart": "yarn lint & tsc",

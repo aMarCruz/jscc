@@ -9,11 +9,20 @@ import { parseOptions } from './parse-options'
 
 const isFunction = (fn: any): fn is Function => (!!fn && typeof fn == 'function')
 
-export default function jscc (
+/**
+ * Preprocessor for conditional comments and compile-time variable
+ * replacement replacement in text files (asynchronous version).
+ *
+ * @param source String to preprocess, in ascii or utf8 codification.
+ * @param filename Absolute or relative to the current directory.
+ * @param options User options
+ * @param callback Function to receive error and result parameters.
+ */
+function jscc (
   code: string,
   filename?: string | null,
-  options?: JsccOptions,
-  callback?: JsccCallback
+  options?: Jscc.Options | null,
+  callback?: Jscc.Callback
 ) {
   // Get the normalized options
   const props = parseOptions(filename || '', options || {})
@@ -35,3 +44,4 @@ export default function jscc (
   return undefined
 }
 
+export default jscc

@@ -2,7 +2,7 @@ import fs from 'fs'
 import jscc from '../jscc'
 import { concatPath } from './concat-path'
 
-export const transformFile = (file: string, opts?: JsccOptions) => {
+export const transformFile = (file: string, opts?: Jscc.Options) => {
   const inFile = concatPath('fixtures', file)
   const code = fs.readFileSync(inFile, 'utf8')
 

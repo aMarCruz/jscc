@@ -6,14 +6,15 @@ import { join } from 'path'
  * @param path Current or some parent path
  */
 const extractVersion = (path: string) => {
+  let version
 
   // Try to get the version, the package may not contain one.
   try {
     const pkgname = join(path, 'package.json')
-    return require(pkgname).version as string
+    version = require(pkgname).version
   } catch { /**/ }
 
-  return ''
+  return version || undefined
 }
 
 /**
@@ -25,7 +26,7 @@ const extractVersion = (path: string) => {
  * @param {any} [version] Already defined version
  * @returns {string} Package version, or empty if it could not be found.
  */
-export const getPackageVersion = (version: string) => {
+export const getPackageVersion = (version?: string) => {
 
   // Keep any already defined user version
   if (version && typeof version == 'string') {
@@ -34,7 +35,7 @@ export const getPackageVersion = (version: string) => {
 
   // Start with the current working directory, with normalized slashes
   let path = process.cwd().replace(/\\/g, '/')
-  version = ''
+  version = undefined
 
   while (~path.indexOf('/')) {
 

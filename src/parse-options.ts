@@ -35,7 +35,7 @@ const parsePrefix = (prefix: any) => {
   return errorHandler('jscc `prefixes` must be an array of strings or regexes')
 }
 
-const valuesWithConst = (values: JsccValues, filename: string, version: string) => {
+const valuesWithConst = (values: Jscc.Values, filename: string, version?: string) => {
   /*
     v1.0 adds the predefined variables as a readonly properties.
     This is a breaking change from previous version
@@ -48,7 +48,7 @@ const valuesWithConst = (values: JsccValues, filename: string, version: string) 
     },
     // Set _VERSION once, keep any already existing
     _VERSION: {
-      value: version,
+      value: version || '',
       enumerable: true,
     },
   })
@@ -64,7 +64,7 @@ const valuesWithConst = (values: JsccValues, filename: string, version: string) 
  * @param srcValues User values
  */
 const getValues = (filename: string, srcValues: { [k: string]: any }) => {
-  const values = Object.create(null) as JsccValues
+  const values = Object.create(null) as Jscc.Values
 
   if (typeof srcValues != 'object') {
     return errorHandler('jscc values must be a plain object')
@@ -87,7 +87,7 @@ const getValues = (filename: string, srcValues: { [k: string]: any }) => {
  *
  * @param opts User options
  */
-export function parseOptions (filename: string, opts: JsccOptions): JsccProps {
+export function parseOptions (filename: string, opts: Jscc.Options): JsccProps {
 
   // Extract the user defined values
   const values = getValues(filename, opts.values || {})

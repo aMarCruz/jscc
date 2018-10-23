@@ -1,7 +1,7 @@
 import expect from 'expect.js'
 import { transformFile } from './transform-file'
 
-export const testFileStr = (file: string, expected: string | RegExp, opts?: JsccOptions) => {
+export const testFileStr = (file: string, expected: string | RegExp, opts?: Jscc.Options) => {
   const result = transformFile(file, opts)
 
   if (expected instanceof RegExp) {

@@ -8,7 +8,7 @@ const VARS_TO_EVL = RegExp(`${STRINGS.source}|${JSCC_VARS.source}`, 'g')
 /**
  * Replacing function
  */
-const _repVars = function (this: JsccValues, match: string, prech: string, vname: string) {
+const _repVars = function (this: any, match: string, prech: string, vname: string) {
   return vname ? prech + (vname in this ? `this.${vname}` : `global.${vname}`) : match
 }
 

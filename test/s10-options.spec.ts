@@ -5,7 +5,7 @@ import jscc from './jscc'
 import { testStr } from './helpers/test-str'
 import { preprocStr } from './helpers/preproc-str'
 
-const rawJscc = (code: string, opts?: JsccOptions) => jscc(code, '', opts).code
+const rawJscc = (code: string, opts?: Jscc.Options) => jscc(code, '', opts).code
 
 describe('Options:', function () {
 
@@ -66,12 +66,12 @@ describe('Options:', function () {
     expect(result.map).to.be(undefined)
   })
 
-  it('`.sourceMap:true` must be ignored if the output has no changes', function () {
+  it('`.sourceMap:true` must be `null` if the output has no changes', function () {
     const source = '// set _A\n$_A'
     const result = jscc(source, '', { sourceMap: true })
 
     expect(result.code).to.be(source)
-    expect(result.map).to.be(undefined)
+    expect(result.map).to.be(null)
   })
 
   it('user provided `.prefixes` must override the predefined ones', function () {

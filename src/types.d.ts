@@ -8,6 +8,6 @@ interface JsccProps {
   mapHires: boolean;
   prefixes: string;
   sourceMap: boolean;
-  values: JsccValues;
+  values: Jscc.Values;
   errorHandler: (message: string | Error) => void;
 }

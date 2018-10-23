@@ -7,4 +7,4 @@ import jscc from '../jscc'
  * @param code Source
  * @param opts jscc options
  */
-export const preprocStr = (code: string, opts?: JsccOptions) => jscc(code, '', opts).code
+export const preprocStr = (code: string, opts?: Jscc.Options) => jscc(code, '', opts).code

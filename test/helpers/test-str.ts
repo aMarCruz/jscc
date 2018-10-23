@@ -4,7 +4,7 @@ import jscc from '../jscc'
 export const testStr = (
   source: string | string[],
   expected: string | RegExp,
-  opts?: JsccOptions
+  opts?: Jscc.Options
 ) => {
 
   if (Array.isArray(source)) {

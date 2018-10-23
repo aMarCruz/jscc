@@ -7,7 +7,7 @@ import { transformFile } from './transform-file'
 const getExpected = (file: string) => fs
   .readFileSync(concatPath('expected', file), 'utf8').replace(/\s*$/, '')
 
-export const testFile = (file: string, opts?: JsccOptions, save?: boolean) => {
+export const testFile = (file: string, opts?: Jscc.Options, save?: boolean) => {
   const expected = getExpected(file)
   const result   = transformFile(file, opts)
 
