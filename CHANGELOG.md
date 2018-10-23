@@ -15,7 +15,7 @@ Major refactorization after two years, using TypeScript v3.
 - .npmignore files, for distribution with minimal stuff.
 - Sync test for async operation.
 - Async operation.
-- Add prefix for `<!` (alt html comment) to the predefined prefixes.
+- ~~Add prefix for `<!` (alt html comment) to the predefined prefixes.~~
 - Support for replacement with more than one object property.
 
 ### Changed

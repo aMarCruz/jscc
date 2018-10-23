@@ -3,7 +3,7 @@ import { getPackageVersion } from './lib/get-package-version'
 import { pathRelative } from './lib/path-relative'
 import { VARNAME } from './regexes'
 
-const DEF_PREFIX = /\/[/*]|<!--|<!/.source
+const DEF_PREFIX = /\/[/*]|<!--/.source
 
 /**
  * Default error handler to throw an error.

@@ -22,9 +22,9 @@ With jscc, you have:
 
 jscc is derived on [jspreproc](http://amarcruz.github.io/jspreproc), the tiny source file preprocessor in JavaScript, enhanced with Source Map support but without the file importer nor the removal of comments ([rollup](https://rollupjs.org/guide/en) with [rollup-plugin-cleanup](https://www.npmjs.com/package/rollup-plugin-cleanup) does this better).
 
-jscc works in NodeJS 6 or later, with a minimal footprint and without external dependencies. It was designed to operate on small to medium pieces of code (like most nowadays) and, since the whole process is done in memory, it is _really fast_.
+jscc works in NodeJS 6 or later, without external dependencies and a minimal footprint. It was designed to operate on small to medium pieces of code (like most nowadays) and, since the whole process is done in memory, it is _really fast_.
 
-jscc is **not** a minifier tool, it only does what it does well...
+jscc is **not** a minifier tool, but it does well what it does...
 
 ## IMPORTANT
 
@@ -124,11 +124,9 @@ These are the main changes, the detail you can see in the [CHANGELOG](CHANGELOG.
 
 - The minimum supported version is node 6. Since node 5 may work, it was not tested and there's no plans for to downgrade.
 
-- The transpiled code is now in the "dist" folder and has been excluded from all branches, except "master". This code is used to serve both, the CommonJS and ES6 versions. The CommonJS export is index.js, in the root folder, and the ES6 modules in "dist", addressed (in accordance to common practices) by the "main" and "module" properties of package.json.
+- The transpiled code is now in the "dist" folder on the npm package, but it has been excluded from the branches of the repository. This code is used to serve both, the CommonJS and ES6 versions. The CommonJS export is "index.js", in the root folder, and the ES6 modules in "dist", addressed (in accordance to common practices) by the "main" and "module" properties of package.json.
 
 - The function exported by jscc supports a fourth parameter of type "function" (a _callback_). If you use it, jscc will return `undefined` and it will change to an asynchronous behavior of type NodeJS: In case of success, the callback will receive `null` in the first parameter and the results in the second. If there is an error, it will receive a single parameter with the corresponding `Error` object.
-
-- The short sequence for opening HTML comments (`<!`) has been added to the predefined prefixes.
 
 - Now the output of `NaN` is `null`, for consistency with the output from `JSON.stringify`. This is applied to raw or boxed values like those of the invalid dates.
 
@@ -141,11 +139,18 @@ These are the main changes, the detail you can see in the [CHANGELOG](CHANGELOG.
 - The undocumented option `errorHandler` was removed, which makes error control more simpler and secure.
 
 
+## Known Issues
+
+- Typescript will load jscc through "index.js" (the CommonJS export), so you need enable `esModuleInterop` in your tsconfig.json or use `import jscc = require("jscc")`.
+- jscc does not work in a browser, but it must work without issues on the back-end.
+
+
 ## TODO
 
 - [X] ~~Async mode~~ (v1.0.0)
 - [ ] Explanatory error messages, with location of the error
-- [ ] Different prefixes for different file types.
+- [ ] Different prefixes for different file types
+- [ ] Express middleware
 - [ ] WebPack plugin
 - [ ] Better documentation
 - [ ] Syntax hilighter for some editores? Perhaps you want to contribute.

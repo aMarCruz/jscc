@@ -15,8 +15,9 @@ describe('HTML Processing', function () {
     })
   })
 
-  it('must handle short html comments "<!" from v1.0', function () {
+  it('must handle custom prefixes, byt example html short comments "<!"', function () {
     testFile('html-short-cmts.html', {
+      prefixes: ['<!--', '<!'],
       values: { _TITLE: 'My App' },
     })
   })

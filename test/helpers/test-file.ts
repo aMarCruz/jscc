@@ -14,7 +14,7 @@ export const testFile = (file: string, opts?: Jscc.Options, save?: boolean) => {
   expect(result).to.be.a('string')
   if (save) {
     throw new Error('If mocha is not watching, comment this to save the file.')
-    //fs.writeFileSync(concat(file + '_out.js'), result || '')
+    //fs.writeFileSync(concatPath('expected', file + '_out.js'), result || '')
   }
 
   expect(result).to.be(expected)
