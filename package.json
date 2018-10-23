@@ -17,6 +17,7 @@
     "start": "mocha --watch --check-leaks test/*.ts",
     "pretest": "yarn lint && tsc",
     "test": "nyc mocha --check-leaks test/*.ts",
+    "clean": "rimraf ./coverage && rimraf ./dist/**",
     "coverage": "nyc report -r=lcov",
     "tsc": "tsc"
   },
