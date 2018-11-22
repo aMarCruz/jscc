@@ -12,8 +12,6 @@
   "eslint.validate": [
     "javascript",
     "javascriptreact",
-    "typescript",
-    "typescriptreact"
   ],
   "eslint.workingDirectories": [
     "./src",

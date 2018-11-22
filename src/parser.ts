@@ -1,12 +1,12 @@
 /*
   Parser for conditional comments
 */
-import { STRINGS, ASSIGNMENT, VARNAME } from './regexes'
-import { evalExpr } from './eval-expr'
+import evalExpr = require('./eval-expr')
+import R = require('./regexes')
 
 interface StateInfo {
-  state: State;
-  block: Block;
+  state: State
+  block: Block
 }
 
 type IfDirective = 'if' | 'ifset' | 'ifnset'
@@ -43,15 +43,14 @@ const S_RE_BASE = /^[ \t\f\v]*(?:@)#(if|ifn?set|elif|else|endif|set|unset|error)
  *
  * $1: If the regex found a comment, it is '//', otherwise, it is `undefined`
  */
-const R_LINECMNT = new RegExp(`${STRINGS.source}|(//)`, 'g')
+const R_LINECMNT = RegExp(`${R.S_STRINGS}|(//)`, 'g')
 
 /**
  * Conditional comments parser
  *
  * @param {object} props - The global options
- * @class
  */
-export class Parser {
+class Parser {
 
   private _cc = [{
     block: Block.NONE,
@@ -66,7 +65,7 @@ export class Parser {
    *
    * @returns {RegExp} regex with the flags `global` and `multiline`
    */
-  getRegex () {
+  public getRegex () {
     return RegExp(S_RE_BASE.replace('@', this.options.prefixes), 'gm')
   }
 
@@ -76,7 +75,7 @@ export class Parser {
    * @param   {Array} match - Object with the key/value of the directive
    * @returns {boolean}       Output state, `false` to hide the output.
    */
-  parse (match: RegExpExecArray) {
+  public parse (match: RegExpExecArray) {
 
     const key   = match[1]
     const expr  = this._normalize(key, match[2])
@@ -116,7 +115,7 @@ export class Parser {
    *
    * @returns {boolean} `true` if no error.
    */
-  close () {
+  public close () {
     const cc  = this._cc
     const err = cc.length !== 1 || cc[0].state !== State.WORKING
 
@@ -158,8 +157,10 @@ export class Parser {
       this._emitError(`Expression expected for #${key}`)
     }
 
-    let match
     R_LINECMNT.lastIndex = 0
+    let match
+
+    // tslint:disable-next-line:no-conditional-assignment
     while ((match = R_LINECMNT.exec(expr))) {
       if (match[1]) {
         expr = expr.slice(0, match.index)
@@ -252,7 +253,7 @@ export class Parser {
    * @param expr Expression normalized in the "varname=value" format
    */
   private _set (expr: string) {
-    const match = expr.match(ASSIGNMENT)
+    const match = expr.match(R.ASSIGNMENT)
 
     if (match) {
       const varname = match[1]
@@ -271,7 +272,7 @@ export class Parser {
    * @param varname Variable name
    */
   private _unset (varname: string) {
-    if (varname.match(VARNAME)) {
+    if (varname.match(R.VARNAME)) {
       delete this.options.values[varname]
     } else {
       this._emitError(`Invalid memvar name "${varname}"`)
@@ -304,3 +305,5 @@ export class Parser {
     return yes
   }
 }
+
+export = Parser

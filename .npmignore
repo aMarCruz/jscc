@@ -1,16 +1,12 @@
-# Exclude source and tests files from the package
-src
+# Exclude test files from the package, leave src
 test
 
-# Include the ready to run code w/o sourcemaps
+# Include the ready to run code
 !dist
-**/*.map
 
 # Exclude VSCode, CI, and Dev related stuff
 .vscode
-.eslint*
 *.yml
-tsconfig*
 Makefile
 
 # Common git and npm ignored folders and files
@@ -27,7 +23,9 @@ pids
 *.pid
 *.seed
 *.tgz
-*.nyc_output
 **/*.bak
 **/*.lcov
 **/*.log
+
+.nyc_output
+.rpt2_cache

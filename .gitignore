@@ -25,7 +25,9 @@ pids
 *.pid
 *.seed
 *.tgz
-*.nyc_output
 **/*.bak
 **/*.lcov
 **/*.log
+
+.nyc_output
+.rpt2_cache

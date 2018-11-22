@@ -1,4 +1,4 @@
-import { relative } from 'path'
+import path = require('path')
 
 /**
  * Returns a normalized file name, relative to the current working directory.
@@ -7,4 +7,4 @@ import { relative } from 'path'
  *
  * @param fname File name to normalize
  */
-export const pathRelative = (fname: string) => fname && relative(process.cwd(), fname).replace(/\\/g, '/') || ''
+export = (fname: string) => (fname ? path.relative(process.cwd(), fname).replace(/\\/g, '/') : '')

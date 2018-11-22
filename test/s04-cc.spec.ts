@@ -1,7 +1,7 @@
 import expect from 'expect.js'
 
-import { testFileStr } from './helpers/test-file-str'
 import { preprocStr } from './helpers/preproc-str'
+import { testFileStr } from './helpers/test-file-str'
 import { testStr } from './helpers/test-str'
 
 describe('Conditional Compilation', function () {

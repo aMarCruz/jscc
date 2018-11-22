@@ -1,7 +1,13 @@
 /*
   Variable replacement inside the code.
 */
-import { VARS_TO_REPL } from './regexes'
+import R = require('./regexes')
+
+/** Quote types to escape in strings */
+const enum QUOTES {
+  Single = 1,
+  Double = 2,
+}
 
 /**
  * Helper for call `JSON.stringify` in `stringifyObject`.
@@ -11,18 +17,18 @@ import { VARS_TO_REPL } from './regexes'
  * and regexes to `{}` (an empty object).
  */
 const stringifyFn = (_: string, value: any) => {
-  /*
-    Testing `value == Infinity` with primitive number or Number intance
-    only returns `true` if value is Infinity or "Infinity" and the like
-    for -Infinity.
-  */
-  // eslint-disable-next-line eqeqeq
-  if (value == Infinity && value.constructor.name === 'Number') {
-    return Number.MAX_VALUE
-  }
-  // eslint-disable-next-line eqeqeq
-  if (value == -Infinity && value.constructor.name === 'Number') {
-    return Number.MIN_VALUE
+
+  if (value && value.constructor.name === 'Number') {
+    /*
+      It is necessary to coerce the value to a primitive number because
+      `Infinity !== new Number(Infinity)`, and the like for `-Infinity`.
+    */
+    if (+value === Infinity) {
+      return Number.MAX_VALUE
+    }
+    if (+value === -Infinity) {
+      return Number.MIN_VALUE
+    }
   }
 
   return value instanceof RegExp ? value.source : value
@@ -40,11 +46,11 @@ const stringifyFn = (_: string, value: any) => {
  * @returns String representation of the object
  */
 const stringObject = (obj: object) => {
-  let str
+  let str: string
 
   // toISOString throw with NaN dates, toJSON returns `null`
   if (obj instanceof Date) {
-    str = obj.toJSON() || 'null'
+    str = isNaN(+obj) ? 'null' : obj.toJSON()
 
   } else if (obj instanceof RegExp) {
     str = obj.source
@@ -53,7 +59,7 @@ const stringObject = (obj: object) => {
     str = obj.valueOf()
 
   } else if (obj instanceof Number) {
-    str = isNaN(obj as any) ? 'null' : String(obj)
+    str = isNaN(+obj) ? 'null' : String(obj)
 
   } else {
     str = JSON.stringify(obj, stringifyFn)
@@ -74,7 +80,7 @@ const stringObject = (obj: object) => {
  *
  * @param value any value, including undefined
  */
-const stringValue = (value: any) => {
+const stringValue = (value: any, escapeQuotes: number) => {
 
   // `NaN` returns `null`, for consistency with `JSON.stringify`
   // eslint-disable-next-line no-self-compare
@@ -82,39 +88,55 @@ const stringValue = (value: any) => {
     return 'null'
   }
 
-  // stringifyObject accepts `NaN` object but no `null`s.
-  return value && typeof value == 'object' ? stringObject(value) : String(value)
+  // stringObject accepts `NaN` object but no `null`s.
+  if (value && typeof value === 'object') {
+    return stringObject(value)
+  }
+
+  let str = String(value)
+
+  if (escapeQuotes & QUOTES.Single) {
+    str = str.replace(/(?=')/g, '\\')
+  }
+  if (escapeQuotes & QUOTES.Double) {
+    str = str.replace(/(?=")/g, '\\')
+  }
+
+  return str
 }
 
 /**
- * Returns the given value or the property value if this is an object
- * and the replaced string has a property list.
+ * Returns the value pointed by match[2] and extends match[1] to cover
+ * the replacement length.
  *
  * @param value Source value or object
- * @param match Contain the property in $2
+ * @param match Contain the property path in $2
  * @throws TypeError if you try to read the prop on a null object.
  */
-const getValue = (value: any, match: RegExpExecArray) => {
+const getValueInfo = (value: any, match: RegExpExecArray) => {
 
-  // Check object properties
+  // Get the property path without the first dot
   const propPath = match[2] && match[2].slice(1)
+  let length = match[1].length
 
-  // Replace with the property value only if this is an aobject
-  if (propPath && typeof value == 'object') {
+  // Try to get the property value only if this is an object
+  if (propPath) {
     const props = propPath.split('.')
+    let prop = props.shift()
 
-    while (props.length) {
-      const prop = props.shift()!
+    while (prop && typeof value === 'object') {
 
-      // the next assignment will raise a TypeError if obj is null or undefined,
-      // or convent obj to undefined if obj is a primitive value... it is ok.
+      // the next assignment will raise a TypeError if the current value
+      // is null, undefined, or a primitive value... it is ok.
       value = value[prop]
-    }
 
-    match[1] = match[0]   // to replace all the match
+      // include this prop in the replaced length and pick the next
+      length += prop.length + 1
+      prop = props.shift()
+    }
   }
 
-  return value
+  return { value, length }
 }
 
 /**
@@ -124,29 +146,35 @@ const getValue = (value: any, match: RegExpExecArray) => {
  * @param fragment Fragment of code to replace and add to `magicStr`
  * @param start Offset where the replacement starts in magicStr.
  */
-export function remapVars (props: JsccProps, fragment: string, start: number) {
-
-  const values = props.values
-  let changes = false
+const remapVars = function _remapVars (props: JsccProps, fragment: string, start: number) {
 
   // node.js is async, make local copy of the regex
-  const re = new RegExp(VARS_TO_REPL.source, 'g')
+  const re = RegExp(R.VARS_TO_REPL)
+  let changes = false
   let match
 
   // $1: varname including the prefix '$'
   // $2: optional property name(s)
 
-  while ((match = re.exec(fragment))) {
+  // tslint:disable-next-line:no-conditional-assignment
+  while (match = re.exec(fragment)) {
     const vname = match[1].slice(1)    // strip the prefix '$'
 
-    if (vname in values) {
+    if (vname in props.values) {
       const index = start + match.index
-      const value = getValue(values[vname], match)
+      const vinfo = getValueInfo(props.values[vname], match)
 
-      props.magicStr.overwrite(index, index + match[1].length, stringValue(value))
+      props.magicStr.overwrite(
+        index,
+        index + vinfo.length,
+        stringValue(vinfo.value, props.escapeQuotes)
+      )
+
       changes = true
     }
   }
 
   return changes
 }
+
+export = remapVars

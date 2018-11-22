@@ -1,4 +1,5 @@
-/// <reference path="../index.d.ts" />
-
-const _jscc = require('../') as typeof Jscc.jscc
+/*
+  Proxy for ESM style operation without esModuleInterop.
+*/
+import _jscc = require('..')
 export default _jscc

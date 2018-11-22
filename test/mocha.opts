@@ -1,4 +1,5 @@
 # Set the must simple report and other options
 --check-leaks
+--require ./test/test.env.js
 --require ts-node/register
 --watch-extensions ts

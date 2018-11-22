@@ -1,11 +1,11 @@
 import expect from 'expect.js'
-import jscc from './jscc'
+import jscc from '..'   // with this import, we are also testing ESM interop
 
 // common helpers
-import { testStr } from './helpers/test-str'
 import { preprocStr } from './helpers/preproc-str'
+import { testStr } from './helpers/test-str'
 
-const rawJscc = (code: string, opts?: Jscc.Options) => jscc(code, '', opts).code
+const rawJscc = (code: string, opts?: jscc.Options) => jscc(code, '', opts).code
 
 describe('Options:', function () {
 

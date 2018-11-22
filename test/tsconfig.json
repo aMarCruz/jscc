@@ -7,26 +7,12 @@
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "sourceMap": true,
     "strict": true,
     "stripInternal": true,
-    "target": "es6",
-    "plugins": [
-      {
-        "name": "typescript-tslint-plugin",
-        "ignoreDefinitionFiles": true
-      }
-    ]
+    "target": "es5"
   },
   "include": [
-    "index.d.ts",
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "test"
+    "../index.d.ts",
+    "*.ts"
   ]
 }

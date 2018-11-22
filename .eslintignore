@@ -1,7 +1,0 @@
-**/dist
-**/coverage
-**/test/expect
-**/test/fixtures
-**/node_modules/**
-**/*.md
-**/*.json

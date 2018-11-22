@@ -4,14 +4,14 @@ import jscc from '../jscc'
 export const testStr = (
   source: string | string[],
   expected: string | RegExp,
-  opts?: Jscc.Options
+  opts?: jscc.Options
 ) => {
 
   if (Array.isArray(source)) {
     source = source.join('\n')
   }
 
-  const code = jscc(source, '', opts).code.replace(/\s*$/, '') // trimRight
+  const code = jscc(source, '', opts).code.replace(/\s+$/, '') // trimRight
 
   if (expected instanceof RegExp) {
     expect(code).to.match(expected)

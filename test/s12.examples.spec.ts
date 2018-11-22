@@ -1,5 +1,5 @@
-import { testFileStr } from './helpers/test-file-str'
 import { testFile } from './helpers/test-file'
+import { testFileStr } from './helpers/test-file-str'
 import { testStr } from './helpers/test-str'
 
 describe('Examples:', function () {
@@ -18,7 +18,6 @@ describe('Examples:', function () {
   })
 
   it('Hidden blocks (and process.env.*)', function () {
-    //testFile('ex-hidden-blocks')
     testStr([
       '/*#if 1',
       'import mylib from "browser-lib"',

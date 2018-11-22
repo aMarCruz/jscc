@@ -1,9 +1,14 @@
-import { escapeRegex } from './lib/escape-regex'
-import { getPackageVersion } from './lib/get-package-version'
-import { pathRelative } from './lib/path-relative'
-import { VARNAME } from './regexes'
+import escapeRegexStr = require('@jsbits/escape-regex-str')
+import getPackageVersion = require('@jsbits/get-package-version')
+import pathRelative = require('./lib/path-relative')
+import R = require('./regexes')
 
-const DEF_PREFIX = /\/[/*]|<!--/.source
+import Jscc from '../index'
+
+/**
+ * Default prefixes, equivalent to `['//', '/*', '<!--']`
+ */
+const S_DEF_PREFIXES = /\/[/*]|<!--/.source
 
 /**
  * Default error handler to throw an error.
@@ -11,10 +16,34 @@ const DEF_PREFIX = /\/[/*]|<!--/.source
  * @param error Error instance or string with the error
  */
 const errorHandler = (error: string | Error) => {
-  if (typeof error == 'string') {
+  if (typeof error === 'string') {
     error = new Error(error)
   }
   throw error
+}
+
+const enum QUOTES {
+  Single = 1,
+  Double = 2,
+}
+
+/**
+ * Get the `escapeQuotes` flags.
+ *
+ * @param opts User options
+ */
+const getEscapeQuotes = (opts: Jscc.Options) => {
+
+  switch (opts.escapeQuotes) {
+    case 'single':
+      return QUOTES.Single
+    case 'double':
+      return QUOTES.Double
+    case 'both':
+      return QUOTES.Single | QUOTES.Double
+  }
+
+  return 0
 }
 
 /**
@@ -26,32 +55,50 @@ const errorHandler = (error: string | Error) => {
  * @param prefix String or regex
  */
 const parsePrefix = (prefix: any) => {
+
   if (prefix instanceof RegExp) {
     return prefix.source
   }
-  if (typeof prefix == 'string') {
-    return escapeRegex(prefix)
+
+  if (typeof prefix === 'string') {
+    return escapeRegexStr(prefix)
   }
+
   return errorHandler('jscc `prefixes` must be an array of strings or regexes')
 }
 
-const valuesWithConst = (values: Jscc.Values, filename: string, version?: string) => {
-  /*
-    v1.0 adds the predefined variables as a readonly properties.
-    This is a breaking change from previous version
-  */
-  return Object.defineProperties(values, {
-    // File name is valid only for this instance
-    _FILE: {
-      value: pathRelative(filename || ''),
-      enumerable: true,
-    },
-    // Set _VERSION once, keep any already existing
-    _VERSION: {
-      value: version || '',
-      enumerable: true,
-    },
-  })
+/**
+ * Gets the list of prefixes separated by bars.
+ *
+ * @param opts User options
+ */
+const getPrefixes = (opts: Jscc.Options) => {
+  let prefixes = opts.prefixes || ''
+
+  if (prefixes) {
+    const list = Array.isArray(prefixes) ? prefixes : [prefixes]
+
+    // Discard empty prefixes and ensure to get a string from the rest
+    prefixes = list.filter(Boolean).map(parsePrefix).join('|')
+  }
+
+  return prefixes || S_DEF_PREFIXES
+}
+
+/**
+ * getValues helper to check a varname and transfer it value to `dest`.
+ *
+ * @param this The context is the user defined values
+ * @param dest Object holding the values
+ * @param v jscc varname
+ */
+const parseValue = function (this: Jscc.Values, dest: Jscc.Values, v: string) {
+  if (R.VARNAME.test(v)) {
+    dest[v] = this[v]
+  } else {
+    errorHandler(`Invalid memvar name: ${v}`)
+  }
+  return dest
 }
 
 /**
@@ -61,25 +108,30 @@ const valuesWithConst = (values: Jscc.Values, filename: string, version?: string
  *
  * Throws an Error if any the source object or a varname is invalid.
  *
+ * @param filename User provided filename
  * @param srcValues User values
  */
 const getValues = (filename: string, srcValues: { [k: string]: any }) => {
-  const values = Object.create(null) as Jscc.Values
 
-  if (typeof srcValues != 'object') {
+  if (typeof srcValues !== 'object') {
     return errorHandler('jscc values must be a plain object')
   }
 
   // Get a shallow copy of the values, must be set per file
-  Object.keys(srcValues).forEach((v) => {
-    if (VARNAME.test(v)) {
-      values[v] = srcValues[v]
-    } else {
-      errorHandler(`Invalid memvar name: ${v}`)
-    }
-  })
+  const values = Object.keys(srcValues).reduce(
+    parseValue.bind(srcValues),
+    Object.create(null) as Jscc.Values
+  )
 
-  return valuesWithConst(values, filename, getPackageVersion(srcValues._VERSION))
+  // To allow optimization, keep already existing version.
+  if (typeof values._VERSION !== 'string') {
+    values._VERSION = getPackageVersion()
+  }
+
+  // File name is valid only for this instance
+  values._FILE = pathRelative(filename)
+
+  return values
 }
 
 /**
@@ -87,32 +139,29 @@ const getValues = (filename: string, srcValues: { [k: string]: any }) => {
  *
  * @param opts User options
  */
-export function parseOptions (filename: string, opts: Jscc.Options): JsccProps {
+const parseOptions = function _parseOptions (filename: string, opts: Jscc.Options): JsccProps {
 
   // Extract the user defined values
   const values = getValues(filename, opts.values || {})
 
-  // Extract the prefixes ---------------------------------------------------
+  // Get the prefixes
+  const prefixes = getPrefixes(opts)
 
-  let prefixes = opts.prefixes || ''
-  if (prefixes) {
-    const list = Array.isArray(prefixes) ? prefixes : [prefixes]
-
-    // Discard empty prefixes and ensure to get a string from the rest
-    prefixes = list.filter(Boolean).map(parsePrefix)
-  }
-
-  prefixes = prefixes.length ? (prefixes as string[]).join('|') : DEF_PREFIX
+  // Quotes to escape in strings
+  const escapeQuotes = getEscapeQuotes(opts)
 
   // Create and returns the normalized jscc props, we are done
   return {
     magicStr:   {} as any,  // makes TS happy
+    escapeQuotes,
     keepLines:  !!opts.keepLines,
     mapContent: !!opts.mapContent,
     mapHires:   opts.mapHires  !== false,
     sourceMap:  opts.sourceMap !== false,
-    errorHandler,
     prefixes,
+    errorHandler,
     values,
   }
 }
+
+export = parseOptions

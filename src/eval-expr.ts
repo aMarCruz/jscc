@@ -1,9 +1,9 @@
-import { STRINGS, JSCC_VARS } from './regexes'
+import R = require('./regexes')
 
 /**
  * Regex for replacing of jscc varnames ($1 = prefix, $2 = varname).
  */
-const VARS_TO_EVL = RegExp(`${STRINGS.source}|${JSCC_VARS.source}`, 'g')
+const VARS_TO_EVL = RegExp(`${R.S_STRINGS}|${R.S_VARNAMES}`, 'g')
 
 /**
  * Replacing function
@@ -19,7 +19,7 @@ const _repVars = function (this: any, match: string, prech: string, vname: strin
  * @param ctx Context with the current variables and the error handler
  * @param exprStr String to evaluate, can include other defined vars
  */
-export function evalExpr (ctx: JsccProps, exprStr: string) {
+const evalExpr = function _evalExpr (ctx: JsccProps, exprStr: string) {
   const values = ctx.values
 
   // var replacement
@@ -40,3 +40,5 @@ export function evalExpr (ctx: JsccProps, exprStr: string) {
 
   return result
 }
+
+export = evalExpr

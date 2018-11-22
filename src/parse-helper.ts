@@ -1,10 +1,14 @@
-import { remapVars } from './remap-vars'
-import { EOLS } from './regexes'
+import remapVars = require('./remap-vars')
+
+/**
+ * Matches line-ending of win, mac, and unix type
+ */
+const EOLS = /[^\r\n]+/g
 
 /**
  * Helper class for the `parseChunks` function.
  */
-export class ParseHelper {
+class ParseHelper {
 
   /**
    * @param source Original source
@@ -23,7 +27,7 @@ export class ParseHelper {
    * @param output Must replace the block now?
    * @returns `true` if the chunk was changed
    */
-  commit (start: number, end: number, output: boolean) {
+  public commit (start: number, end: number, output: boolean) {
 
     if (!output || start >= end) {
       return false
@@ -45,7 +49,7 @@ export class ParseHelper {
    * @param output Must remove the block now?
    * @returns Position of the character following the removed block.
    */
-  remove (start: number, end: number, output: boolean) {
+  public remove (start: number, end: number, output: boolean) {
 
     if (end < this.source.length) {
       end += this.source[end] === '\r' && this.source[end + 1] === '\n' ? 2 : 1
@@ -62,3 +66,5 @@ export class ParseHelper {
     return end
   }
 }
+
+export = ParseHelper

@@ -1,42 +1,90 @@
-/**
+/*
   jscc v1.0
 
   @author aMarCruz
   @license MIT
 */
-declare module 'jscc' {
-  //declare const jscc: Jscc
-  export = Jscc.jscc
-}
+export = Jscc
 
+/**
+ * Preprocessor for conditional comments and compile-time variable
+ * replacement replacement in text files (asynchronous version).
+ *
+ * @param source String to be preprocessed, encoded in utf8.
+ * @param filename Absolute or relative path to the current directory.
+ * @param options User options.
+ * @param callback NodeJS style callback that receives the error and result as parameters.
+ */
+declare function Jscc (
+  source: string,
+  filename: string | null | undefined,
+  options: Jscc.Options | null | undefined,
+  callback: Jscc.Callback
+): void
+
+/**
+ * Preprocessor for conditional comments and compile-time variable
+ * replacement replacement in text files (synchronous version).
+ *
+ * @param source String to be preprocessed, encoded in utf8.
+ * @param filename Absolute or relative path to the current directory.
+ * @param options User options.
+ * @returns Object with `code` and `map` properties.
+ */
+declare function Jscc (
+  source: string,
+  filename?: string | null,
+  options?: Jscc.Options | null
+): Jscc.Result
+
+// tslint:disable:no-namespace
 declare namespace Jscc {
+
+  type QuoteType = 'single' | 'double' | 'both'
 
   interface Options {
     /**
-     * Allows to preserve the empty lines of the directives and blocks that were
-     * removed.
+     * String with the type of quotes to escape in the output of strings:
+     * 'single', 'double' or 'both'.
+     *
+     * It does not affects the output of regexes or strings contained in the
+     * JSON output of objects.
+     */
+    escapeQuotes?: QuoteType
+
+    /**
+     * Allows to preserve the empty lines of the directives and blocks that
+     * were removed.
      *
      * Use this option with `sourceMap:false` if you are only interested in
      * keeping the line count.
+     *
      * @default false
      */
-    keepLines?: boolean;
+    keepLines?: boolean
+
     /**
      * Include the original source in the sourceMap.
+     *
      * @default false
      */
-    mapContent?: boolean;
+    mapContent?: boolean
+
     /**
-     * Make a hi-res sourceMap.
+     * Makes a hi-res sourceMap.
+     *
      * @default true
      */
-    mapHires?: boolean;
+    mapHires?: boolean
+
     /**
      * String, regex or array of strings or regex matching the start of a directive.
      * That is, the characters before the '#', usually the start of comments.
+     *
      * @default ['//','/*','<!--']
      */
-    prefixes?: string | RegExp | Array<string | RegExp>;
+    prefixes?: string | RegExp | Array<string | RegExp>
+
     /**
      * Set this option to `false` to suppress source map generation.
      *
@@ -44,7 +92,7 @@ declare namespace Jscc {
      * should take its value from equivalent property of the parent tool.
      * @default true
      */
-    sourceMap?: boolean;
+    sourceMap?: boolean
     /**
      * Plain object defining the variables used by jscc during the preprocessing.
      *
@@ -55,7 +103,7 @@ declare namespace Jscc {
      * - `_FILE` : Name of the source file, relative to the current directory
      * - `_VERSION` : The version property in the package.json
      */
-    values?: { [k: string]: any };
+    values?: { [k: string]: any }
   }
 
   /**
@@ -66,50 +114,17 @@ declare namespace Jscc {
    * If `sourceMap` is not required, the `map` property is ommited.
    */
   interface Result {
-    code: string;
-    map?: import('magic-string').SourceMap | null;
+    code: string
+    map?: import('magic-string').SourceMap | null
   }
 
-  interface Callback {
-    (error: Error | null, data?: Jscc.Result): void;
-  }
-
-  type JsccValidTypes = any
+  /** Callback for async operation */
+  type Callback = (error: Error | null, data?: Jscc.Result) => void
 
   interface Values {
-    [k: string]: JsccValidTypes;
-    _VERSION: string;
-    _FILE: string;
+    [k: string]: any
+    _VERSION: string
+    _FILE: string
   }
 
-  /**
-   * Preprocessor for conditional comments and compile-time variable
-   * replacement replacement in text files (asynchronous version).
-   *
-   * @param source String to preprocess, in ascii or utf8 codification.
-   * @param filename Absolute or relative to the current directory.
-   * @param options User options
-   * @param callback Function to receive error and result parameters.
-   */
-  function jscc (
-    source: string,
-    filename: string | null | undefined,
-    options: Jscc.Options | null | undefined,
-    callback: Jscc.Callback,
-  ): void;
-
-  /**
-   * Preprocessor for conditional comments and compile-time variable
-   * replacement replacement in text files (synchronous version).
-   *
-   * @param source String to preprocess, in ascii or utf8 codification.
-   * @param filename Absolute or relative to the current directory.
-   * @param options User options
-   * @returns Object with `code` and `map` properties
-   */
-  function jscc (
-    source: string,
-    filename?: string | null | undefined,
-    options?: Jscc.Options | null | undefined,
-  ): Jscc.Result;
 }

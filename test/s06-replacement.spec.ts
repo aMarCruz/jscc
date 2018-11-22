@@ -30,7 +30,7 @@ describe('Code Replacement', function () {
       'OK',
       '{"v1":"OK","v2":"OK"}',
     ].join('\n'), {
-      // eslint-disable-next-line no-new-wrappers
+      // tslint:disable-next-line:no-construct
       values: { _V1: 'OK', _V2: new String('OK'), _O: { v1: 'OK', v2: new String('OK') } },
     })
   })
@@ -49,7 +49,7 @@ describe('Code Replacement', function () {
       "'OK'",
       '{"v1":"\\"OK\\"","v2":"\'OK\'"}',
     ].join('\n'), {
-      // eslint-disable-next-line no-new-wrappers
+      // tslint:disable-next-line:no-construct
       values: { _V1: '"OK"', _V2: new String("'OK'"), _O: { v1: '"OK"', v2: new String("'OK'") } },
     })
   })
@@ -89,6 +89,21 @@ describe('Code Replacement', function () {
       `/${R1}/`,
       `/${R1}/`,
       `{"r":"${R2}"}`,
+    ].join('\n'))
+  })
+
+  it('Regex must escape quoted `source` only in objects', function () {
+    testStr([
+      `//#set _R1 /"'/`,
+      `//#set _O {r:/"'/}`,
+      '/$_R1/',
+      '/$_O.r/',
+      '$_O',
+    ],
+    [
+      `/"'/`,
+      `/"'/`,
+      `{"r":"\\\"'"}`,
     ].join('\n'))
   })
 
@@ -160,15 +175,21 @@ describe('Code Replacement', function () {
     ].join('\n'))
   })
 
-  it('must replace nested object properties (prop value)', function () {
+  it('must replace nested object properties (primitive values)', function () {
     testStr('$_O.p1.p2.p3', '1', { values: {
       _O: { p1: { p2: { p3: 1 } } },
     } })
   })
 
-  it('must replace nested object properties (object)', function () {
+  it('must replace nested object properties (object values)', function () {
     testStr('$_O.p1.p2', '{"p3":1}', { values: {
       _O: { p1: { p2: { p3: 1 } } },
+    } })
+  })
+
+  it('must handle quoted values in object properties', function () {
+    testStr('$_O', '{"s1":"a\\\"s","s2":"a\'s","s3":"a\'\\\"s"}', { values: {
+      _O: { s1: 'a"s', s2: "a's", s3: 'a\'"s' },
     } })
   })
 
@@ -176,6 +197,27 @@ describe('Code Replacement', function () {
     testStr('$_O1.p1.p2$_O2.p1.p2', 'V1', { values: {
       _O1: { p1: { p2: 'V' } },
       _O2: { p1: { p2: 1 } },
+    } })
+  })
+
+  it('must ignore properties that follows primitive values', function () {
+    testStr('$_O.p.ext', 'V.ext', { values: {
+      _O: { p: 'V' },
+    } })
+  })
+
+  it('must ignore properties enclosed by brackets', function () {
+    testStr('$_O["p"]', '{"p":"V"}["p"]', { values: {
+      _O: { p: 'V' },
+    } })
+    testStr('$_A[0]', '["V"][0]', { values: {
+      _A: ['V'],
+    } })
+  })
+
+  it('must replace values in arrays, with dot notation', function () {
+    testStr('$_A.1', '2', { values: {
+      _A: [1, 2],
     } })
   })
 
@@ -189,6 +231,93 @@ describe('Code Replacement', function () {
     testStr('$_A.0', '{"p1":{"p2":1}}', { values: {
       _A: [{ p1: { p2: 1 } }],
     } })
+  })
+
+  it('must handle quoted elements in arrays', function () {
+    testStr('$_A', '["a\\\"s","a\'s","a\'\\\"s"]', { values: {
+      _A: ['a"s', "a's", 'a\'"s'],
+    } })
+  })
+
+  it('must replace the same value multiple times', function () {
+    testStr('$_A$_A\n$_A$_A', 'ZZ\nZZ', { values: {
+      _A: 'Z',
+    } })
+  })
+
+  it('must replace the same value multiple times (arrays)', function () {
+    testStr('$_A.0$_A.0\n$_A.0$_A.0', 'ZZ\nZZ', { values: {
+      _A: ['Z'],
+    } })
+  })
+
+  it('escape single quotes in string, if required by `escapeQuotes`', function () {
+    testStr('$_S', "str\\'s", {
+      escapeQuotes: 'single',
+      values: { _S: "str's" },
+    })
+    testStr("'$_S'", "'str\\'s'", {
+      escapeQuotes: 'single',
+      values: { _S: "str's" },
+    })
+    testStr('"$_S"', '"str\\\'s"', {
+      escapeQuotes: 'single',
+      values: { _S: "str's" },
+    })
+  })
+
+  it('escape double quotes in string, if required by `escapeQuotes`', function () {
+    testStr('$_S', 'str\\\"s', {
+      escapeQuotes: 'double',
+      values: { _S: 'str"s' },
+    })
+    testStr('"$_S"', '"str\\"s"', {
+      escapeQuotes: 'double',
+      values: { _S: 'str"s' },
+    })
+    testStr("'$_S'", "'str\\\"s'", {
+      escapeQuotes: 'double',
+      values: { _S: 'str"s' },
+    })
+  })
+
+  it('escape both single and quotes in string, if required by `escapeQuotes`', function () {
+    testStr('$_S', '\\"str\\\'s\\"', {
+      escapeQuotes: 'both',
+      values: { _S: '"str\'s"' },
+    })
+  })
+
+  it('must not escape quotes in regexes, even if `escapeQuotes` is used', function () {
+    testStr([
+      `//#set _R1 /"'/`,
+      `//#set _O {r:/"'/}`,
+      '/$_R1/',
+      '/$_O.r/',
+      '$_O',
+    ],
+    [
+      `/"'/`,
+      `/"'/`,
+      `{"r":"\\\"'"}`,
+    ].join('\n'), {
+      escapeQuotes: 'both',
+    })
+  })
+
+  it('must escape quotes in the output of nested values, if required', function () {
+    testStr('$_O.s', "str\\'s", {
+      escapeQuotes: 'single',
+      values: { _O: { s: "str's" } },
+    })
+    testStr('$_O.s', 'str\\"s', {
+      escapeQuotes: 'double',
+      values: { _O: { s: 'str"s' } },
+    })
+    testStr('$_O.s', '\\"str\\\'s\\"', {
+      escapeQuotes: 'both',
+      values: { _O: { s: '"str\'s"' } },
+    })
   })
 
 })

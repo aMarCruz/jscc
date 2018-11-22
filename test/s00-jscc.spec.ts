@@ -1,11 +1,10 @@
 import expect from 'expect.js'
 import path from 'path'
-import getPkgVer from '../getpkgver'
 
 // common helpers
+import { preprocStr } from './helpers/preproc-str'
 import { testFile } from './helpers/test-file'
 import { testFileStr } from './helpers/test-file-str'
-import { preprocStr } from './helpers/preproc-str'
 import { testStr } from './helpers/test-str'
 
 process.chdir(__dirname)
@@ -58,9 +57,14 @@ describe('jscc', function () {
     testStr('$_VERSION', /^@$/, { values: { _VERSION: '@' } })
   })
 
-  it('empty user defined `_VERSION` must be overwritten', function () {
+  it('empty user defined `_VERSION` must be preserved, if it is a string', function () {
+    testStr('$_VERSION', '', { values: { _VERSION: '' } })
+  })
+
+  it('user defined `_VERSION` must be overwritten, if it is not a string', function () {
     const version = require('../package.json').version as string
-    testStr('$_VERSION', version, { values: { _VERSION: '' } })
+    testStr('$_VERSION', version, { values: { _VERSION: null } })
+    testStr('$_VERSION', version, { values: { _VERSION: true } })
   })
 
   it('support conditional comments with the `#if expression` syntax', function () {
@@ -129,25 +133,6 @@ describe('jscc', function () {
   it('must preserve tuf8 BOM in the source', function () {
     // Seems nodeJS uses \uFEFF to mark any enconding
     testFileStr('utf8-bom.txt', /^\ufeffOK$/)
-  })
-
-  describe('The utility getPkgVer', function () {
-
-    it('must to work the same as to get the value of _VERSION', function () {
-      const version = require('../package.json').version as string
-      const result = getPkgVer()
-      expect(result).to.be(version)
-    })
-
-    it('must return undefined if no version could found.', function () {
-      const cwdir = __dirname
-
-      process.chdir(path.resolve('/'))
-      const result = getPkgVer()
-      process.chdir(cwdir)
-      expect(result).to.be(undefined)
-    })
-
   })
 
 })

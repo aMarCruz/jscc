@@ -1,6 +1,6 @@
 // typings
-import { Parser } from './parser'
-import { ParseHelper } from './parse-helper'
+import ParseHelper = require('./parse-helper')
+import Parser = require('./parser')
 
 /**
  * Workaround for possible error with a BOM mark in the source.
@@ -10,7 +10,7 @@ const withoutBOMmark = (source: string) => {
 }
 
 /**
- * This routine search for the start of jscc directives through a buffer.
+ * This routine searches for the start of jscc directives through a buffer.
  * For each match found, calls the parser with the result of the regex and
  * the parser returns the next position from which to continue the search.
  *
@@ -18,7 +18,7 @@ const withoutBOMmark = (source: string) => {
  * @param source The original source
  * @param helper Functions to flush and remove chuncks
  */
-export const parseChunks = function (parser: Parser, source: string, helper: ParseHelper) {
+const parseChunks = function _parseChunks (parser: Parser, source: string, helper: ParseHelper) {
 
   let hideStart = 0             // keep the start position of the block to hide
   let lastIndex = 0             // keep the position of the next chunk to parse
@@ -67,3 +67,5 @@ export const parseChunks = function (parser: Parser, source: string, helper: Par
   // This final flush is necessary, don't delete it
   return helper.commit(lastIndex, source.length, true) || changes
 }
+
+export = parseChunks
