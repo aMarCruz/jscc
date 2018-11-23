@@ -50,7 +50,7 @@ const stringObject = (obj: object) => {
 
   // toISOString throw with NaN dates, toJSON returns `null`
   if (obj instanceof Date) {
-    str = isNaN(+obj) ? 'null' : obj.toJSON()
+    str = isNaN(+obj) ? 'NaN' : obj.toJSON()
 
   } else if (obj instanceof RegExp) {
     str = obj.source
@@ -59,7 +59,7 @@ const stringObject = (obj: object) => {
     str = obj.valueOf()
 
   } else if (obj instanceof Number) {
-    str = isNaN(+obj) ? 'null' : String(obj)
+    str = String(obj)
 
   } else {
     str = JSON.stringify(obj, stringifyFn)
@@ -82,17 +82,17 @@ const stringObject = (obj: object) => {
  */
 const stringValue = (value: any, escapeQuotes: number) => {
 
-  // `NaN` returns `null`, for consistency with `JSON.stringify`
-  // eslint-disable-next-line no-self-compare
-  if (value !== value) {
-    return 'null'
+  // Trap falsy values, including `NaN` and empty strings.
+  if (!value) {
+    return String(value)
   }
 
-  // stringObject accepts `NaN` object but no `null`s.
-  if (value && typeof value === 'object') {
+  // stringObject accepts `NaN` objects.
+  if (typeof value === 'object') {
     return stringObject(value)
   }
 
+  // Other non-falsy primitive values.
   let str = String(value)
 
   if (escapeQuotes & QUOTES.Single) {

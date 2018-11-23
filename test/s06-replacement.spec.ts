@@ -54,22 +54,31 @@ describe('Code Replacement', function () {
     })
   })
 
-  it('Date objects must output its unquoted JSON value', function () {
+  it('Valid dates must output its unquoted JSON value, if alone', function () {
     const D = new Date('2018-10-17T00:00:00.0Z').toJSON()
     testStr([
-      `//#set _V1 new Date("${D}")`,
-      '//#set _V2 new Date(NaN)',
-      `//#set _O {v1:new Date("${D}"),v2:new Date(NaN)}`,
-      '$_V1',
-      '$_V2',
-      '$_O.v1,$_O.v2',
+      `//#set _V new Date("${D}")`,
+      `//#set _O {v:new Date("${D}")}`,
+      '$_V',
+      '$_O.v',
+    ], `${D}\n${D}`)
+  })
+
+  it('Valid dates in JSON objects output has its quoted JSON value', function () {
+    const D = new Date('2018-10-17T00:00:00.0Z').toJSON()
+    testStr([
+      `//#set _O {v:new Date("${D}")}`,
       '$_O',
-    ], [
-      D,
-      'null',
-      D + ',null',
-      `{"v1":"${D}","v2":null}`,
-    ].join('\n'))
+    ], `{"v":"${D}"}`)
+  })
+
+  it("Invalid dates must outputs 'NaN', if alone", function () {
+    testStr([
+      '//#set _V new Date(NaN)',
+      `//#set _O {v:new Date(NaN)}`,
+      '$_V',
+      '$_O.v',
+    ], 'NaN\nNaN')
   })
 
   it('Regex objects must output its unquoted `source` value', function () {
@@ -92,7 +101,7 @@ describe('Code Replacement', function () {
     ].join('\n'))
   })
 
-  it('Regex must escape quoted `source` only in objects', function () {
+  it('Regex must escape quoted `source` only in JSON objects', function () {
     testStr([
       `//#set _R1 /"'/`,
       `//#set _O {r:/"'/}`,
@@ -107,7 +116,7 @@ describe('Code Replacement', function () {
     ].join('\n'))
   })
 
-  it('Infinity, -Infinity, and NaN numbers has custom output', function () {
+  it('Infinity and -Infinity has custom output in JSON objects', function () {
     const v1 = JSON.stringify(Number.MAX_VALUE)
     const v2 = JSON.stringify(Number.MIN_VALUE)
     testStr([
@@ -115,7 +124,7 @@ describe('Code Replacement', function () {
       '//#set _V2 new Number(Infinity)',
       '//#set _V3 -Infinity',
       '//#set _V4 new Number(-Infinity)',
-      '//#set _O {v1:Infinity, v2:-Infinity, v3:new Number(-Infinity), v4:NaN}',
+      '//#set _O {v1:_V1, v2:_V2, v3:_V3, v4:_V4}',
       '$_V1',
       '$_V2',
       '$_V3',
@@ -132,20 +141,27 @@ describe('Code Replacement', function () {
       '-Infinity',
       '-Infinity',
       'Infinity',
+      'Infinity',
       '-Infinity',
       '-Infinity',
-      'null',
-      `{"v1":${v1},"v2":${v2},"v3":${v2},"v4":null}`,
+      `{"v1":${v1},"v2":${v1},"v3":${v2},"v4":${v2}}`,
     ].join('\n'))
   })
 
-  it('`NaN` values on object instances must output `null`', function () {
+  it('Primitive `NaN` or Number(NaN) must output an unquoted `NaN`', function () {
     testStr([
-      '//#set _N new Number(NaN)',
-      '//#set _D new Date(NaN)',
+      '//#set _N NaN',
+      '//#set _D new Number(NaN)',
       '$_N',
       '$_D',
-    ], 'null\nnull')
+    ], 'NaN\nNaN')
+  })
+
+  it('`NaN` numbers (primitive or object) must output `null` in JSON objects', function () {
+    testStr([
+      '//#set _O {v1:NaN, v2:new Number(NaN)}',
+      '$_O',
+    ], '{"v1":null,"v2":null}')
   })
 
   it('Do not confuse `Infinity` with the string "Infinity"', function () {

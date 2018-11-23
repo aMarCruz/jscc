@@ -6,7 +6,7 @@
   "rules": {
     "align": [true, "parameters", "statements", "elements"],
     "arrow-return-shorthand": { "severity": "warn" },
-    "cyclomatic-complexity": [true, 7],
+    "cyclomatic-complexity": [true, 6],
     "interface-name": false,
     "no-bitwise": false,
     "no-trailing-whitespace": true,

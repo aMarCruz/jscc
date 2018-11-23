@@ -2,18 +2,21 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## \[1.1.0] - 2018-11-21
+## \[1.1.0] - 2018-11-22
 
 ### Added
 
 - Option `escapeQuotes` to escape quotes in the output of strings (not wrapped by JSON output).
 - TSLint instead of ESLint, for compatibility with CI services.
-- Codacy quality and coverage services.
+- [Codacy](https://api.codacy.com) quality and coverage services.
 
 ### Changed
 
 - Convert `export.default` to `module.exports` in internal modules. Since it is a node.js library, it looks right and produces a cleaner code.
 - The output of chained properties stops with a primitive value, to avoid some compile-time errors.
+- Updated Readme, add "vulnerabilities" badge from [snyk.io](https://snyk.io).
+- Regression of the replacement of `NaN` with `null` since the later alters the behavior of the Date ctor.
+- Simplify the `parseChunk` function, logic moved to the `parseHelper` class.
 
 ### Removed
 
