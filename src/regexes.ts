@@ -1,13 +1,7 @@
 /*
   regex list
 */
-
-/**
- * Stringified regex to compose another regex that supports single and double
- * quoted strings.
- * This is some complex regex, but is the most efficient implementation in JS.
- */
-const STR_BASE = /"[^"\n\r\\]*(?:\\(?:\r\n?|[\S\s])[^"\n\r\\]*)*"/.source
+import _R = require('perf-regexes')
 
 /**
  * Stringified regex to match a valid jscc varname.
@@ -81,7 +75,7 @@ const R = {
    *
    * It has no captures.
    */
-  S_STRINGS: `${STR_BASE}|${STR_BASE.replace(/"/g, "'")}`,
+  S_STRINGS: _R.JS_STRING.source,
 
 }
 

@@ -49,7 +49,8 @@
   "dependencies": {
     "@jsbits/escape-regex-str": "^1.0.1",
     "@jsbits/get-package-version": "^1.0.1",
-    "magic-string": "^0.25.1"
+    "magic-string": "^0.25.1",
+    "perf-regexes": "^1.0.1"
   },
   "devDependencies": {
     "@types/expect.js": "^0.3.29",

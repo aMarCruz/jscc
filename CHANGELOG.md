@@ -7,7 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Added
 
 - More tests.
-- markdownlint config
+- markdownlint config.
+- perf-regexes as devDependency, for the `JS_STRINGS` regex.
 
 ## \[1.1.0] - 2018-11-22
 
