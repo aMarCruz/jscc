@@ -101,7 +101,7 @@ describe('Code Replacement', function () {
     ].join('\n'))
   })
 
-  it('Regex must escape quoted `source` only in JSON objects', function () {
+  it('Regex must escape embeded double quotes only in JSON objects', function () {
     testStr([
       `//#set _R1 /"'/`,
       `//#set _O {r:/"'/}`,
@@ -200,6 +200,24 @@ describe('Code Replacement', function () {
   it('must replace nested object properties (object values)', function () {
     testStr('$_O.p1.p2', '{"p3":1}', { values: {
       _O: { p1: { p2: { p3: 1 } } },
+    } })
+  })
+
+  it('must stop on any property with primitive value', function () {
+    testStr('$_O.p1.ext', 'foo.ext', { values: {
+      _O: { p1: 'foo' },
+    } })
+  })
+
+  it('must replace unexistent properties with `undefined`', function () {
+    testStr('$_O.p1.p2', 'undefined', { values: {
+      _O: { p1: {} },
+    } })
+    testStr('$_O.p1.p2', 'undefined.p2', { values: {
+      _O: {},
+    } })
+    testStr('$_O.foo', 'undefined', { values: {
+      _O: { p1: 1 },
     } })
   })
 
