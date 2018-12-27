@@ -149,7 +149,7 @@ const getValueInfo = (value: any, match: RegExpExecArray) => {
 const remapVars = function _remapVars (props: JsccProps, fragment: string, start: number) {
 
   // node.js is async, make local copy of the regex
-  const re = RegExp(R.VARS_TO_REPL)
+  const re = new RegExp(R.VARS_TO_REPL)
   let changes = false
   let match
 
