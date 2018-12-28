@@ -54,7 +54,7 @@ describe('Code Replacement', function () {
     })
   })
 
-  it('Valid dates must output its unquoted JSON value, if alone', function () {
+  it('valid dates must output its unquoted JSON value, if alone', function () {
     const D = new Date('2018-10-17T00:00:00.0Z').toJSON()
     testStr([
       `//#set _V new Date("${D}")`,
@@ -64,7 +64,7 @@ describe('Code Replacement', function () {
     ], `${D}\n${D}`)
   })
 
-  it('Valid dates in JSON objects output has its quoted JSON value', function () {
+  it('valid dates in JSON objects output has its quoted JSON value', function () {
     const D = new Date('2018-10-17T00:00:00.0Z').toJSON()
     testStr([
       `//#set _O {v:new Date("${D}")}`,
@@ -72,7 +72,7 @@ describe('Code Replacement', function () {
     ], `{"v":"${D}"}`)
   })
 
-  it("Invalid dates must outputs 'NaN', if alone", function () {
+  it("invalid dates must outputs 'NaN', if alone", function () {
     testStr([
       '//#set _V new Date(NaN)',
       `//#set _O {v:new Date(NaN)}`,
@@ -81,7 +81,7 @@ describe('Code Replacement', function () {
     ], 'NaN\nNaN')
   })
 
-  it('Regex objects must output its unquoted `source` value', function () {
+  it('regex objects must output its unquoted `source` value', function () {
     const R1 = /\s\\/.source
     const R2 = R1.replace(/\\/g, '\\\\')
     testStr([
@@ -101,7 +101,7 @@ describe('Code Replacement', function () {
     ].join('\n'))
   })
 
-  it('Regex must escape embeded double quotes only in JSON objects', function () {
+  it('regex must escape embeded double quotes only in JSON objects', function () {
     testStr([
       `//#set _R1 /"'/`,
       `//#set _O {r:/"'/}`,
@@ -116,7 +116,7 @@ describe('Code Replacement', function () {
     ].join('\n'))
   })
 
-  it('Infinity and -Infinity has custom output in JSON objects', function () {
+  it('Infinity and -Infinity within JSON objects has custom output', function () {
     const v1 = JSON.stringify(Number.MAX_VALUE)
     const v2 = JSON.stringify(Number.MIN_VALUE)
     testStr([
@@ -148,7 +148,7 @@ describe('Code Replacement', function () {
     ].join('\n'))
   })
 
-  it('Primitive `NaN` or Number(NaN) must output an unquoted `NaN`', function () {
+  it('primitive `NaN` and Number(NaN) must output an unquoted `NaN`', function () {
     testStr([
       '//#set _N NaN',
       '//#set _D new Number(NaN)',
@@ -157,14 +157,14 @@ describe('Code Replacement', function () {
     ], 'NaN\nNaN')
   })
 
-  it('`NaN` numbers (primitive or object) must output `null` in JSON objects', function () {
+  it('primitive `NaN` and Number(NaN) within JSON objects must output `null`', function () {
     testStr([
       '//#set _O {v1:NaN, v2:new Number(NaN)}',
       '$_O',
     ], '{"v1":null,"v2":null}')
   })
 
-  it('Do not confuse `Infinity` with the string "Infinity"', function () {
+  it('do not confuse `Infinity` with the string "Infinity"', function () {
     testStr([
       '//#set _V1 "Infinity"',
       '//#set _V2 new String("Infinity")',
@@ -285,7 +285,7 @@ describe('Code Replacement', function () {
     } })
   })
 
-  it('escape single quotes in string, if required by `escapeQuotes`', function () {
+  it('must escape single quotes in strings if `escapeQuotes: "single"`', function () {
     testStr('$_S', "str\\'s", {
       escapeQuotes: 'single',
       values: { _S: "str's" },
@@ -300,7 +300,7 @@ describe('Code Replacement', function () {
     })
   })
 
-  it('escape double quotes in string, if required by `escapeQuotes`', function () {
+  it('must escape double quotes in strings if `escapeQuotes: "double"`', function () {
     testStr('$_S', 'str\\\"s', {
       escapeQuotes: 'double',
       values: { _S: 'str"s' },
@@ -315,7 +315,7 @@ describe('Code Replacement', function () {
     })
   })
 
-  it('escape both single and quotes in string, if required by `escapeQuotes`', function () {
+  it('must escape both single and double quotes if `escapeQuotes: "both"`', function () {
     testStr('$_S', '\\"str\\\'s\\"', {
       escapeQuotes: 'both',
       values: { _S: '"str\'s"' },
@@ -339,7 +339,7 @@ describe('Code Replacement', function () {
     })
   })
 
-  it('must escape quotes in the output of nested values, if required', function () {
+  it('must escape quotes in the output of alone values, if required', function () {
     testStr('$_O.s', "str\\'s", {
       escapeQuotes: 'single',
       values: { _O: { s: "str's" } },

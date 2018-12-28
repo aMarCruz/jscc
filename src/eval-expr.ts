@@ -30,8 +30,10 @@ const evalExpr = function _evalExpr (ctx: JsccProps, exprStr: string) {
 
   let result
   try {
+    // The '\n' in the Function ctor will support single-line comments,
+    // if required by a future version.
     // eslint-disable-next-line no-new-func
-    const fn = new Function('', `return (${expr});`)
+    const fn = new Function('', `return (${expr}\n);`)
     result = fn.call(values)
   } catch (e) {
     result = exprStr

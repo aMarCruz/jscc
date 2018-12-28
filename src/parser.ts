@@ -2,6 +2,7 @@
   Parser for conditional comments
 */
 import evalExpr = require('./eval-expr')
+import getExpr = require('./get-expr')
 import R = require('./regexes')
 
 interface StateInfo {
@@ -43,7 +44,7 @@ const S_RE_BASE = /^[ \t\f\v]*(?:@)#(if|ifn?set|elif|else|endif|set|unset|error)
  *
  * $1: If the regex found a comment, it is '//', otherwise, it is `undefined`
  */
-const R_LINECMNT = RegExp(`${R.S_STRINGS}|(//)`, 'g')
+// const R_LINECMNT = RegExp(`${R.S_STRINGS}|(/)`, 'g')
 
 /**
  * Conditional comments parser
@@ -157,18 +158,8 @@ class Parser {
       this._emitError(`Expression expected for #${key}`)
     }
 
-    R_LINECMNT.lastIndex = 0
-    let match
-
-    // tslint:disable-next-line:no-conditional-assignment
-    while ((match = R_LINECMNT.exec(expr))) {
-      if (match[1]) {
-        expr = expr.slice(0, match.index)
-        break
-      }
-    }
-
-    return expr.trim()
+    // get a normalized expression
+    return getExpr(key, expr)
   }
 
   /**

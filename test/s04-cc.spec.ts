@@ -152,6 +152,43 @@ describe('Conditional Compilation', function () {
     ], 'OK')
   })
 
+  it('string content should not be confused with a comment', function () {
+    testStr([
+      '//#set _V "://" //cmnt1',
+      '//#if _V==="://" //cmnt2',
+      'OK',
+      '//#endif',
+    ], 'OK')
+  })
+
+  it('regex content should not be confused with a comment (#8)', function () {
+    testStr([
+      '//#set _R /\\// //cmnt1',
+      '$_R',
+    ], '\\/')
+  })
+
+  it('ES6TL content should not be confused with a comments (#8)', function () {
+    testStr([
+      '//#set _V `${{foo:\'//\'}} //` //cmnt1',
+      'OK',
+    ], 'OK')
+  })
+
+  it('must handle nested ES6 TL within expressions', function () {
+    testStr([
+      '//#set _V `${{foo:`//`}} //` //cmnt1',
+      'OK',
+    ], 'OK')
+  })
+
+  it('must handle escaped brackets within ES6 TL', function () {
+    testStr([
+      '//#set _V `\\${$\\{ ${" OK "} \\}` //',
+      '$_V',
+    ], '${${  OK  }')
+  })
+
   it('can open a multiline comment with one directive and close it with other', function () {
     testStr([
       '/*#if 0 // This one opens the multiline comment',
@@ -184,6 +221,27 @@ describe('Conditional Compilation', function () {
     testFileStr('var-hide-output', /import [\S\s]+\$_DEBUGOUT\('DEBUG'\)/, { values: { _DEBUG: 1 } })
   })
 
+  it('must handle the trailing comment in any directive', function () {
+    const source = [
+      '//#unset _A//x',
+      '//#set _A//x',
+      '//#set _A=1//x',
+      '//#if !_A//x',
+      '//#elif _A//x',
+      'OK',
+      '//#else//x',
+      'false',
+      '//#endif//x',
+    ].join('\n')
+    testStr(source, 'OK')
+  })
+
+  it('must handle the trailing comment even in `#error` expressions', function () {
+    expect(function () {
+      preprocStr('//#error "boom"//x')
+    }).to.throwError(/boom\b/)
+  })
+
   it('does not confuse comments that seems like directives', function () {
     const source = [
       '///#set _A 1',
@@ -204,83 +262,101 @@ describe('Conditional Compilation', function () {
     ], 'OK')
   })
 
-  describe('Conditional Compilation must throw on...', function () {
+})
 
-    it('unclosed conditional blocks', function () {
-      expect(function () {
-        preprocStr('//#if _FOO\n#endif')
-      }).to.throwError(/Unexpected end of file/)
-    })
+//#endregion Conditional Compilation
+//#region Conditional Compilation Errors -------------------------------------
 
-    it('unbalanced block', function () {
-      expect(function () {
-        preprocStr('//#if true\n//#elif 1')
-      }).to.throwError(/Unexpected end of file/)
-    })
+describe('Conditional Compilation must throw on...', function () {
 
-    it('unbalanced blocks even inside removed blocks', function () {
-      expect(() => {
-        preprocStr([
-          '//#if 1',
-          'OK',
-          '//#else',
-          '  //#if 1',
-          '//#endif',
-        ].join('\n'))
-      }).to.throwError(/Unexpected end of file/)
-    })
+  it('unclosed conditional blocks', function () {
+    expect(function () {
+      preprocStr('//#if _FOO\n#endif')
+    }).to.throwError(/Unexpected end of file/)
+  })
 
-    it('`#elif` without its previous `#if`', function () {
-      expect(() => {
-        preprocStr('#if 1\n//#elif 1\n//#endif')
-      }).to.throwError(/Unexpected #elif/)
-    })
+  it('unbalanced block', function () {
+    expect(function () {
+      preprocStr('//#if true\n//#elif 1')
+    }).to.throwError(/Unexpected end of file/)
+  })
 
-    it('`#elif` inside `#else`', function () {
-      expect(() => {
-        preprocStr('//#if 1\n//#else\n//#elif 1\n//#endif')
-      }).to.throwError(/Unexpected #elif/)
-    })
+  it('unbalanced blocks even inside removed blocks', function () {
+    expect(() => {
+      preprocStr([
+        '//#if 1',
+        'OK',
+        '//#else',
+        '  //#if 1',
+        '//#endif',
+      ].join('\n'))
+    }).to.throwError(/Unexpected end of file/)
+  })
 
-    it('`#else` after `#else`', function () {
-      expect(() => {
-        preprocStr('//#if 1\n//#else\n//#else\n')
-      }).to.throwError(/Unexpected #else/)
-    })
+  it('`#elif` without its previous `#if`', function () {
+    expect(() => {
+      preprocStr('#if 1\n//#elif 1\n//#endif')
+    }).to.throwError(/Unexpected #elif/)
+  })
 
-    it('`#endif` without a previous block', function () {
-      expect(() => {
-        preprocStr('#if 1\n//#endif\n')
-      }).to.throwError(/Unexpected #endif/)
-    })
+  it('`#elif` inside `#else`', function () {
+    expect(() => {
+      preprocStr('//#if 1\n//#else\n//#elif 1\n//#endif')
+    }).to.throwError(/Unexpected #elif/)
+  })
 
-    it('`#endif` widthout a previous block (duplicated #endif)', function () {
-      expect(function () {
-        preprocStr('//#if 1\n//#endif\n//#endif')
-      }).to.throwError(/Unexpected #endif/)
-    })
+  it('`#else` after `#else`', function () {
+    expect(() => {
+      preprocStr('//#if 1\n//#else\n//#else\n')
+    }).to.throwError(/Unexpected #else/)
+  })
 
-    it('directive without expression throws "Expression expected"', function () {
-      expect(function () {
-        preprocStr('//#if\n//#endif')
-      }).to.throwError(/Expression expected/)
-    })
+  it('`#endif` without a previous block', function () {
+    expect(() => {
+      preprocStr('#if 1\n//#endif\n')
+    }).to.throwError(/Unexpected #endif/)
+  })
 
-    it('directive without expression inside removed blocks', function () {
-      expect(function () {
-        preprocStr([
-          '//#if 1',
-          'OK',
-          '//#else',
-          '  //#if',
-          '  //#endif',
-          '//#endif',
-        ].join('\n'))
-      }).to.throwError(/Expression expected/)
-    })
+  it('`#endif` widthout a previous block (duplicated #endif)', function () {
+    expect(function () {
+      preprocStr('//#if 1\n//#endif\n//#endif')
+    }).to.throwError(/Unexpected #endif/)
+  })
 
+  it('directive without expression throws "Expression expected"', function () {
+    expect(function () {
+      preprocStr('//#if\n//#endif')
+    }).to.throwError(/Expression expected/)
+  })
+
+  it('directive without expression inside removed blocks', function () {
+    expect(function () {
+      preprocStr([
+        '//#if 1',
+        'OK',
+        '//#else',
+        '  //#if',
+        '  //#endif',
+        '//#endif',
+      ].join('\n'))
+    }).to.throwError(/Expression expected/)
+  })
+
+  it('evaluating unclosed brackets in expression', function () {
+    expect(function () {
+      preprocStr('//#set _V { //')
+    }).to.throwError()
+    expect(function () {
+      preprocStr('//#set _V } //')
+    }).to.throwError()
+  })
+
+  it('evaluating unclosed ES6TL in expression', function () {
+    expect(function () {
+      preprocStr('//#set _V ` //')
+    }).to.throwError()
   })
 
 })
 
-//#endregion Conditional Compilation
+//#endregion Conditional Compilation Errors

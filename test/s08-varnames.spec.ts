@@ -98,36 +98,36 @@ describe('Compile-time Variables', function () {
     } })
   })
 
-  describe('Errors in compile-time variables & evaluation', function () {
+})
 
-    it('incorrect memvar names in `#set` throw "Invalid memvar"', function () {
-      expect(function () {
-        preprocStr('//#set =_FOO')
-      }).to.throwError(/Invalid memvar/)
-    })
+describe('Errors in compile-time variables & evaluation', function () {
 
-    it('incorrect memvar names in `#unset` throw "Invalid memvar"', function () {
-      expect(function () {
-        preprocStr('//#unset FOO')
-      }).to.throwError(/Invalid memvar/)
-    })
+  it('incorrect memvar names in `#set` throw "Invalid memvar"', function () {
+    expect(function () {
+      preprocStr('//#set =_FOO')
+    }).to.throwError(/Invalid memvar/)
+  })
 
-    it('non-existing memvars removed with `#unset` does not throw', function () {
-      expect(preprocStr('//#unset _FOO')).to.be('')
-    })
+  it('incorrect memvar names in `#unset` throw "Invalid memvar"', function () {
+    expect(function () {
+      preprocStr('//#unset FOO')
+    }).to.throwError(/Invalid memvar/)
+  })
 
-    it('syntax errors in expressions throws during the evaluation', function () {
-      expect(function () {
-        preprocStr('//#set _FOO 1+3)')
-      }).to.throwError(/ in expression /)
-    })
+  it('non-existing memvars removed with `#unset` does not throw', function () {
+    expect(preprocStr('//#unset _FOO')).to.be('')
+  })
 
-    it('other runtime errors throws (like accesing props of `undefined`)', function () {
-      expect(function () {
-        preprocStr('//#set _FOO _FOO.foo.bar')
-      }).to.throwError(/undefined/)
-    })
+  it('syntax errors in expressions throws during the evaluation', function () {
+    expect(function () {
+      preprocStr('//#set _FOO 1+3)')
+    }).to.throwError(/ in expression /)
+  })
 
+  it('other runtime errors throws (like accesing props of `undefined`)', function () {
+    expect(function () {
+      preprocStr('//#set _FOO _FOO.foo.bar')
+    }).to.throwError(/undefined/)
   })
 
 })

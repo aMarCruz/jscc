@@ -37,7 +37,7 @@ const stringifyFn = (_: string, value: any) => {
 /**
  * Stringify a non-null object `obj` using the following rules:
  *
- * - NaN    -> 'null' (a Number or Date with a NaN value)
+ * - NaN    -> 'NaN' (a Number or Date with a NaN value)
  * - RegExp -> Regex source
  * - Date   -> Date string in JSON format
  * - other  -> JSON.stringify(obj)
@@ -72,7 +72,8 @@ const stringObject = (obj: object) => {
  * Stringify the given value using this rules:
  *
  * - undefined   -> 'undefined'
- * - null / NaN  -> 'null'
+ * - null        -> 'null'
+ * - NaN         -> 'NaN'
  * - Infinity    -> 'Infinity'
  * - RegExp      -> JSON.stringify(value.source)
  * - objects     -> JSON.stringify(value) (Date as ISO string or `null`)
@@ -106,8 +107,8 @@ const stringValue = (value: any, escapeQuotes: number) => {
 }
 
 /**
- * Returns the value pointed by match[2] and extends match[1] to cover
- * the replacement length.
+ * Returns the value pointed by match[2] and adjust match[1] to cover
+ * the length of the replacement.
  *
  * @param value Source value or object
  * @param match Contain the property path in $2

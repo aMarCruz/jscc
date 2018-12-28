@@ -8,11 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 - More tests.
 - markdownlint config.
-- perf-regexes as devDependency, for the `JS_STRINGS` regex.
+- perf-regexes as dependency, for the `JS_STRINGS` regex.
+- skip-regex as dependency to help solving #8
 
 ### Fixed
 
 - Regex in remap-vars being copied by reference.
+- #8 removal of trailing comment is breaking expressions.
 
 ## \[1.1.0] - 2018-11-22
 
