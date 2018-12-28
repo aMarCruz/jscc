@@ -24,12 +24,6 @@ jscc works in NodeJS 6 or later, with minimal dependencies and footprint. It was
 
 jscc is **not** a minifier tool, but it does well what it does...
 
-## Important
-
-jscc v1.0 is a complete rewrite and may have breaking changes for you.
-
-Please see [Changes in This Version](#changes-in-this-version) for more info, the Wiki will be updated in a few days.
-
 ## Install
 
 Use the instructions of the plugin for your toolchain:
@@ -129,21 +123,15 @@ Closes the current conditional block.
 
 Generates an exception at compile time with the result of the given character `expression`.
 
-You can learn more about this in the Wiki:
-
-- [Basic Syntax](https://github.com/aMarCruz/jscc/wiki/Syntax)
-- [Examples & Tricks](https://github.com/aMarCruz/jscc/wiki/Examples)
+You can learn more about this in the [Wiki](https://github.com/aMarCruz/jscc/wiki).
 
 ## Changes in This Version
 
-- New `escapeQuotes` option, to escape quotes in the output of strings (not wrapped by JSON output).
-- The output of chained properties stops with a primitive value, to avoid some compile-time errors.
-- Regression of the replacement of `NaN` with `null` since the later alters the behavior of the Date ctor.
-- Removed the ESM export, CommonJS in ES6 is the only exported format.
-- ESLint replaced with TSLint, for compatibility with CI services.
-- Added Codacy quality test, removed Coverity.
+- Closes #8 : Removel of trailing jscc comment is breaking the expression.
+- Removed Codebeat tests.
+- More unity tests.
 
-For important changes in v1.0.0, please see the [Changelog](CHANGELOG.md).
+See details in the [Changelog](CHANGELOG.md).
 
 ## Known Issues
 
@@ -190,8 +178,6 @@ Thanks for your support!
 The [MIT](LICENSE) License.
 
 &copy; 2018, Alberto Martínez
-
----
 
 [![Windows Build][appveypr-badge]][appveypr-url]
 [![CodeClimate][climate-badge]][climate-url]
