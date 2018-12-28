@@ -1,6 +1,6 @@
 {
   "name": "jscc",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Tiny and powerful preprocessor for conditional comments and compile-time replacements in source files",
   "main": "dist/jscc.js",
   "source": "src/jscc.ts",
@@ -52,8 +52,8 @@
     "url": "https://github.com/aMarCruz/jscc"
   },
   "dependencies": {
-    "@jsbits/escape-regex-str": "^1.0.1",
-    "@jsbits/get-package-version": "^1.0.1",
+    "@jsbits/escape-regex-str": "^1.0.2",
+    "@jsbits/get-package-version": "^1.0.2",
     "magic-string": "^0.25.1",
     "perf-regexes": "^1.0.1",
     "skip-regex": "^1.0.2"
@@ -61,14 +61,14 @@
   "devDependencies": {
     "@types/expect.js": "^0.3.29",
     "@types/mocha": "^5.2.5",
-    "@types/node": "^10.12.7",
+    "@types/node": "^10.12.18",
     "expect.js": "^0.3.1",
     "mocha": "^5.2.0",
     "nyc": "^13.1.0",
     "rimraf": "^2.6.2",
     "ts-node": "^7.0.1",
     "tslib": "^1.9.3",
-    "tslint": "^5.11.0",
-    "typescript": "^3.1.6"
+    "tslint": "^5.12.0",
+    "typescript": "^3.2.2"
   }
 }

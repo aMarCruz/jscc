@@ -123,11 +123,12 @@ const getExpr = function (key: string, expr: string) {
     recognize this due the invalid syntax. By inserting '=' fix it.
   */
   if (key === 'set') {
-    const mm = R.ASSIGNMENT.exec(expr)
+    const mm = R.ASSIGNMENT.exec(expr)!
+    const ss = mm && mm[2]
 
     // care of something like `//#set _V //cmnt`
-    if (mm && mm[2] && !mm[2].startsWith('//')) {
-      expr = `${mm[1]}=${mm[2]}`
+    if (ss) {
+      expr = ss.startsWith('//') ? mm[1] : `${mm[1]}=${ss}`
     }
   }
 

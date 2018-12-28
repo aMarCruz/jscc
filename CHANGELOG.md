@@ -14,11 +14,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Changed
 
 - Revised .gitignore
+- Update dependencies and devDependencies.
 
 ### Fixed
 
 - Regex in remap-vars being copied by reference.
 - #8 removal of trailing comment is breaking expressions.
+- tslint errors.
 
 ### Removed
 

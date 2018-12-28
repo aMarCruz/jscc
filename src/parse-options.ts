@@ -5,6 +5,8 @@ import R = require('./regexes')
 
 import Jscc from '../index'
 
+interface RawValues { [k: string]: any }
+
 /**
  * Default prefixes, equivalent to `['//', '/*', '<!--']`
  */
@@ -86,19 +88,26 @@ const getPrefixes = (opts: Jscc.Options) => {
 }
 
 /**
- * getValues helper to check a varname and transfer it value to `dest`.
+ * Make a shallow copy of values, checking its names.
  *
- * @param this The context is the user defined values
- * @param dest Object holding the values
- * @param v jscc varname
+ * @param src User provided values
  */
-const parseValue = function (this: Jscc.Values, dest: Jscc.Values, v: string) {
-  if (R.VARNAME.test(v)) {
-    dest[v] = this[v]
-  } else {
-    errorHandler(`Invalid memvar name: ${v}`)
+const copyValues = function (src: RawValues) {
+
+  const keys = Object.keys(src)
+  const dest = Object.create(null) as any
+
+  for (let v, i = 0; i < keys.length; i++) {
+    v = keys[i]
+
+    if (R.VARNAME.test(v)) {
+      dest[v] = src[v]
+    } else {
+      errorHandler(`Invalid memvar name: ${v}`)
+    }
   }
-  return dest
+
+  return dest as Jscc.Values
 }
 
 /**
@@ -111,17 +120,14 @@ const parseValue = function (this: Jscc.Values, dest: Jscc.Values, v: string) {
  * @param filename User provided filename
  * @param srcValues User values
  */
-const getValues = (filename: string, srcValues: { [k: string]: any }) => {
+const getValues = (filename: string, srcValues: RawValues) => {
 
   if (typeof srcValues !== 'object') {
     return errorHandler('jscc values must be a plain object')
   }
 
   // Get a shallow copy of the values, must be set per file
-  const values = Object.keys(srcValues).reduce(
-    parseValue.bind(srcValues),
-    Object.create(null) as Jscc.Values
-  )
+  const values = copyValues(srcValues)
 
   // To allow optimization, keep already existing version.
   if (typeof values._VERSION !== 'string') {

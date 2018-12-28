@@ -26,7 +26,7 @@ jscc works in NodeJS 6 or later, with minimal dependencies and footprint. It was
 
 jscc is **not** a minifier tool, but it does well what it does...
 
-## IMPORTANT
+## Important
 
 jscc v1.0 is a complete rewrite and may have breaking changes for you.
 
@@ -149,6 +149,21 @@ For important changes in v1.0.0, please see the [Changelog](CHANGELOG.md).
 
 - If you are using ESM imports with Typescript, you must enable `esModuleInterop` in your tsconfig.json or use `import jscc = require("jscc")`.
 - jscc does not work in a browser, but it must work without issues on the back-end.
+
+### ES6 TL
+
+Remember that jscc is language agnostic, the following block may or may not work as you think:
+
+```js
+const template = `
+//#if _DEBUG
+console.log('debug mode is on.')
+//#endif
+`
+fs.writeFile('code.js', template, 'utf8')
+```
+
+Directive searching knows nothing about ES6 TL, so the `#if..#endif` within the template will be evaluated at compile-time, just like any other (code.js is written without directives).
 
 ## TODO
 

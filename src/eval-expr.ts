@@ -32,7 +32,7 @@ const evalExpr = function _evalExpr (ctx: JsccProps, exprStr: string) {
   try {
     // The '\n' in the Function ctor will support single-line comments,
     // if required by a future version.
-    // eslint-disable-next-line no-new-func
+    // tslint:disable-next-line:function-constructor
     const fn = new Function('', `return (${expr}\n);`)
     result = fn.call(values)
   } catch (e) {
