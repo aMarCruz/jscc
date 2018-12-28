@@ -9,6 +9,11 @@
   "engines": {
     "node": ">=6.0"
   },
+  "files": [
+    "index.d.ts",
+    "dist",
+    "src"
+  ],
   "scripts": {
     "build": "rimraf ./dist/** && yarn lint && tsc",
     "lint": "tslint *.ts && tslint -p . && tslint -p test",

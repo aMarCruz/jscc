@@ -12,22 +12,20 @@ dist
 !.vscode/tasks.json
 
 # Common git and npm ignored folders and files
-~misc
-cov-int
-coverage
-coverage.*
-lib-cov
-node_modules
-package-lock.json
-yarn.lock
-logs
-pids
+.nyc_output
+.rpt2_cache
 *.pid
 *.seed
 *.tgz
 **/*.bak
 **/*.lcov
 **/*.log
-
-.nyc_output
-.rpt2_cache
+~*
+cov-int
+coverage
+lib-cov
+logs
+node_modules
+package-lock.json
+pids
+yarn.lock
