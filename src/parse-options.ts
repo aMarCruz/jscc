@@ -159,13 +159,13 @@ const parseOptions = function _parseOptions (filename: string, opts: Jscc.Option
   // Create and returns the normalized jscc props, we are done
   return {
     magicStr:   {} as any,  // makes TS happy
+    errorHandler,
     escapeQuotes,
     keepLines:  !!opts.keepLines,
     mapContent: !!opts.mapContent,
     mapHires:   opts.mapHires  !== false,
     sourceMap:  opts.sourceMap !== false,
     prefixes,
-    errorHandler,
     values,
   }
 }

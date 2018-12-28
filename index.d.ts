@@ -1,14 +1,12 @@
 /*
-  jscc v1.0
-
-  @author aMarCruz
+  Type definitions for jscc v1.1.1
   @license MIT
 */
 export = Jscc
 
 /**
- * Preprocessor for conditional comments and compile-time variable
- * replacement replacement in text files (asynchronous version).
+ * Preprocessor for conditional comments and replacement of compile-time
+ * variables in text files (asynchronous version).
  *
  * @param source String to be preprocessed, encoded in utf8.
  * @param filename Absolute or relative path to the current directory.
@@ -23,8 +21,8 @@ declare function Jscc (
 ): void
 
 /**
- * Preprocessor for conditional comments and compile-time variable
- * replacement replacement in text files (synchronous version).
+ * Preprocessor for conditional comments and replacement of compile-time
+ * variables in text files (synchronous version).
  *
  * @param source String to be preprocessed, encoded in utf8.
  * @param filename Absolute or relative path to the current directory.
@@ -47,31 +45,31 @@ declare namespace Jscc {
      * String with the type of quotes to escape in the output of strings:
      * 'single', 'double' or 'both'.
      *
-     * It does not affects the output of regexes or strings contained in the
-     * JSON output of objects.
+     * It does not affects the strings contained in the JSON output of
+     * objects.
      */
     escapeQuotes?: QuoteType
 
     /**
-     * Allows to preserve the empty lines of the directives and blocks that
+     * Allows to preserve the empty lines of directives and blocks that
      * were removed.
      *
-     * Use this option with `sourceMap:false` if you are only interested in
-     * keeping the line count.
+     * Use this option with `sourceMap:false` if you are interested only in
+     * preserve the line count.
      *
      * @default false
      */
     keepLines?: boolean
 
     /**
-     * Include the original source in the sourceMap.
+     * Include the original source in the sourcemap.
      *
      * @default false
      */
     mapContent?: boolean
 
     /**
-     * Makes a hi-res sourceMap.
+     * Makes a hi-res sourcemap.
      *
      * @default true
      */
@@ -86,13 +84,14 @@ declare namespace Jscc {
     prefixes?: string | RegExp | Array<string | RegExp>
 
     /**
-     * Set this option to `false` to suppress source map generation.
+     * Set this option to `false` to suppress the creation of the sourcemap.
      *
-     * _Note:_ In plugins like rollup-plugin-jscc or jscc-brunch, this option
-     * should take its value from equivalent property of the parent tool.
+     * _Note:_ In plugins such as jscc-brunch, this option will take the value
+     * given by the main tool, unless it is explicity defined as `false`
      * @default true
      */
     sourceMap?: boolean
+
     /**
      * Plain object defining the variables used by jscc during the preprocessing.
      *
@@ -107,24 +106,26 @@ declare namespace Jscc {
   }
 
   /**
-   * The result always will be an object with a `code` property and, if
-   * `sourceMap` is required (the default), a `map` property with a raw
-   * sourceMap, or `null` if the buffer did not change.
-   *
-   * If `sourceMap` is not required, the `map` property is ommited.
+   * The result
    */
   interface Result {
+    /**
+     * Processed source text.
+     */
     code: string
+    /**
+     * Raw sourcemap object, or `null` if the buffer did not change.
+     */
     map?: import('magic-string').SourceMap | null
   }
 
   /** Callback for async operation */
   type Callback = (error: Error | null, data?: Jscc.Result) => void
 
+  /** jscc varnames and values */
   interface Values {
     [k: string]: any
     _VERSION: string
     _FILE: string
   }
-
 }

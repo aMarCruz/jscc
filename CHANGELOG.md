@@ -15,6 +15,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 - Revised .gitignore
 - Update dependencies and devDependencies.
+- Update Readme.
+- Replace node 10 with the 'node' in travis config.
 
 ### Fixed
 
@@ -25,6 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Removed
 
 - .npmignore, now using package.json 'files' property.
+- unused ESLint configuration.
 
 ## \[1.1.0] - 2018-11-22
 

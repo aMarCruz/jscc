@@ -1,7 +1,7 @@
 {
   "name": "jscc",
   "version": "1.1.1",
-  "description": "Tiny and powerful preprocessor for conditional comments and compile-time replacements in source files",
+  "description": "Tiny and powerful preprocessor for conditional comments and replacement of compile-time variables in text files",
   "main": "dist/jscc.js",
   "source": "src/jscc.ts",
   "types": "index.d.ts",
@@ -28,7 +28,6 @@
   },
   "keywords": [
     "html",
-    "html5",
     "parser",
     "javascript",
     "typescript",

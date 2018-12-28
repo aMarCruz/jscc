@@ -67,6 +67,10 @@ const skipBracket = (expr: string, start: number, stack: string[]) => {
   return ch ? start + 1 : expr.length
 }
 
+/**
+ * To find the comment (//), it is necessary to skip strings, es6 tl,
+ * brackets, and regexes
+ */
 const RE_EXPR = RegExp(R.S_STRINGS + '|[`/{}]', 'g')
 
 /**
@@ -119,14 +123,15 @@ const getExpr = function (key: string, expr: string) {
   }
 
   /*
-    When an assignment has a regex (ex: _R /\s/), skipRegex will not
-    recognize this due the invalid syntax. By inserting '=' fix it.
+    When an assignment has a regex (ex: `#set _R /\s/`), skipRegex will not
+    recognize it due to invalid syntax. Inserting the missing '=' solves this.
   */
   if (key === 'set') {
     const mm = R.ASSIGNMENT.exec(expr)!
     const ss = mm && mm[2]
 
-    // care of something like `//#set _V //cmnt`
+    // beware of something like `//#set _V //cmnt`
+    // istanbul ignore else
     if (ss) {
       expr = ss.startsWith('//') ? mm[1] : `${mm[1]}=${ss}`
     }

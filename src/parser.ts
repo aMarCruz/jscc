@@ -39,14 +39,6 @@ const ENDIF_MASK = Block.IF | Block.ELSE
 const S_RE_BASE = /^[ \t\f\v]*(?:@)#(if|ifn?set|elif|else|endif|set|unset|error)(?:(?=[ \t])(.*)|\/\/.*)?$/.source
 
 /**
- * Matches a quoted string or a substring that includes the first unquoted
- * double slash (the starting of one-line comments) in a line.
- *
- * $1: If the regex found a comment, it is '//', otherwise, it is `undefined`
- */
-// const R_LINECMNT = RegExp(`${R.S_STRINGS}|(/)`, 'g')
-
-/**
  * Conditional comments parser
  *
  * @param {object} props - The global options

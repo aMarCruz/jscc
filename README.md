@@ -1,12 +1,10 @@
 # jscc
 
 [![jscc on npm][npm-badge]][npm-url]
-[![Windows Build][appveypr-badge]][appveypr-url]
-[![Linux Build][travis-badge]][travis-url]
-[![Codebeat][codebeat-badge]][codebeat-url]
-[![Coverage][codecov-badge]][codecov-url]
-[![Vulnerabilities][snyk-badge]][snyk-url]
 [![License MIT][license-badge]][license-url]
+[![Linux Build][travis-badge]][travis-url]
+[![Codacy][codacy-badge]][codacy-url]
+[![Coverage][codecov-badge]][codecov-url]
 
 Featuring some of the C preprocessor characteristics through special, configurable comments, jscc can be used in any type of files to build multiple versions of your software from the same code base.
 
@@ -73,7 +71,7 @@ Please see the Wiki to know the supported [options](https://github.com/aMarCruz/
 
 ## Directives
 
-jscc works with _directives_ inserted in the text files and prefixed with configurable character sequences, that defaults to `'/*'`, `'//'` and `'<!--'`.
+jscc works with _directives_ inserted in the text and prefixed with configurable character sequences, that defaults to `'/*'`, `'//'` and `'<!--'`.
 
 This directives allows you set or get compile-time variables, and exclude code blocks based in its value.
 
@@ -83,51 +81,53 @@ To be valid, a `<varname>` must match the regular expression `/^_[0-9A-Z][_0-9A-
 
 > That is, it must start with an underscore, followed by a digit or uppercase letter, and then zero or more underscores, digits or uppercase letters. The character `$` has a special use in jscc and is not allowed for varnames.
 
-### **`#set <varname> [=] <value>`**
+### `#set <varname> = <value>`
 
 Defines or redefines a `varname`.
 
 The `value` can be a literal value, another varname, or an expression. If you don't specify a value, it is set to `undefined`.
 
-You can omit the equal sign.
+### `#unset <varname>`
 
-### **`#unset <varname>`**
-
-Removes the given `varname`.
+Removes the definition of the given `varname`.
 
 Both the definition or removal of a varname take immediate effect.
 
-### **`#if <expression>`**
+### `#if <expression>`
 
 Remove the block of code that follows this `#if` if `expression` is _falsy_.
 
 You can nest multiple `#if` blocks.
 
-### **`#ifsef <varname>`**
+### `#ifsef <varname>`
 
 Check the existence of a `varname`.
 
-The returned value is `true` if the variable exists, even if its value is `undefined`. Out of this the behavior of `#ifset` is the same as `#if` so references to the latter will imply both.
+The returned value is `true` if the variable exists, even if its value is `undefined`. Apart from this, the behavior of `#ifset` is the same as `#if`, so references to the latter will imply both.
 
-### **`#ifnsef <varname>`**
+### `#ifnsef <varname>`
 
 This is the opposite to `#ifset`, it returns `false` if the `varname` does not exists.
 
-### **`#elif <expression>`**
+### `#elif <expression>`
 
-The behavior of `#elif` is similar to the JS `else if` construction.
+The behavior of `#elif` is similar to the JS `else if` statement.
 
 The `expression` will be evaluated if the previous `#if` or `#elif` was _falsy_.
 
 You can have zero or more `#elif` directives following one `#if`.
 
-### **`#endif`**
+## `#else`
+
+Includes the block that follows if the previous `#if` or `#elif` expressions were _falsy_.
+
+### `#endif`
 
 Closes the current conditional block.
 
-### **`#error <expression>`**
+### `#error <expression>`
 
-Generates an exception at compile time with the result of the character `expression` provided.
+Generates an exception at compile time with the result of the given character `expression`.
 
 You can learn more about this in the Wiki:
 
@@ -193,35 +193,28 @@ The [MIT](LICENSE) License.
 
 ---
 
-[![Codacy][codacy-badge]][codacy-url]
-[![Codacy Coverage][codacyc-badge]][codacyc-url]
+[![Windows Build][appveypr-badge]][appveypr-url]
 [![CodeClimate][climate-badge]][climate-url]
-[![CodeClimate Coverage][climatec-badge]][climatec-url]
-[![Issues][issues-badge]][issues-url]
+[![Vulnerabilities][snyk-badge]][snyk-url]
+[![Last commit][commits-badge]][commits-url]
 
 <!-- Badges -->
 [npm-badge]:      https://img.shields.io/npm/v/jscc.svg
 [npm-url]:        https://www.npmjs.com/package/jscc
-[license-badge]:  https://img.shields.io/github/license/mashape/apistatus.svg
+[license-badge]:  https://img.shields.io/npm/l/jscc.svg?colorB=blue
 [license-url]:    https://github.com/aMarCruz/jscc/blob/master/LICENSE
 [appveypr-badge]: https://ci.appveyor.com/api/projects/status/hdsef0p6q0oqr127?svg=true
 [appveypr-url]:   https://ci.appveyor.com/project/aMarCruz/jscc
-[travis-badge]:   https://img.shields.io/travis/aMarCruz/jscc.svg
+[travis-badge]:   https://img.shields.io/travis/aMarCruz/jscc.svg?label=travis
 [travis-url]:     https://travis-ci.org/aMarCruz/jscc
 [snyk-badge]:     https://snyk.io/test/github/aMarCruz/jscc/badge.svg?targetFile=package.json
 [snyk-url]:       https://snyk.io/test/github/aMarCruz/jscc?targetFile=package.json
-[codacy-badge]:   https://api.codacy.com/project/badge/Grade/30e8679fcd614227837ad250dd6c4030
+[codacy-badge]:   https://img.shields.io/codacy/grade/30e8679fcd614227837ad250dd6c4030.svg
 [codacy-url]:     https://www.codacy.com/app/aMarCruz/jscc?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=aMarCruz/jscc&amp;utm_campaign=Badge_Grade
-[codacyc-badge]:  https://api.codacy.com/project/badge/Coverage/30e8679fcd614227837ad250dd6c4030
-[codacyc-url]:    https://www.codacy.com/app/aMarCruz/jscc?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=aMarCruz/jscc&amp;utm_campaign=Badge_Coverage
-[codebeat-badge]: https://codebeat.co/badges/7e15dc9d-42a8-4ea2-8bae-a21c09490fbe
-[codebeat-url]:   https://codebeat.co/projects/github-com-amarcruz-jscc-dev
-[codecov-badge]:  https://codecov.io/gh/aMarCruz/jscc/branch/dev/graph/badge.svg
+[codecov-badge]:  https://img.shields.io/codecov/c/github/aMarCruz/jscc.svg
 [codecov-url]:    https://codecov.io/gh/aMarCruz/jscc
 [climate-badge]:  https://codeclimate.com/github/aMarCruz/jscc/badges/gpa.svg
 [climate-url]:    https://codeclimate.com/github/aMarCruz/jscc
-[issues-badge]:   https://codeclimate.com/github/aMarCruz/jscc/badges/issue_count.svg
-[issues-url]:     https://codeclimate.com/github/aMarCruz/jscc
-[climatec-badge]: https://api.codeclimate.com/v1/badges/50d60a10ec7c9156b429/test_coverage
-[climatec-url]:   https://codeclimate.com/github/aMarCruz/jscc/test_coverage
+[commits-badge]:  https://img.shields.io/github/last-commit/aMarCruz/jscc.svg
+[commits-url]:    https://github.com/aMarCruz/jscc/commits/master
 [kofi-url]:       https://ko-fi.com/C0C7LF7I
