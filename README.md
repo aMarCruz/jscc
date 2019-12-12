@@ -93,13 +93,13 @@ Remove the block of code that follows this `#if` if `expression` is _falsy_.
 
 You can nest multiple `#if` blocks.
 
-### `#ifsef <varname>`
+### `#ifset <varname>`
 
 Check the existence of a `varname`.
 
 The returned value is `true` if the variable exists, even if its value is `undefined`. Apart from this, the behavior of `#ifset` is the same as `#if`, so references to the latter will imply both.
 
-### `#ifnsef <varname>`
+### `#ifnset <varname>`
 
 This is the opposite to `#ifset`, it returns `false` if the `varname` does not exists.
 
