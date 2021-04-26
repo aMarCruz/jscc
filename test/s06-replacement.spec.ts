@@ -368,7 +368,7 @@ describe('Code Replacement', function () {
     })
     testStr('$_ECHO("hi", "hi2", "hi3")', 'hihi2hi3', {
       escapeQuotes: 'single',
-      values: { _ECHO: (...args: string[]) => args.join("") },
+      values: { _ECHO: (...args: string[]) => args.join('') },
     })
   })
 })

@@ -167,7 +167,7 @@ const remapVars = function _remapVars (props: JsccProps, fragment: string, start
         try {
           replacement = props.values[vname](...args)
         } catch (e) {
-          // Silence errors  
+          // Silence errors
         }
         props.magicStr.overwrite(
           index,
