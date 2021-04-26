@@ -69,6 +69,14 @@ const R = {
   VARS_TO_REPL: mkRe(/(?:(\$@)((?:\.\w+)+)*)(?=\W|$)/, 'g'),
 
   /**
+   * Matches macros in the format "$_VAR(args [, args])".
+   *
+   * - $1: var name
+   * - $2: list of arguments
+   */
+  MACROS_TO_REPL: mkRe(/(?:(\$@)\(((?:(?:(?:[0-9\s])|(?:"[^"]*")),?)*)\))(?=\W|$)/, 'g'),
+
+  /**
    * Template to create regexes that match single and double quoted strings.
    *
    * Takes care of embedded (escaped) quotes and EOLs of multiline strings.

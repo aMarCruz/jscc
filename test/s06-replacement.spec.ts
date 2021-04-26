@@ -354,4 +354,21 @@ describe('Code Replacement', function () {
     })
   })
 
+  it('functional macros should work', function () {
+    testStr('$_O()', 'test', {
+      escapeQuotes: 'single',
+      values: { _O: () => 'test' },
+    })
+  })
+
+  it('arguments in functional macros should work', function () {
+    testStr('$_ECHO("hi")', 'hi', {
+      escapeQuotes: 'single',
+      values: { _ECHO: (arg: string) => arg },
+    })
+    testStr('$_ECHO("hi", "hi2", "hi3")', 'hihi2hi3', {
+      escapeQuotes: 'single',
+      values: { _ECHO: (...args: string[]) => args.join("") },
+    })
+  })
 })

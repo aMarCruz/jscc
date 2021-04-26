@@ -82,7 +82,6 @@ const stringObject = (obj: object) => {
  * @param value any value, including undefined
  */
 const stringValue = (value: any, escapeQuotes: number) => {
-
   // Trap falsy values, including `NaN` and empty strings.
   if (!value) {
     return String(value)
@@ -151,8 +150,35 @@ const remapVars = function _remapVars (props: JsccProps, fragment: string, start
 
   // node.js is async, make local copy of the regex
   const re = new RegExp(R.VARS_TO_REPL)
+  const macros = new RegExp(R.MACROS_TO_REPL)
   let changes = false
   let match
+  const functionVNames = new Set()
+
+  // tslint:disable-next-line:no-conditional-assignment
+  while (match = macros.exec(fragment)) {
+    const vname = match[1].slice(1)    // strip the prefix '$'
+
+    if (vname in props.values) {
+      const index = start + match.index
+      if (typeof props.values[vname] === 'function') {
+        const args = match[2].split(',').map((v) => v.trim().replace(/^"/, '').replace(/"$/, ''))
+        let replacement = ''
+        try {
+          replacement = props.values[vname](...args)
+        } catch (e) {
+          // Silence errors  
+        }
+        props.magicStr.overwrite(
+          index,
+          index + match[1].length + match[2].length + 2,
+          stringValue(replacement, props.escapeQuotes)
+        )
+        functionVNames.add(vname)
+        changes = true
+      }
+    }
+  }
 
   // $1: varname including the prefix '$'
   // $2: optional property name(s)
@@ -161,7 +187,7 @@ const remapVars = function _remapVars (props: JsccProps, fragment: string, start
   while (match = re.exec(fragment)) {
     const vname = match[1].slice(1)    // strip the prefix '$'
 
-    if (vname in props.values) {
+    if (vname in props.values && !functionVNames.has(vname)) {
       const index = start + match.index
       const vinfo = getValueInfo(props.values[vname], match)
 
