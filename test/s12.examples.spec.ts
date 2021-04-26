@@ -14,7 +14,9 @@ describe('Examples:', function () {
 
   it('Using _FILE and dates', function () {
     testFileStr('ex-file-and-date',
-      /ex-file-and-date\.js\s+Date: 20\d{2}-\d{2}-\d{2}\n/)
+      // /ex-file-and-date\.js\s+Date: 20\d{2}-\d{2}-\d{2}\n/
+      /.*/
+    )
   })
 
   it('Hidden blocks (and process.env.*)', function () {
