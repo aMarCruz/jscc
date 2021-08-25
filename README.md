@@ -162,7 +162,7 @@ Directive searching knows nothing about ES6 TL, so the `#if..#endif` within the 
 - [ ] Express middleware
 - [X] WebPack plugin
 - [ ] Better documentation
-- [ ] Syntax hilighter for some editores? Perhaps you want to contribute.
+- [ ] Syntax hilighter for some editors? Perhaps you want to contribute.
 
 ## Support my Work
 
