@@ -32,6 +32,7 @@ Use the instructions of the plugin for your toolchain:
 - [Brunch](https://www.npmjs.com/package/jscc-brunch)
 - [Browserify](https://www.npmjs.com/package/jsccify)
 - [Gulp](https://www.npmjs.com/package/gulp-jscc)
+- [WebPack](https://github.com/OrangeLab/webpack-plugin-jscc) - Thanks to @duanlikang
 
 or install the jscc package from npm if you need direct access to its API:
 
@@ -159,7 +160,7 @@ Directive searching knows nothing about ES6 TL, so the `#if..#endif` within the 
 - [ ] Explanatory error messages, with location of the error
 - [ ] Different prefixes for different file types
 - [ ] Express middleware
-- [ ] WebPack plugin
+- [X] WebPack plugin
 - [ ] Better documentation
 - [ ] Syntax hilighter for some editores? Perhaps you want to contribute.
 
