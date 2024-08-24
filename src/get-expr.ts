@@ -68,6 +68,24 @@ const skipBracket = (expr: string, start: number, stack: string[]) => {
 }
 
 /**
+ * Handles the extraction of an expression with a comment block slash or regular
+ * comment slash.
+ *
+ * @param expr Raw expression
+ * @param index Position of this slash
+ */
+const handleSlashExtraction = function (expr: string, index: number) {
+  if (expr[index + 1] === '/') {
+    return expr.slice(0, index)
+  }
+
+  if (expr[index - 1] === '*') {
+    return expr.slice(0, index - 1)
+  }
+  return null
+}
+
+/**
  * To find the comment (//), it is necessary to skip strings, es6 tl,
  * brackets, and regexes
  */
@@ -99,8 +117,9 @@ const extractExpr = function (expr: string, start: number) {
         re.lastIndex = skipES6TL(expr, mm.index, stack)
         break
       case '/':
-        if (expr[mm.index + 1] === '/') {
-          return expr.slice(0, mm.index)
+        const result = handleSlashExtraction(expr, mm.index)
+        if (result) {
+          return result
         }
         re.lastIndex = skipRegex(expr, mm.index)
     }
